@@ -15,10 +15,10 @@
         'views/res_config_views.xml',
         'data/mtd_server_config.xml',
         'views/vat_return_view.xml',
-        'views/menu_item_view.xml',
         'data/mtd_channel.xml',
         'views/account_invoice_view.xml',
         'views/pop_up_message_view.xml',
         'views/mtd_vat_payments_view.xml',
-        'views/vat_liabilities_view.xml'],
+        'views/vat_liabilities_view.xml',
+        'views/menu_item_view.xml'],
 }
