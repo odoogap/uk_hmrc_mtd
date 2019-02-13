@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="channel_mtd" model="mail.channel">
+        <field name="name">MTD</field>
+        <field name="public">public</field>
+        <field name="description">Discussion about mtd process.</field>
+    </record>
+</odoo>

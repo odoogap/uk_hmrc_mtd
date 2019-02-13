@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="config_mtd_server_ip" model="ir.config_parameter">
+        <field name="key">mtd.server</field>
+        <field name="value">www.odoogap.com</field>
+    </record>
+
+    <record id="config_mtd_server_port" model="ir.config_parameter">
+        <field name="key">mtd.port</field>
+        <field name="value">443</field>
+    </record>
+
+    <record id="config_mtd_server_db" model="ir.config_parameter">
+        <field name="key">mtd.db</field>
+        <field name="value">v12_odoo</field>
+    </record>
+
+    <record id="config_mtd_hmrc_url" model="ir.config_parameter">
+        <field name="key">mtd.hmrc.url</field>
+        <field name="value">https://test-api.service.hmrc.gov.uk</field>
+    </record>
+</odoo>

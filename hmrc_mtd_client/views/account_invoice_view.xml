@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="invoice_tree" model="ir.ui.view">
+        <field name="name">account.invoice.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-danger">mtd_date > date_invoice</attribute>
+            </xpath>
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="mtd_date" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="invoice_supplier_tree" model="ir.ui.view">
+        <field name="name">account.invoice.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-danger">mtd_date > date_invoice</attribute>
+            </xpath>
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="mtd_date" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="invoice_form" model="ir.ui.view">
+        <field name="name">account.invoice.form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_info']//field[@name='account_id']" position="after">
+                <field name="bad_debt" attrs="{'invisible': ['|',('state','=','draft'), ('type','in',['out_refund', 'in_refund', 'in_invoice'])]}"/>
+                <field name="bad_debt_date" readonly="1" attrs="{'invisible': ['|',('state','=','draft'), ('type','in',['out_refund', 'in_refund', 'in_invoice'])]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_mtd_account_invoice_search" model="ir.ui.view">
+        <field name="model">account.invoice</field>
+        <field name="arch" type="xml">
+            <search string="due_invoices">
+                <filter name='mtd_due_invoice' string="mtd due" domain="[('mtd_date', '>', '')]"/>
+            </search>
+        </field>
+    </record>
+</odoo>
