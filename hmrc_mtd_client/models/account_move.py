@@ -11,9 +11,3 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     is_mtd_submitted = fields.Boolean('mtd state', default=False)
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
-    bad_debt = fields.Boolean(related="invoice_id.bad_debt", store=True)

@@ -31,6 +31,14 @@
                             <field name="fuel_base" widget="monetary"/>
                         </group>
                     </group>
+                    <group>
+                        <group>
+                            <field name="bad_vat" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="bad_base" widget="monetary"/>
+                        </group>
+                    </group>
 
                     <footer>
                         <button string="Calculate" name='vat_calculation' type="object" class="btn-primary"

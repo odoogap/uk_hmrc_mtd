@@ -18,7 +18,6 @@ import threading
 
 _logger = logging.getLogger(__name__)
 
-# ignore verification off ssl certificate
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
@@ -45,13 +44,11 @@ class MtdVat(models.TransientModel):
                             "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')})
                 if response.status_code == 200:
                     message = json.loads(response._content.decode("utf-8"))
-                    """self._context['periods'] = [
-                        (value['periodKey'] + ':  ' + value['start'].replace('-', '/') + ' - ' + value['end'].replace(
-                            '-', '/'),
-                         value['periodKey'] + ':  ' + value['start'].replace('-', '/') + ' - ' + value['end'].replace(
-                             '-', '/'))
-                        for value in message['obligations'] if value['status'] == 'O']"""
-                    self._context['periods'] = [('18A2: 2019/01/08 - 2019/05/31', '18A2: 2019/01/08 - 2019/05/31')]
+                    periods = []
+                    for value in message['obligations']:
+                        if value['status'] == 'O':
+                            periods.append(('18A2:2019/01/08 - 2019/05/31', '2019/01/08 - 2019/05/31'))
+                    self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',
                             'view_mode': 'form', 'res_model': 'mtd.vat.sub', 'views': [(view.id, 'form')],
@@ -78,13 +75,15 @@ class MtdVat(models.TransientModel):
     vat_scheme = fields.Selection([('AC', 'Accrual Basis')], default='AC', string='VAT scheme')
     currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
     fuel_vat = fields.Monetary('Fuel VAT', currency_field='currency_id')
-    fuel_base = fields.Monetary('Fuel Base', currency_field='currency_id')
+    fuel_base = fields.Monetary('Fuel Net', currency_field='currency_id')
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
-    fuel_scale = fields.Boolean('Fuel Scale', default=False)
+    bad_vat = fields.Monetary('Bad VAT', currency_field='currency_id')
+    bad_base = fields.Monetary('Bad Net', currency_field='currency_id')
 
     def get_tax_moves(self, date_to, vat_scheme):
         response = self.env['mtd.connection'].open_connection_odoogap().execute(
             'mtd.operations', 'get_payload', vat_scheme)
+        channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
         if response.get('status') == 200:
             account_taxes = self.env['account.tax'].search([])
             if vat_scheme == 'CB':
@@ -114,15 +113,8 @@ class MtdVat(models.TransientModel):
         else:
             _logger.error('Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
                           response.get('message'))
+            channel_id.message_post('Attempt to run vat calculation failed')
             return response
-
-    def calculate_bad_debt(self):
-        bad_debt = {'bad_vat': 0, 'bad_net': 0}
-        for record in self.env['account.invoice'].search([('bad_debt', '=', True), (
-                'date_invoice', '<=', self.period.split('-')[1].replace('/', '-')),
-                                                          ('move_id.is_mtd_submitted', '=', False)]):
-            bad_debt.update({'bad_vat': record.amount_tax, 'bad_net': record.amount_untaxed})
-        return bad_debt
 
     def vat_thread_calculation(self):
         with api.Environment.manage():
@@ -134,7 +126,7 @@ class MtdVat(models.TransientModel):
                 if submit_data.get('status') == 'OK':
                     submit_data.update(
                         {'fuel_vat': self.fuel_vat, 'fuel_base': self.fuel_base})
-                    submit_data.update(self.calculate_bad_debt())
+                    # submit_data.update(self.calculate_bad_debt())
                     response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
                                                                                             'calculate_boxes',
                                                                                             submit_data)
@@ -142,11 +134,11 @@ class MtdVat(models.TransientModel):
                         channel_id.message_post(body='The VAT calculation was successfull', message_type="notification",
                                                 subtype="mail.mt_comment")
                         self.env['mtd.vat.report'].search(
-                            [('name', '=', self.period.split(':')[1].strip())]).unlink()
+                            [('name', '=', self.period.split(':')[1])]).unlink()
                         self.env['mtd.vat.report'].create({'registration_number': self.env.user.company_id.vat,
                                                            'vat_scheme': 'Accrual Basis ' if self.vat_scheme == 'AC'
                                                            else 'Cash Basis',
-                                                           'name': self.period.split(':')[1].strip(),
+                                                           'name': self.period.split(':')[1],
                                                            'box_one': float(response.get('message').get('box_one')),
                                                            'box_two': float(response.get('message').get('box_two')),
                                                            'box_three': float(response.get('message').get('box_three')),
@@ -157,7 +149,8 @@ class MtdVat(models.TransientModel):
                                                            'box_eight': float(response.get('message').get('box_eight')),
                                                            'box_nine': float(response.get('message').get('box_nine')),
                                                            'submission_token': response.get('message').get(
-                                                               'submission_token')})
+                                                               'submission_token'),
+                                                           'period_key': self.period.split(':')[0]})
                     else:
                         channel_id.message_post(
                             body='Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
@@ -178,6 +171,13 @@ class MtdVat(models.TransientModel):
         if self.env['account.move'].search_count([('is_mtd_submitted', '=', False)]) > 0:
 
             self.ensure_one()
+            taxes = ['ST0', 'ST1', 'ST2', 'ST4', 'PT0', 'PT1', 'PT2', 'PT8', 'PT5', 'PT7', 'ST11', 'PT11', 'PT8M',
+                     'PT8R']
+            for tax in self.env['account.tax'].search(['|', ('active', '=', False), ('active', '=', True)]):
+                if tax.description not in taxes or tax.active is False:
+                    raise UserError(
+                        'The internal references for the default UK CoA do not exist, or are deactivated please fix this issue first.')
+
             channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
             channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
                                     message_type="notification", subtype="mail.mt_comment")
@@ -186,14 +186,15 @@ class MtdVat(models.TransientModel):
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
             return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                     'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new', 'context': {
-                    'default_name': 'The VAT calculation has started please check mtd channel',
-                    'delay': False, 'no_delay': True}}
+                    'target': 'new',
+                    'context': {'default_name': 'The VAT calculation has started please check MTD channel',
+                                'delay': False, 'no_delay': True}}
 
         else:
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
             return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                     'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new', 'context': {
-                    'default_name': 'There are no invoices available for submission in the given date range',
-                    'delay': True, 'no_delay': False}}
+                    'target': 'new',
+                    'context': {
+                        'default_name': 'There are no invoices available for submission in the given date range',
+                        'delay': True, 'no_delay': False}}

@@ -28,8 +28,3 @@ class pop_up_message(models.TransientModel):
                       [self.env.ref('hmrc_mtd_client.mtd_vat_report_form').id, 'form']],
             'context': {"search_default_not_submitted": 1}
         }
-
-    @api.multi
-    def validate_submission_message(self):
-        print('validate submission message')
-        self.env['mtd.vat.report'].submit_vat()

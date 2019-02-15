@@ -9,8 +9,6 @@
 				<footer>
 					<button string="Ok" class="btn-primary" special="cancel"  invisible="context.get('no_delay',True)"/>
 					<button string="Ok" class="btn-primary" type="object" name="validate_pop_up" invisible="context.get('delay',True)"/>
-					<button string="Submit VAT" class="btn-primary" type="object" name="validate_submission_message" invisible="context.get('submission',True)"/>
-					<button string="Cancel" special="cancel" invisible="context.get('submission',True)"/>
 				</footer>
 			</form>
 		</field>

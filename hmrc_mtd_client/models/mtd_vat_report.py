@@ -19,8 +19,8 @@ class MtdVatReport(models.Model):
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
     registration_number = fields.Char('registration_number')
     vat_scheme = fields.Char('VAT Scheme')
-    # name = fields.Char('Period Key')
     name = fields.Char('Period Covered')
+    period_key = fields.Char('Period Key')
     submission_date = fields.Datetime('Submission Date')
     box_one = fields.Monetary('Box one', currency_field='currency_id')
     box_one_adj = fields.Monetary('Box one adjustment', currency_field='currency_id')
@@ -55,11 +55,6 @@ class MtdVatReport(models.Model):
     @api.model
     def create(self, values):
         res = super(MtdVatReport, self).create(values)
-        """
-        for account_move in self.env['account.move'].search(
-                [('date', '<=', res.name.split('-')[1]), ('date', '>=', res.name.split('-')[0])]):
-            account_move.is_mtd_submitted = True
-        """
         res.write({'vatDueSales': res.box_one + res.box_one_adj, 'vatDueAcquisitions': res.box_two + res.box_two_adj,
                    'totalVatDue': res.box_three + res.box_three_adj,
                    'vatReclaimedCurrPeriod': res.box_four + res.box_four_adj,
@@ -68,6 +63,7 @@ class MtdVatReport(models.Model):
                    'totalValueGoodsSuppliedExVAT': res.box_eight + res.box_eight_adj,
                    'totalAcquisitionsExVAT': res.box_nine + res.box_nine_adj})
         return res
+
 
     @api.multi
     def write(self, values):
@@ -163,16 +159,6 @@ class MtdVatReport(models.Model):
             return action
 
     @api.multi
-    def submit_vat_declaration(self):
-        view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-        return {'name': 'Notice', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                'target': 'new',
-                'context': {
-                    'default_name': 'When you submit this VAT information you are making a legal declaration that the information is true and complete.\n A false declaration can result in prosecution.',
-                    'submission': False}}
-
-    @api.multi
     def submit_vat(self):
         for rec in self:
             boxes = {'vatDueSales': round(rec.vatDueSales, 2), 'vatDueAcquisitions': round(rec.vatDueAcquisitions, 2),
@@ -180,7 +166,7 @@ class MtdVatReport(models.Model):
                      'vatReclaimedCurrPeriod': round(rec.vatReclaimedCurrPeriod, 2),
                      'netVatDue': abs(round(rec.netVatDue, 2)),
                      'totalValueSalesExVAT': round(rec.totalValueSalesExVAT, 0),
-                     'totalValuePurchasesExVAT': round(rec.totalValuePurchasesExVAT, 0), 'periodKey': rec.name,
+                     'totalValuePurchasesExVAT': round(rec.totalValuePurchasesExVAT, 0), 'periodKey': rec.period_key,
                      'finalised': True,
                      'totalValueGoodsSuppliedExVAT': round(rec.totalValueGoodsSuppliedExVAT, 0),
                      'totalAcquisitionsExVAT': round(rec.totalAcquisitionsExVAT, 0)}
@@ -197,15 +183,15 @@ class MtdVatReport(models.Model):
                          'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer ' + api_token}, json=boxes)
 
             if response.status_code == 201:
-                view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-                self.env['mtd.connection'].sudo().open_connection_odoogap().execute(
-                    'mtd.operations', 'validate_submission', self.submission_token)
-                self.write({'is_submitted': True, 'submission_date': datetime.datetime.now()})
+                view = rec.env.ref('hmrc_mtd_client.pop_up_message_view')
+                rec.env['mtd.connection'].sudo().open_connection_odoogap().execute(
+                    'mtd.operations', 'validate_submission', rec.submission_token)
+                rec.write({'is_submitted': True, 'submission_date': datetime.datetime.now()})
+                rec.env.cr.execute("update account_move set is_mtd_submitted = 't' where date <= '%s'" % (rec.name.split('-')[1]))
                 return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                         'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
                         'target': 'new',
                         'context': {'default_name': 'Successfully Submitted', 'no_delay': False, 'delay': True}}
-
             message = json.loads(response._content.decode("utf-8"))
             raise UserError(
                 'An error has occurred : \nstatus: ' + str(response.status_code) + '\n' + 'message: ' + ''.join(
