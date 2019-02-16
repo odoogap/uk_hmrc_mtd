@@ -47,7 +47,7 @@ class MtdVat(models.TransientModel):
                     periods = []
                     for value in message['obligations']:
                         if value['status'] == 'O':
-                            periods.append(('18A2:2019/01/08 - 2019/05/31', '2019/01/08 - 2019/05/31'))
+                            periods.append(('18A2:2019/01/08 - 2019/01/31', '2019/01/08 - 2019/01/31'))
                     self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',

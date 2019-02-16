@@ -25,8 +25,8 @@
                 <field name="mtd_date" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='date_due']" position="after">
-                <field name="amount_untaxed_signed" string="Net" sum="Net Total"/>
-                <field name="amount_tax" string="VAT" sum="VAT Total"/>
+                <field name="net_amount_total" string="Net" sum="Net Total"/>
+                <field name="vat_amount_total" string="VAT" sum="VAT Total"/>
             </xpath>
         </field>
     </record>
@@ -56,8 +56,8 @@
                 <field name="mtd_date" invisible="1"/>
             </xpath>
             <xpath expr="//field[@name='date_due']" position="after">
-                <field name="amount_untaxed_signed" string="Net" sum="Net Total"/>
-                <field name="amount_tax" string="VAT" sum="VAT Total"/>
+                <field name="net_amount_total" string="Net" sum="Net Total"/>
+                <field name="vat_amount_total" string="VAT" sum="VAT Total"/>
             </xpath>
         </field>
     </record>
