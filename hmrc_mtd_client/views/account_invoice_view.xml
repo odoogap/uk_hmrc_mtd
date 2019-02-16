@@ -56,6 +56,7 @@
             <xpath expr="//field[@name='date_due']" position="after">
                 <field name="net_amount_total" string="Net" sum="Net Total"/>
                 <field name="vat_amount_total" string="VAT" sum="VAT Total"/>
+                <field name="reverse_vat_amount" string="Reverse VAT" sum="Reverse VAT"/>
             </xpath>
         </field>
     </record>

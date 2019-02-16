@@ -125,7 +125,8 @@ class MtdVat(models.TransientModel):
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
                 if submit_data.get('status') == 'OK':
                     submit_data.update(
-                        {'fuel_vat': self.fuel_vat, 'fuel_base': self.fuel_base})
+                        {'fuel_vat': self.fuel_vat, 'fuel_base': self.fuel_base, 'bad_vat': self.bad_vat,
+                         'bad_base': self.bad_base})
                     # submit_data.update(self.calculate_bad_debt())
                     response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
                                                                                             'calculate_boxes',

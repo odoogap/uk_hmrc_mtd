@@ -16,6 +16,8 @@ class AccountInvoice(models.Model):
                                        compute='_compute_net_amount')
     vat_amount_total = fields.Monetary(string='Amount VAT', currency_field='company_currency_id',
                                        compute='_compute_vat_amount')
+    reverse_vat_amount = fields.Monetary(string='Reverse VAT', currency_field='company_currency_id',
+                                         compute='_compute_reverse_vat_amount')
 
     @api.multi
     def _compute_mtd_date(self):
@@ -43,3 +45,8 @@ class AccountInvoice(models.Model):
             self.vat_amount_total = - self.amount_tax
         else:
             self.vat_amount_total = self.amount_tax
+
+    @api.one
+    def _compute_reverse_vat_amount(self):
+        self.reverse_vat_amount = sum(
+            tax_line.amount_total for tax_line in self.tax_line_ids if tax_line.tax_id.description == 'PT8M')

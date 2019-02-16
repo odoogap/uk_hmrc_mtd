@@ -65,7 +65,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Sales'}">
+                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -85,7 +85,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT8'], 'tag_type':'Bills'}">
+                                                context="{'tags': ['PT8'], 'tag_type':'Box 2'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -119,7 +119,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT8'], 'tag_type':'Bills'}">
+                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT8'], 'tag_type':'Box 4'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -168,11 +168,11 @@
                                 </tr>
                                 <tr>
                                     <th width="30%" scope="row">[box 6] Total value of sales and all other outputs
-                                        excluding VAT (including supplies to EC)
+                                        excluding VAT
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11', 'ST4'], 'tag_type':'Sales'}">
+                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11', 'ST4', 'PT8'], 'tag_type':'Box 6'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -192,7 +192,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT7', 'PT8'], 'tag_type':'Bills'}">
+                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT7', 'PT8'], 'tag_type':'Box 7'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -212,7 +212,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST4'], 'tag_type':'Sales'}">
+                                                context="{'tags': ['ST4', 'PT8'], 'tag_type':'Box 8'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -232,7 +232,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT7', 'PT8'], 'tag_type':'Bills'}">
+                                                context="{'tags': ['PT7', 'PT8'], 'tag_type':'Box 9'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
