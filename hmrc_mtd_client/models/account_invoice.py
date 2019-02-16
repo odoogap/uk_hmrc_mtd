@@ -37,9 +37,9 @@ class AccountInvoice(models.Model):
             self.net_amount_total = self.amount_untaxed
 
     @api.one
-    @api.depends('amount_untaxed')
+    @api.depends('amount_tax')
     def _compute_vat_amount(self):
         if self.type in ['out_refund', 'in_refund']:
-            self.vat_amount_total = - self.amount_untaxed
+            self.vat_amount_total = - self.amount_tax
         else:
-            self.vat_amount_total = self.amount_untaxed
+            self.vat_amount_total = self.amount_tax
