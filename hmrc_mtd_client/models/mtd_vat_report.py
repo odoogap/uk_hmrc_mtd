@@ -143,11 +143,9 @@ class MtdVatReport(models.Model):
             view = self.env.ref('hmrc_mtd_client.invoice_tree')
             context = self.env.context.copy()
 
-            if self._context.get('tag_type') == 'Sales':
-                list_view = self.env.ref('hmrc_mtd_client.invoice_tree').id
-                form_view = self.env.ref('account.invoice_form').id
-            else:
-                list_view = self.env.ref('hmrc_mtd_client.invoice_supplier_tree').id
+            list_view = self.env.ref('hmrc_mtd_client.invoice_tree').id
+            form_view = self.env.ref('account.invoice_form').id
+            if self._context.get('tag_type') in ['Box 2', 'Box 4', 'Box 7', 'Box 9']:
                 form_view = self.env.ref('account.invoice_supplier_form').id
 
             context.update(

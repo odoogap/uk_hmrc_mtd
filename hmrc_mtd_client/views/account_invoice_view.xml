@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="invoice_tree" model="ir.ui.view">
+    <!--<record id="invoice_tree" model="ir.ui.view">
         <field name="name">account.invoice.tree</field>
         <field name="model">account.invoice</field>
         <field name="mode">primary</field>
@@ -28,11 +28,12 @@
                 <field name="vat_amount_total" string="VAT" sum="VAT Total"/>
             </xpath>
         </field>
-    </record>
+    </record>-->
 
-    <record id="invoice_supplier_tree" model="ir.ui.view">
+    <record id="invoice_tree" model="ir.ui.view">
         <field name="name">account.invoice.tree</field>
         <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
             <xpath expr="//tree" position="attributes">
