@@ -174,7 +174,7 @@ class MtdVat(models.TransientModel):
             self.ensure_one()
             taxes = ['ST0', 'ST4', 'PT0', 'PT2', 'PT8', 'PT5', 'ST11', 'PT11', 'PT8M',
                      'PT8R']
-            for tax in self.env['account.tax'].search(['|', ('active', '=', False), ('active', '=', True)]):
+            for tax in self.env['account.tax'].search(['|', ('active', '=', False), ('active', '=', True), ('description', 'in', taxes)]):
                 if tax.description not in taxes or tax.active is False:
                     raise UserError(
                         'The internal references for the default UK CoA do not exist, or are deactivated please fix this issue first.')
