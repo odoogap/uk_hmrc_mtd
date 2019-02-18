@@ -172,7 +172,7 @@
                                     </th>
                                     <td width="10%">
                                         <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST1', 'ST2', 'ST11', 'ST4', 'PT8'], 'tag_type':'Box 6'}">
+                                                context="{'tags': ['ST0', 'ST2', 'ST11', 'ST4', 'PT8'], 'tag_type':'Box 6'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
