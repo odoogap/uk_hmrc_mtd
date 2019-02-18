@@ -172,7 +172,7 @@ class MtdVat(models.TransientModel):
         if self.env['account.move'].search_count([('is_mtd_submitted', '=', False)]) > 0:
 
             self.ensure_one()
-            taxes = ['ST0', 'ST1', 'ST2', 'ST4', 'PT0', 'PT1', 'PT2', 'PT8', 'PT5', 'PT7', 'ST11', 'PT11', 'PT8M',
+            taxes = ['ST0', 'ST4', 'PT0', 'PT2', 'PT8', 'PT5', 'ST11', 'PT11', 'PT8M',
                      'PT8R']
             for tax in self.env['account.tax'].search(['|', ('active', '=', False), ('active', '=', True)]):
                 if tax.description not in taxes or tax.active is False:
