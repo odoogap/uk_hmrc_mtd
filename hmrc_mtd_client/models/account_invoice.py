@@ -11,7 +11,6 @@ class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
     mtd_date = fields.Date('Mtd date', compute='_compute_mtd_date', search="_search_mtd_date")
-    is_mtd_date_due = fields.Boolean('Mtd date', compute='_get_is_mtd_due', store='True', default=False)
     net_amount_total = fields.Monetary(string='Amount Net', currency_field='company_currency_id',
                                        compute='_compute_net_amount')
     vat_amount_total = fields.Monetary(string='Amount VAT', currency_field='company_currency_id',
