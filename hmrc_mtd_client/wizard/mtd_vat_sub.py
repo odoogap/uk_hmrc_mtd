@@ -7,8 +7,6 @@
 from odoo import models, fields, api, _
 from odoo import exceptions, _
 from odoo.exceptions import UserError, RedirectWarning
-import ssl
-import os
 import json
 import requests
 import time
@@ -17,10 +15,6 @@ import logging
 import threading
 
 _logger = logging.getLogger(__name__)
-
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class MtdVat(models.TransientModel):
@@ -37,9 +31,9 @@ class MtdVat(models.TransientModel):
                 api_token = self.env['mtd.connection'].refresh_token()
             if self.env.user.company_id.vat:
                 response = requests.get(
-                    hmrc_url + '/organisations/vat/' + str(self.env.user.company_id.vrn) + '/obligations',
+                    '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.user.company_id.vrn)),
                     headers={'Content-Type': 'application/json',
-                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer ' + api_token},
+                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token},
                     params={"to": time.strftime("%Y-%m-%d"),
                             "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')})
                 if response.status_code == 200:
@@ -47,7 +41,11 @@ class MtdVat(models.TransientModel):
                     periods = []
                     for value in message['obligations']:
                         if value['status'] == 'O':
-                            periods.append(('18A2:2019/01/08 - 2019/01/31', '2019/01/08 - 2019/01/31'))
+                            periods.append(('%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
+                                                          value.get('end').replace('-', '/')),
+                                            '%s - %s' % (
+                                                value.get('start').replace('-', '/'),
+                                                value.get('end').replace('-', '/'))))
                     self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',
@@ -56,9 +54,8 @@ class MtdVat(models.TransientModel):
                 else:
                     message = json.loads(response._content.decode("utf-8"))
                     raise UserError(
-                        'An error has occurred : \nstatus: ' + str(
-                            response.status_code) + '\n' + 'message: ' + message.get(
-                            'message'))
+                        'An error has occurred : \n status: %s \n message: %s' % (
+                            str(response.status_code), message.get('message')) + message.get('message'))
 
             raise RedirectWarning('Please set VAT value for your current company',
                                   self.env.ref('base.action_res_company_form').id, _('Go to the configuration panel'))
@@ -174,7 +171,8 @@ class MtdVat(models.TransientModel):
             self.ensure_one()
             taxes = ['ST0', 'ST4', 'PT0', 'PT2', 'PT8', 'PT5', 'ST11', 'PT11', 'PT8M',
                      'PT8R']
-            for tax in self.env['account.tax'].search(['|', ('active', '=', False), ('active', '=', True), ('description', 'in', taxes)]):
+            for tax in self.env['account.tax'].search(
+                    ['|', ('active', '=', False), ('active', '=', True), ('description', 'in', taxes)]):
                 if tax.description not in taxes or tax.active is False:
                     raise UserError(
                         'The internal references for the default UK CoA do not exist, or are deactivated please fix this issue first.')

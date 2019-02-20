@@ -6,14 +6,7 @@
 
 from odoo import models, fields, api, _
 import odoorpc
-import os
-import ssl
 from odoo.exceptions import UserError, RedirectWarning
-
-# ignore verification off ssl certificate
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-        ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class MtdConnection(models.TransientModel):
@@ -39,7 +32,8 @@ class MtdConnection(models.TransientModel):
                              'url': response.get('message')}
             return client_action
         raise UserError(
-            'An error has occurred : \n status: '+str(response.get('status')) + '\n message: '+response.get('message'))
+            'An error has occurred : \n status: %s \n message: %s ' % (
+                str(response.get('status')), response.get('message')))
 
     def refresh_token(self):
         conn = self.open_connection_odoogap()
@@ -51,5 +45,5 @@ class MtdConnection(models.TransientModel):
             return response.get('message').get('token')
         else:
             raise UserError(
-                'An error has occurred : \n status: ' + str(response.get('status')) + '\n message: ' + response.get(
-                    'message'))
+                'An error has occurred : \n status: %s\n message: %s' % (
+                    str(response.get('status')), response.get('message')))

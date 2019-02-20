@@ -7,8 +7,6 @@
 from odoo import models, fields, api, _
 from odoo import exceptions, _
 from odoo.exceptions import UserError, RedirectWarning
-import ssl
-import os
 import json
 import requests
 import time
@@ -16,11 +14,6 @@ import datetime
 import logging
 
 _logger = logging.getLogger(__name__)
-
-# ignore verification off ssl certificate
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class MtdVatPayments(models.TransientModel):
@@ -42,9 +35,9 @@ class MtdVatPayments(models.TransientModel):
                 api_token = self.env['mtd.connection'].refresh_token()
             if self.env.user.company_id.vat:
                 response = requests.get(
-                    hmrc_url + '/organisations/vat/' + str(self.env.user.company_id.vrn) + '/payments',
+                    '%s/organisations/vat/%s/payments' % (hmrc_url, str(self.env.user.company_id.vrn)),
                     headers={'Content-Type': 'application/json',
-                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer ' + api_token,
+                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token,
                              'Gov-Test-Scenario': 'MULTIPLE_LIABILITIES'},
                     params={"to": time.strftime("%Y-%m-%d"),
                             "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')})

@@ -64,7 +64,6 @@ class MtdVatReport(models.Model):
                    'totalAcquisitionsExVAT': res.box_nine + res.box_nine_adj})
         return res
 
-
     @api.multi
     def write(self, values):
         if not self.is_submitted:
@@ -175,22 +174,23 @@ class MtdVatReport(models.Model):
 
             if float(token_expire_date) - time.time() < 0:
                 api_token = rec.env['mtd.connection'].refresh_token()
-            response = requests.post(
-                hmrc_url + '/organisations/vat/' + str(rec.env.user.company_id.vrn) + '/returns',
-                headers={'Content-Type': 'application/json',
-                         'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer ' + api_token}, json=boxes)
+            response = requests.post('%s/organisations/vat/%s/returns' % (hmrc_url, str(rec.env.user.company_id.vrn)),
+                                     headers={'Content-Type': 'application/json',
+                                              'Accept': 'application/vnd.hmrc.1.0+json',
+                                              'Authorization': 'Bearer %s' % api_token}, json=boxes)
 
             if response.status_code == 201:
                 view = rec.env.ref('hmrc_mtd_client.pop_up_message_view')
                 rec.env['mtd.connection'].sudo().open_connection_odoogap().execute(
                     'mtd.operations', 'validate_submission', rec.submission_token)
                 rec.write({'is_submitted': True, 'submission_date': datetime.datetime.now()})
-                rec.env.cr.execute("update account_move set is_mtd_submitted = 't' where date <= '%s'" % (rec.name.split('-')[1]))
+                rec.env.cr.execute(
+                    "update account_move set is_mtd_submitted = 't' where date <= '%s'" % (rec.name.split('-')[1]))
                 return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                         'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
                         'target': 'new',
                         'context': {'default_name': 'Successfully Submitted', 'no_delay': False, 'delay': True}}
             message = json.loads(response._content.decode("utf-8"))
             raise UserError(
-                'An error has occurred : \nstatus: ' + str(response.status_code) + '\n' + 'message: ' + ''.join(
-                    [error.get('message') for error in message.get('errors')]))
+                'An error has occurred : \n status: %s \n message: %s' % (str(response.status_code), ''.join(
+                    [error.get('message') for error in message.get('errors')])))
