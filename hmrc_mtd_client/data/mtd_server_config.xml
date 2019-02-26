@@ -14,9 +14,4 @@
         <field name="key">mtd.db</field>
         <field name="value">v12_odoo</field>
     </record>
-
-    <record id="config_mtd_hmrc_url" model="ir.config_parameter">
-        <field name="key">mtd.hmrc.url</field>
-        <field name="value">https://api.service.hmrc.gov.uk</field>
-    </record>
 </odoo>

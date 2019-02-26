@@ -8,10 +8,9 @@ from odoo import models, fields, api, _
 import os
 import ssl
 
-# ignore verification off ssl certificate
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
-        ssl._create_default_https_context = ssl._create_unverified_context
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class ResConfigSettings(models.TransientModel):
@@ -25,6 +24,7 @@ class ResConfigSettings(models.TransientModel):
     token = fields.Char('token')
     period = fields.Selection(string='submission period',
                               selection=[('Q', 'Quarterly'), ('M', 'Monthly'), ('A', 'Annual')])
+    is_sandbox = fields.Boolean('Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
 
     @api.model
     def get_values(self):
@@ -34,7 +34,8 @@ class ResConfigSettings(models.TransientModel):
         password = params.get_param('mtd.password', default=False)
         token = params.get_param('mtd.token', default=False)
         period = params.get_param('mtd.period', default=False)
-        res.update(login=login, password=password, token=token, period=period)
+        is_sandbox = params.get_param('mtd.sandbox', default=False)
+        res.update(login=login, password=password, token=token, period=period, is_sandbox=is_sandbox)
         return res
 
     @api.multi
@@ -44,6 +45,7 @@ class ResConfigSettings(models.TransientModel):
         set_param('mtd.login', self.login)
         set_param('mtd.password', self.password)
         set_param('mtd.period', self.period)
+        set_param('mtd.sandbox', self.is_sandbox)
 
     @api.multi
     def get_authorization(self):

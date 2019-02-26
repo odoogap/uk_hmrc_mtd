@@ -12,8 +12,15 @@ import requests
 import time
 import datetime
 import logging
+import os
+import ssl
 
 _logger = logging.getLogger(__name__)
+
+
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+        getattr(ssl, '_create_unverified_context', None)):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class MtdVatLiabilities(models.TransientModel):

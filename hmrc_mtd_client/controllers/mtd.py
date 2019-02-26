@@ -6,7 +6,6 @@
 
 from odoo import http
 from odoo.http import request
-import webbrowser
 
 
 class Mtd(http.Controller):

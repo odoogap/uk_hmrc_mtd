@@ -171,7 +171,6 @@ class MtdVatReport(models.Model):
             api_token = params.get_param('mtd.token', default=False)
             hmrc_url = params.get_param('mtd.hmrc.url', default=False)
             token_expire_date = params.get_param('mtd.token_expire_date')
-
             if float(token_expire_date) - time.time() < 0:
                 api_token = rec.env['mtd.connection'].refresh_token()
             response = requests.post('%s/organisations/vat/%s/returns' % (hmrc_url, str(rec.env.user.company_id.vrn)),

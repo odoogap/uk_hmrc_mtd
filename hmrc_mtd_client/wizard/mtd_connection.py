@@ -7,6 +7,12 @@
 from odoo import models, fields, api, _
 import odoorpc
 from odoo.exceptions import UserError, RedirectWarning
+import os
+import ssl
+
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+        getattr(ssl, '_create_unverified_context', None)):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class MtdConnection(models.TransientModel):
@@ -26,8 +32,10 @@ class MtdConnection(models.TransientModel):
     @api.multi
     def get_authorization(self):
         conn = self.open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'authorize')
+        response = conn.execute('mtd.operations', 'authorize',
+                                self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False))
         if response.get('status') == 200:
+            self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
             client_action = {'type': 'ir.actions.act_url', 'name': "HMRC authentication", 'target': 'new',
                              'url': response.get('message')}
             return client_action
@@ -37,7 +45,8 @@ class MtdConnection(models.TransientModel):
 
     def refresh_token(self):
         conn = self.open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'refresh_token')
+        response = conn.execute('mtd.operations', 'refresh_token',
+                                self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False))
         if response.get('status') == 200:
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))
