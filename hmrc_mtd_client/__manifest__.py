@@ -21,4 +21,5 @@
         'views/mtd_vat_payments_view.xml',
         'views/vat_liabilities_view.xml',
         'views/menu_item_view.xml'],
+    'external_dependencies': {'python': ['odoorpc']},
 }
