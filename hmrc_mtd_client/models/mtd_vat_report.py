@@ -128,6 +128,7 @@ class MtdVatReport(models.Model):
             account_account_tag.id =
             account_tax_account_tag.account_account_tag_id
             WHERE account_move.state = 'posted' AND
+            account_move.is_mtd_submitted = 'f' AND
             account_move.date <= '%s'  AND
             account_move.company_id IN ('%s') AND account_account_tag.name in (%s)
         """
