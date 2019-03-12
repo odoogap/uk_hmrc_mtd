@@ -26,9 +26,10 @@
                                 </div>
                                 <div class="row" style="margin-top:10px;">
                                     <div class="col-xs-12 col-md-6">
-                                        <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}"
-                                                string="Authorize" name='get_authorization' type="object"
-                                                class="btn-primary"/>
+                                        <div class="btn-group" role="group">
+                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}" string="Authorize" name='get_authorization' type="object" class="btn-primary"/>
+                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}" string="Formula" name='vat_formula' type="object" class="btn-primary"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -47,11 +47,11 @@ class MtdVat(models.TransientModel):
                     periods = []
                     for value in message['obligations']:
                         if value['status'] == 'O':
-                            periods.append(('%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
-                                                          value.get('end').replace('-', '/')),
+                            periods.append(('%s:%s-%s' % (value.get('periodKey'), '2019/02/01',
+                                                          '2019/02/28'),
                                             '%s - %s' % (
-                                                value.get('start').replace('-', '/'),
-                                                value.get('end').replace('-', '/'))))
+                                                '2019/02/01',
+                                                '2019/02/28')))
                     self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',
@@ -61,7 +61,7 @@ class MtdVat(models.TransientModel):
                     message = json.loads(response._content.decode("utf-8"))
                     raise UserError(
                         'An error has occurred : \n status: %s \n message: %s' % (
-                            str(response.status_code), message.get('message')) + message.get('message'))
+                            str(response.status_code), message.get('message')))
 
             raise RedirectWarning('Please set VAT value for your current company',
                                   self.env.ref('base.action_res_company_form').id, _('Go to the configuration panel'))
@@ -82,6 +82,21 @@ class MtdVat(models.TransientModel):
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
     bad_vat = fields.Monetary('Bad VAT', currency_field='currency_id')
     bad_base = fields.Monetary('Bad Net', currency_field='currency_id')
+
+    def dict_refactor(self, data):
+        new_dict = {'tax_line':{}, 'tax_lines':{}}
+        print(data)
+        for tax in data.get('tax_line'):
+            new_dict['tax_line'].update({
+            'vat_%s' % str(tax.get('tag_line_id')[0]):tax.get('vat'),
+            'credit_%s' % str(tax.get('tag_line_id')[0]):tax.get('credit'),
+            'debit_%s' % str(tax.get('tag_line_id')[0]):tax.get('debit')})
+        for tax in data.get('tax_lines'):
+            new_dict['tax_lines'].update({
+            'net_%s' % str(tax.get('tag_tax_ids')[0]):tax.get('net'),
+            'credit_%s' % str(tax.get('tag_tax_ids')[0]):tax.get('credit'),
+            'debit_%s' % str(tax.get('tag_tax_ids')[0]):tax.get('debit')})
+        return new_dict
 
     def get_tax_moves(self, date_to, vat_scheme):
         response = self.env['mtd.connection'].open_connection_odoogap().execute(
@@ -111,8 +126,7 @@ class MtdVat(models.TransientModel):
                 results = self.env.cr.dictfetchall()
                 results[0].update({'tag_tax_ids': [tag.name for tag in account_tax.tag_ids]})
                 data['tax_lines'].append(results[0])
-            data.update({'status': 'OK'})
-            return data
+            return self.dict_refactor(data)
         else:
             _logger.error('Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
                           response.get('message'))
@@ -126,48 +140,43 @@ class MtdVat(models.TransientModel):
             channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
-                if submit_data.get('status') == 'OK':
-                    submit_data.update(
-                        {'fuel_vat': self.fuel_vat, 'fuel_base': self.fuel_base, 'bad_vat': self.bad_vat,
-                         'bad_base': self.bad_base})
-                    # submit_data.update(self.calculate_bad_debt())
-                    response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
-                                                                                            'calculate_boxes',
-                                                                                            submit_data)
-                    if response.get('status') == 200:
-                        channel_id.message_post(body='The VAT calculation was successfull', message_type="notification",
-                                                subtype="mail.mt_comment")
-                        self.env['mtd.vat.report'].search(
-                            [('name', '=', self.period.split(':')[1])]).unlink()
-                        self.env['mtd.vat.report'].create({'registration_number': self.env.user.company_id.vat,
-                                                           'vat_scheme': 'Accrual Basis ' if self.vat_scheme == 'AC'
-                                                           else 'Cash Basis',
-                                                           'name': self.period.split(':')[1],
-                                                           'box_one': float(response.get('message').get('box_one')),
-                                                           'box_two': float(response.get('message').get('box_two')),
-                                                           'box_three': float(response.get('message').get('box_three')),
-                                                           'box_four': float(response.get('message').get('box_four')),
-                                                           'box_five': float(response.get('message').get('box_five')),
-                                                           'box_six': float(response.get('message').get('box_six')),
-                                                           'box_seven': float(response.get('message').get('box_seven')),
-                                                           'box_eight': float(response.get('message').get('box_eight')),
-                                                           'box_nine': float(response.get('message').get('box_nine')),
-                                                           'submission_token': response.get('message').get(
-                                                               'submission_token'),
-                                                           'period_key': self.period.split(':')[0]})
-                    else:
-                        channel_id.message_post(
-                            body='Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
-                                 response.get('message'), message_type="notification", subtype="mail.mt_comment")
+                submit_data['tax_line'].update({'fuel_vat': self.fuel_vat, 'bad_vat': self.bad_vat})
+                submit_data['tax_lines'].update({'fuel_base': self.fuel_base,'bad_base': self.bad_base})
+                print(submit_data)
+                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
+                                                                                        'calculate_boxes',
+                                                                                        submit_data)
+                if response.get('status') == 200:
+                    channel_id.message_post(body='The VAT calculation was successfull.', message_type="notification",
+                                            subtype="mail.mt_comment")
+                    self.env['mtd.vat.report'].search(
+                        [('name', '=', self.period.split(':')[1])]).unlink()
+                    self.env['mtd.vat.report'].create({'registration_number': self.env.user.company_id.vat,
+                                                        'vat_scheme': 'Accrual Basis ' if self.vat_scheme == 'AC'
+                                                        else 'Cash Basis',
+                                                        'name': self.period.split(':')[1],
+                                                        'box_one': float(response.get('message').get('box_one')),
+                                                        'box_two': float(response.get('message').get('box_two')),
+                                                        'box_three': float(response.get('message').get('box_three')),
+                                                        'box_four': float(response.get('message').get('box_four')),
+                                                        'box_five': float(response.get('message').get('box_five')),
+                                                        'box_six': float(response.get('message').get('box_six')),
+                                                        'box_seven': float(response.get('message').get('box_seven')),
+                                                        'box_eight': float(response.get('message').get('box_eight')),
+                                                        'box_nine': float(response.get('message').get('box_nine')),
+                                                        'submission_token': response.get('message').get(
+                                                            'submission_token'),
+                                                        'period_key': self.period.split(':')[0]})
                 else:
                     channel_id.message_post(
-                        body='Response from server : \n status: ' + str(submit_data.get('status')) + '\n message: ' +
-                             submit_data.get('message'), message_type="notification", subtype="mail.mt_comment")
+                        body='Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
+                                response.get('message'), message_type="notification", subtype="mail.mt_comment")
                 new_cr.commit()
             except Exception as ex:
-                _logger.error('Attempt to run vat calculation failed %s ' % str(ex))
-                channel_id.message_post('Attempt to run vat calculation failed')
                 self._cr.rollback()
+                _logger.error('Attempt to run vat calculation failed %s ' % str(ex))
+                channel_id.message_post('Attempt to run vat calculation failed.', message_type="notification", subtype="mail.mt_comment")
+                new_cr.commit()
                 self._cr.close()
 
     @api.multi
@@ -203,3 +212,4 @@ class MtdVat(models.TransientModel):
                     'context': {
                         'default_name': 'There are no invoices available for submission in the given date range',
                         'delay': True, 'no_delay': False}}
+

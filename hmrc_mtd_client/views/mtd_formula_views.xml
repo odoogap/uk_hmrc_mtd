@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="vat_calculation_formula_view" model="ir.ui.view">
+        <field name="name">vat.calculation.formula.view</field>
+        <field name="model">res.config.settings</field>
+        <field name="arch" type="xml">
+            <form string="VAT Calculation Formula" class="o_invoice_form" edit="0" create="0" delete="0">
+                <sheet string="VAT Formula">
+                    <h2 class="text-center">VAT Formula</h2>
+                    <div class="table-responsive">
+                        <table class="table" style="margin-top:40px;">
+                            <tbody>
+                                <tr>
+                                    <th style="border-top: 0px !important; padding-top: 4em;">
+                                        <h4>
+                                            <b>Boxes</b>
+                                        </h4>
+                                    </th>
+                                    <th style="border-top: 0px; important; padding-top: 4em;">
+                                        <b>Formula</b>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 1] VAT due this period on sales and other outputs</th>
+                                    <td width="50%">
+                                        <field name="box1_formula"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 2] VAT due in this period on acquisitions from
+                                        other EC Member States
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box2_formula"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 4] VAT reclaimed in this period on purchases
+                                        and other inputs
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box4_formula"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 6] Total value of sales and all other outputs
+                                        excluding VAT(including acquisitions from EC)
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box6_formula"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 7] Total value of purchases and all other inputs
+                                        excluding VAT(including acquisitions from EC)
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box7_formula"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th width="50%" scope="row">[box 8] Total value of all supplies of goods, excluding
+                                        any VAT, to other EC Member States
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box8_formula"/>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #E5E5E5 !important;">
+                                    <th width="50%" scope="row">[box 9] Total value of all acquisitions of goods,
+                                        excluding any VAT, from EC Member States
+                                    </th>
+                                    <td width="50%">
+                                        <field name="box9_formula"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer>
+                        <button style="float: right;" name="submit_formula" string="Submit" confirm="This formula will be used for the calculation off VAT Return. This will have an affect on the result off VAT report." type="object" class="btn btn-primary" icon="fa-check"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

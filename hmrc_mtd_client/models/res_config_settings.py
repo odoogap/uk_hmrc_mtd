@@ -24,7 +24,8 @@ class ResConfigSettings(models.TransientModel):
     token = fields.Char('token')
     period = fields.Selection(string='submission period',
                               selection=[('Q', 'Quarterly'), ('M', 'Monthly'), ('A', 'Annual')])
-    is_sandbox = fields.Boolean('Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
+    is_sandbox = fields.Boolean(
+        'Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
 
     @api.model
     def get_values(self):
@@ -35,7 +36,8 @@ class ResConfigSettings(models.TransientModel):
         token = params.get_param('mtd.token', default=False)
         period = params.get_param('mtd.period', default=False)
         is_sandbox = params.get_param('mtd.sandbox', default=False)
-        res.update(login=login, password=password, token=token, period=period, is_sandbox=is_sandbox)
+        res.update(login=login, password=password, token=token,
+                   period=period, is_sandbox=is_sandbox)
         return res
 
     @api.multi
@@ -50,3 +52,10 @@ class ResConfigSettings(models.TransientModel):
     @api.multi
     def get_authorization(self):
         return self.env['mtd.connection'].get_authorization()
+
+    @api.multi
+    def vat_formula(self):
+        view = self.env.ref('hmrc_mtd_client.vat_calculation_formula_view')
+        return {'name': 'VAT Formula', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
+                'res_model': 'res.config.settings', 'views': [(view.id, 'form')], 'view_id': view.id,
+                'target': 'new'}
