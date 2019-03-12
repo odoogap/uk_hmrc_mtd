@@ -142,10 +142,7 @@ class MtdVat(models.TransientModel):
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
                 submit_data['tax_line'].update({'fuel_vat': self.fuel_vat, 'bad_vat': self.bad_vat})
                 submit_data['tax_lines'].update({'fuel_base': self.fuel_base,'bad_base': self.bad_base})
-                print(submit_data)
-                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
-                                                                                        'calculate_boxes',
-                                                                                        submit_data)
+                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'calculate_boxes', submit_data)
                 if response.get('status') == 200:
                     channel_id.message_post(body='The VAT calculation was successfull.', message_type="notification",
                                             subtype="mail.mt_comment")
@@ -168,9 +165,8 @@ class MtdVat(models.TransientModel):
                                                             'submission_token'),
                                                         'period_key': self.period.split(':')[0]})
                 else:
-                    channel_id.message_post(
-                        body='Response from server : \n status: ' + str(response.get('status')) + '\n message: ' +
-                                response.get('message'), message_type="notification", subtype="mail.mt_comment")
+                    channel_id.message_post( body='Response from server : \n status: %s\n message: %s' %(str(response.get('status')), response.get('message'))
+                                ,message_type="notification", subtype="mail.mt_comment")
                 new_cr.commit()
             except Exception as ex:
                 self._cr.rollback()
@@ -182,16 +178,6 @@ class MtdVat(models.TransientModel):
     @api.multi
     def vat_calculation(self):
         if self.env['account.move'].search_count([('is_mtd_submitted', '=', False)]) > 0:
-
-            self.ensure_one()
-            taxes = ['ST0', 'ST4', 'PT0', 'PT2', 'PT8', 'PT5', 'ST11', 'PT11', 'PT8M',
-                     'PT8R']
-            for tax in self.env['account.tax'].search(
-                    ['|', ('active', '=', False), ('active', '=', True), ('description', 'in', taxes)]):
-                if tax.description not in taxes or tax.active is False:
-                    raise UserError(
-                        'The internal references for the default UK CoA do not exist, or are deactivated please fix this issue first.')
-
             channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
             channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
                                     message_type="notification", subtype="mail.mt_comment")
@@ -203,7 +189,6 @@ class MtdVat(models.TransientModel):
                     'target': 'new',
                     'context': {'default_name': 'The VAT calculation has started please check MTD channel',
                                 'delay': False, 'no_delay': True}}
-
         else:
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
             return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
