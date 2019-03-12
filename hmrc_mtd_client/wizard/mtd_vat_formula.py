@@ -113,4 +113,4 @@ class MtdCalculationFormula(models.TransientModel):
             for parameter in formula:
                 safe_eval(formula.get(parameter), dummy_dict)
         except Exception as ex:
-            raise UserError(msgfy.to_error_message(ex,"{error_msg}").split(':')[1])
+            raise UserError(msgfy.to_error_message(ex,"{error_msg}"))
