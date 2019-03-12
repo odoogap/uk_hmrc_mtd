@@ -11,3 +11,4 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     is_mtd_submitted = fields.Boolean('mtd state', default=False)
+    vat_report_id = fields.Many2one('mtd.vat.report', 'VAT Report')

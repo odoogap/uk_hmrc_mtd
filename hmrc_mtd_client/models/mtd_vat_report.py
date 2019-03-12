@@ -51,6 +51,7 @@ class MtdVatReport(models.Model):
     totalAcquisitionsExVAT = fields.Monetary('Box nine result', currency_field='currency_id')
     submission_token = fields.Char('Submission token')
     is_submitted = fields.Boolean(defaut=False)
+    account_moves = fields.One2many('account.move', 'vat_report_id')
 
     @api.model
     def create(self, values):
@@ -120,7 +121,7 @@ class MtdVatReport(models.Model):
             SELECT account_invoice.id FROM account_move
             INNER JOIN account_invoice ON account_invoice.move_id = account_move.id
             INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
-            INNER JOIN account_move_line_account_tax_rel ON account_move_line.id = 
+            INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
             account_move_line_account_tax_rel.account_move_line_id INNER JOIN
             account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id INNER JOIN
             account_tax_account_tag ON account_tax_account_tag.account_tax_id =
@@ -131,6 +132,14 @@ class MtdVatReport(models.Model):
             account_move.is_mtd_submitted = 'f' AND
             account_move.date <= '%s'  AND
             account_move.company_id IN ('%s') AND account_account_tag.name in (%s)
+        """
+    def sql_get_account_move_lines(self):
+        return """
+            SELECT id FROM account_move
+            WHERE account_move.date <= '%s'  AND
+            account_move.state = 'posted'  AND
+            account_move.is_mtd_submitted = 'f'  AND
+            account_move.company_id in (%s)
         """
 
     @api.multi
@@ -184,8 +193,10 @@ class MtdVatReport(models.Model):
                 rec.env['mtd.connection'].sudo().open_connection_odoogap().execute(
                     'mtd.operations', 'validate_submission', rec.submission_token)
                 rec.write({'is_submitted': True, 'submission_date': datetime.datetime.now()})
-                rec.env.cr.execute(
-                    "update account_move set is_mtd_submitted = 't' where date <= '%s'" % (rec.name.split('-')[1]))
+                rec.env.cr.execute(rec.sql_get_account_move_lines()% (rec.name.split('-')[1].replace('/','-'), rec.env.user.company_id.id))
+                results = rec.env.cr.fetchall()
+                ids = [res[0] for res in results]
+                rec.env.cr.execute("update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, tuple(ids)))
                 return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                         'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
                         'target': 'new',

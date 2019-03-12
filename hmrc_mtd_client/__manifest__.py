@@ -9,7 +9,7 @@
     'website': "https://www.odoomtd.co.uk/",
     'category': 'Invoicing Management',
     'version': '0.1',
-    'depends': ['base', 'account_invoicing', 'l10n_uk'],
+    'depends': ['base', 'account', 'l10n_uk'],
     'data': [
         'views/vat_sub_view.xml',
         'views/res_config_views.xml',

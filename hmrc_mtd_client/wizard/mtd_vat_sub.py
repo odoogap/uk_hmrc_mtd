@@ -85,7 +85,6 @@ class MtdVat(models.TransientModel):
 
     def dict_refactor(self, data):
         new_dict = {'tax_line':{}, 'tax_lines':{}}
-        print(data)
         for tax in data.get('tax_line'):
             new_dict['tax_line'].update({
             'vat_%s' % str(tax.get('tag_line_id')[0]):tax.get('vat'),
@@ -103,20 +102,12 @@ class MtdVat(models.TransientModel):
             'mtd.operations', 'get_payload', vat_scheme)
         channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
         if response.get('status') == 200:
-            account_taxes = self.env['account.tax'].search([])
-            if vat_scheme == 'CB':
-                user_types = self.env['account.account.type'].search([('type', 'in', ('receivable', 'payable'))]).ids
-                params = [tuple(user_types), date_to, self.env.user.company_id.id, tuple(user_types),
-                          date_to, self.env.user.company_id.id, tuple(user_types), date_to,
-                          self.env.user.company_id.id, tuple(user_types), 0, date_to,
-                          self.env.user.company_id.id]
-            else:
+            account_taxes = self.env['account.tax'].search([('active', '=', True)])
+            if vat_scheme == 'AC':
                 params = [0, date_to, self.env.user.company_id.id]
             data = {'tax_line': [], 'tax_lines': []}
             for account_tax in account_taxes:
-                if vat_scheme == 'CB':
-                    params[10] = account_tax.id
-                else:
+                if vat_scheme == 'AC':
                     params[0] = account_tax.id
                 self.env.cr.execute(response.get('message').get('tax_line'), params)
                 results = self.env.cr.dictfetchall()
@@ -141,11 +132,10 @@ class MtdVat(models.TransientModel):
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
                 submit_data['tax_line'].update({'fuel_vat': self.fuel_vat, 'bad_vat': self.bad_vat})
-                submit_data['tax_lines'].update({'fuel_base': self.fuel_base,'bad_base': self.bad_base})
+                submit_data['tax_lines'].update({'fuel_net': self.fuel_base,'bad_net': self.bad_base})
                 response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'calculate_boxes', submit_data)
                 if response.get('status') == 200:
-                    channel_id.message_post(body='The VAT calculation was successfull.', message_type="notification",
-                                            subtype="mail.mt_comment")
+                    channel_id.message_post(body='The VAT calculation was successfull.', message_type="notification", subtype="mail.mt_comment")
                     self.env['mtd.vat.report'].search(
                         [('name', '=', self.period.split(':')[1])]).unlink()
                     self.env['mtd.vat.report'].create({'registration_number': self.env.user.company_id.vat,
@@ -161,8 +151,7 @@ class MtdVat(models.TransientModel):
                                                         'box_seven': float(response.get('message').get('box_seven')),
                                                         'box_eight': float(response.get('message').get('box_eight')),
                                                         'box_nine': float(response.get('message').get('box_nine')),
-                                                        'submission_token': response.get('message').get(
-                                                            'submission_token'),
+                                                        'submission_token': response.get('message').get('submission_token'),
                                                         'period_key': self.period.split(':')[0]})
                 else:
                     channel_id.message_post( body='Response from server : \n status: %s\n message: %s' %(str(response.get('status')), response.get('message'))
