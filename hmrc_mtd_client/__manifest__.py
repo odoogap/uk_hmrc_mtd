@@ -22,5 +22,5 @@
         'views/vat_liabilities_view.xml',
         'views/menu_item_view.xml',
         'views/mtd_formula_views.xml'],
-    'external_dependencies': {'python': ['odoorpc']},
+    'external_dependencies': {'python': ['odoorpc', 'msgfy']},
 }
