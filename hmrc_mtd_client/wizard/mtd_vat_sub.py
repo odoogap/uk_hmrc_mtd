@@ -18,10 +18,6 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
-
 
 class MtdVat(models.TransientModel):
     _name = 'mtd.vat.sub'
@@ -166,7 +162,7 @@ class MtdVat(models.TransientModel):
 
     @api.multi
     def vat_calculation(self):
-        if self.env['account.move'].search_count([('is_mtd_submitted', '=', False)]) > 0:
+        if self.env['account.move'].search_count(['&',('is_mtd_submitted', '=', False), '|', ('tax_line_id','!=', False), ('tax_ids','!=',False)]) > 0:
             channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
             channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
                                     message_type="notification", subtype="mail.mt_comment")
