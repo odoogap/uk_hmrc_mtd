@@ -18,4 +18,4 @@ class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
     is_mtd_submitted = fields.Boolean(
-        'mtd state', default=False, related='move_id.is_mtd_submitted', store=True, readonly=True)
+        'mtd state', default=False, related='move_id.is_mtd_submitted', readonly=True)
