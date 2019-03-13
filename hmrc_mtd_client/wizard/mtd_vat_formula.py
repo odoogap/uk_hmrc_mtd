@@ -35,11 +35,11 @@ class MtdCalculationFormula(models.TransientModel):
         box1_formula = params.get_param(
             'mtd.box1_formula', default="sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat")
         box2_formula = params.get_param(
-            'mtd.box2_formula', default="sum([PT8M])")
+            'mtd.box2_formula', default="sum([vat_PT8M])")
         box4_formula = params.get_param(
             'mtd.box4_formula', default="sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([credit_PT8R,debit_PT8R])")
         box6_formula = params.get_param(
-            'mtd.box6_formula', default="-sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net")
+            'mtd.box6_formula', default="sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net")
         box7_formula = params.get_param(
             'mtd.box7_formula', default="sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])")
         box8_formula = params.get_param(
