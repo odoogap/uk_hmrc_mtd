@@ -162,7 +162,7 @@ class MtdVat(models.TransientModel):
 
     @api.multi
     def vat_calculation(self):
-        if self.env['account.move'].search_count(['&',('is_mtd_submitted', '=', False), '|', ('tax_line_id','!=', False), ('tax_ids','!=',False)]) > 0:
+        if self.env['account.move.line'].search_count(['&',('is_mtd_submitted', '=', False), '|', ('tax_line_id','!=', False), ('tax_ids','!=',False)]) > 0:
             channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
             channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
                                     message_type="notification", subtype="mail.mt_comment")
