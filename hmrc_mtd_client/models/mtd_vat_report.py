@@ -15,38 +15,56 @@ import datetime
 class MtdVatReport(models.Model):
     _name = 'mtd.vat.report'
 
-    currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
-    company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
+    currency_id = fields.Many2one(
+        'res.currency', string='Currency', related='company_id.currency_id')
+    company_id = fields.Many2one(
+        'res.company', default=lambda self: self.env.user.company_id)
     registration_number = fields.Char('registration_number')
     vat_scheme = fields.Char('VAT Scheme')
     name = fields.Char('Period Covered')
     period_key = fields.Char('Period Key')
     submission_date = fields.Datetime('Submission Date')
     box_one = fields.Monetary('Box one', currency_field='currency_id')
-    box_one_adj = fields.Monetary('Box one adjustment', currency_field='currency_id')
-    vatDueSales = fields.Monetary('Box one result', currency_field='currency_id')
+    box_one_adj = fields.Monetary(
+        'Box one adjustment', currency_field='currency_id')
+    vatDueSales = fields.Monetary(
+        'Box one result', currency_field='currency_id')
     box_two = fields.Monetary('Box two', currency_field='currency_id')
-    box_two_adj = fields.Monetary('Box two adjustment', currency_field='currency_id')
-    vatDueAcquisitions = fields.Monetary('Box two result', currency_field='currency_id')
+    box_two_adj = fields.Monetary(
+        'Box two adjustment', currency_field='currency_id')
+    vatDueAcquisitions = fields.Monetary(
+        'Box two result', currency_field='currency_id')
     box_three = fields.Monetary('Box three', currency_field='currency_id')
-    totalVatDue = fields.Monetary('Box three result', currency_field='currency_id')
+    totalVatDue = fields.Monetary(
+        'Box three result', currency_field='currency_id')
     box_four = fields.Monetary('Box four', currency_field='currency_id')
-    box_four_adj = fields.Monetary('Box four adjustment', currency_field='currency_id')
-    vatReclaimedCurrPeriod = fields.Monetary('Box four result', currency_field='currency_id')
+    box_four_adj = fields.Monetary(
+        'Box four adjustment', currency_field='currency_id')
+    vatReclaimedCurrPeriod = fields.Monetary(
+        'Box four result', currency_field='currency_id')
     box_five = fields.Monetary('Box five', currency_field='currency_id')
-    netVatDue = fields.Monetary('Box five result', currency_field='currency_id')
+    netVatDue = fields.Monetary(
+        'Box five result', currency_field='currency_id')
     box_six = fields.Monetary('Box six', currency_field='currency_id')
-    box_six_adj = fields.Monetary('Box six adjustment', currency_field='currency_id')
-    totalValueSalesExVAT = fields.Monetary('Box six result', currency_field='currency_id')
+    box_six_adj = fields.Monetary(
+        'Box six adjustment', currency_field='currency_id')
+    totalValueSalesExVAT = fields.Monetary(
+        'Box six result', currency_field='currency_id')
     box_seven = fields.Monetary('Box seven', currency_field='currency_id')
-    box_seven_adj = fields.Monetary('Box seven adjustment', currency_field='currency_id')
-    totalValuePurchasesExVAT = fields.Monetary('Box seven result', currency_field='currency_id')
+    box_seven_adj = fields.Monetary(
+        'Box seven adjustment', currency_field='currency_id')
+    totalValuePurchasesExVAT = fields.Monetary(
+        'Box seven result', currency_field='currency_id')
     box_eight = fields.Monetary('Box eight', currency_field='currency_id')
-    box_eight_adj = fields.Monetary('Box eight adjustment', currency_field='currency_id')
-    totalValueGoodsSuppliedExVAT = fields.Monetary('Box eight result', currency_field='currency_id')
+    box_eight_adj = fields.Monetary(
+        'Box eight adjustment', currency_field='currency_id')
+    totalValueGoodsSuppliedExVAT = fields.Monetary(
+        'Box eight result', currency_field='currency_id')
     box_nine = fields.Monetary('Box nine', currency_field='currency_id')
-    box_nine_adj = fields.Monetary('Box nine adjustment', currency_field='currency_id')
-    totalAcquisitionsExVAT = fields.Monetary('Box nine result', currency_field='currency_id')
+    box_nine_adj = fields.Monetary(
+        'Box nine adjustment', currency_field='currency_id')
+    totalAcquisitionsExVAT = fields.Monetary(
+        'Box nine result', currency_field='currency_id')
     submission_token = fields.Char('Submission token')
     is_submitted = fields.Boolean(defaut=False)
     account_moves = fields.One2many('account.move', 'vat_report_id')
@@ -69,9 +87,9 @@ class MtdVatReport(models.Model):
             values.update(
                 {'vatDueSales': self.box_one + values.get('box_one_adj', self.box_one_adj),
                  'vatDueAcquisitions': self.box_two + values.get('box_two_adj', self.box_two_adj),
-                 'totalVatDue': self.vatDueAcquisitions + self.vatDueSales,
+                 'totalVatDue': (self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj)),
                  'vatReclaimedCurrPeriod': self.box_four + values.get('box_four_adj', self.box_four_adj),
-                 'netVatDue': self.totalVatDue - self.vatReclaimedCurrPeriod,
+                 'netVatDue': ((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))) - (self.box_four + self.box_four_adj),
                  'totalValueSalesExVAT': self.box_six + values.get('box_six_adj', self.box_six_adj),
                  'totalValuePurchasesExVAT': self.box_seven + values.get('box_seven_adj', self.box_seven_adj),
                  'totalValueGoodsSuppliedExVAT': self.box_eight + values.get('box_eight', self.box_eight_adj),
@@ -128,6 +146,7 @@ class MtdVatReport(models.Model):
             account_move.date <= '%s'  AND
             account_move.company_id IN ('%s') AND account_account_tag.name in (%s)
         """
+
     def sql_get_account_move_lines(self):
         return """
             SELECT id FROM account_move
@@ -187,11 +206,14 @@ class MtdVatReport(models.Model):
                 view = rec.env.ref('hmrc_mtd_client.pop_up_message_view')
                 rec.env['mtd.connection'].sudo().open_connection_odoogap().execute(
                     'mtd.operations', 'validate_submission', rec.submission_token)
-                rec.write({'is_submitted': True, 'submission_date': datetime.datetime.now()})
-                rec.env.cr.execute(rec.sql_get_account_move_lines()% (rec.name.split('-')[1].replace('/','-'), rec.env.user.company_id.id))
+                rec.write(
+                    {'is_submitted': True, 'submission_date': datetime.datetime.now()})
+                rec.env.cr.execute(rec.sql_get_account_move_lines() % (
+                    rec.name.split('-')[1].replace('/', '-'), rec.env.user.company_id.id))
                 results = rec.env.cr.fetchall()
                 ids = [res[0] for res in results]
-                rec.env.cr.execute("update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, tuple(ids)))
+                rec.env.cr.execute(
+                    "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, tuple(ids)))
                 return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                         'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
                         'target': 'new',
