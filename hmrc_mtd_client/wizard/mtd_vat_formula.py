@@ -56,13 +56,12 @@ class MtdCalculationFormula(models.TransientModel):
     def set_values(self):
         super(MtdCalculationFormula, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
-        set_param('mtd.box1_formula', self.box1_formula)
-        set_param('mtd.box2_formula', self.box2_formula)
-        set_param('mtd.box4_formula', self.box4_formula)
-        set_param('mtd.box6_formula', self.box6_formula)
-        set_param('mtd.box7_formula', self.box7_formula)
-        set_param('mtd.box8_formula', self.box8_formula)
-        set_param('mtd.box9_formula', self.box9_formula)
+        attrs = ['box1_formula','box2_formula','box4_formula','box6_formula','box7_formula','box8_formula','box9_formula']
+        for attr in attrs:
+            if getattr(self, attr):
+                set_param('mtd.%s'%attr, getattr(self, attr))
+            else:
+                set_param('mtd.%s'%attr, " ")
 
     def submit_formula(self):
         self.set_values()
