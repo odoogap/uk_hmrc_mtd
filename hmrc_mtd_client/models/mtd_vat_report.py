@@ -149,7 +149,7 @@ class MtdVatReport(models.Model):
 
     def sql_get_account_move_lines(self):
         return """
-            SELECT id FROM account_move
+            SELECT account_move.id FROM account_move
             INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
             INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
             account_move_line_account_tax_rel.account_move_line_id INNER JOIN
