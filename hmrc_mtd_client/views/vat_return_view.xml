@@ -107,7 +107,6 @@
                                         <field name="box_three" readonly="1"/>
                                     </td>
                                     <td width="20%">
-                                        <field name="box_three_adj"/>
                                     </td>
                                     <td width="20%">
                                         <field name="totalVatDue" readonly="1"/>
@@ -140,9 +139,7 @@
                                     <td width="20%">
                                         <field name="box_five" readonly="1"/>
                                     </td>
-                                    <td width="20%">
-                                        <field name="box_five_adj"/>
-                                    </td>
+                                    <td width="20%"></td>
                                     <td width="20%">
                                         <field name="netVatDue" readonly="1"/>
                                     </td>

@@ -29,13 +29,11 @@ class MtdVatReport(models.Model):
     box_two_adj = fields.Monetary('Box two adjustment', currency_field='currency_id')
     vatDueAcquisitions = fields.Monetary('Box two result', currency_field='currency_id')
     box_three = fields.Monetary('Box three', currency_field='currency_id')
-    box_three_adj = fields.Monetary('Box three adjustment', currency_field='currency_id')
     totalVatDue = fields.Monetary('Box three result', currency_field='currency_id')
     box_four = fields.Monetary('Box four', currency_field='currency_id')
     box_four_adj = fields.Monetary('Box four adjustment', currency_field='currency_id')
     vatReclaimedCurrPeriod = fields.Monetary('Box four result', currency_field='currency_id')
     box_five = fields.Monetary('Box five', currency_field='currency_id')
-    box_five_adj = fields.Monetary('Box five adjustment', currency_field='currency_id')
     netVatDue = fields.Monetary('Box five result', currency_field='currency_id')
     box_six = fields.Monetary('Box six', currency_field='currency_id')
     box_six_adj = fields.Monetary('Box six adjustment', currency_field='currency_id')
@@ -57,9 +55,9 @@ class MtdVatReport(models.Model):
     def create(self, values):
         res = super(MtdVatReport, self).create(values)
         res.write({'vatDueSales': res.box_one + res.box_one_adj, 'vatDueAcquisitions': res.box_two + res.box_two_adj,
-                   'totalVatDue': res.box_three + res.box_three_adj,
+                   'totalVatDue': res.box_three,
                    'vatReclaimedCurrPeriod': res.box_four + res.box_four_adj,
-                   'netVatDue': res.box_five + res.box_five_adj, 'totalValueSalesExVAT': res.box_six + res.box_six_adj,
+                   'netVatDue': res.box_five, 'totalValueSalesExVAT': res.box_six + res.box_six_adj,
                    'totalValuePurchasesExVAT': res.box_seven + res.box_seven_adj,
                    'totalValueGoodsSuppliedExVAT': res.box_eight + res.box_eight_adj,
                    'totalAcquisitionsExVAT': res.box_nine + res.box_nine_adj})
@@ -71,9 +69,9 @@ class MtdVatReport(models.Model):
             values.update(
                 {'vatDueSales': self.box_one + values.get('box_one_adj', self.box_one_adj),
                  'vatDueAcquisitions': self.box_two + values.get('box_two_adj', self.box_two_adj),
-                 'totalVatDue': self.box_three + values.get('box_three_adj', self.box_three_adj),
+                 'totalVatDue': self.vatDueAcquisitions + self.vatDueSales,
                  'vatReclaimedCurrPeriod': self.box_four + values.get('box_four_adj', self.box_four_adj),
-                 'netVatDue': self.box_five + values.get('box_five_adj', self.box_five_adj),
+                 'netVatDue': self.totalVatDue - self.vatReclaimedCurrPeriod,
                  'totalValueSalesExVAT': self.box_six + values.get('box_six_adj', self.box_six_adj),
                  'totalValuePurchasesExVAT': self.box_seven + values.get('box_seven_adj', self.box_seven_adj),
                  'totalValueGoodsSuppliedExVAT': self.box_eight + values.get('box_eight', self.box_eight_adj),
@@ -83,22 +81,19 @@ class MtdVatReport(models.Model):
     @api.onchange('box_one_adj')
     def _onchange_vatDueSales(self):
         self.vatDueSales = self.box_one + self.box_one_adj
+        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
 
     @api.onchange('box_two_adj')
     def _onchange_vatDueAcquisitions(self):
         self.vatDueAcquisitions = self.box_two + self.box_two_adj
-
-    @api.onchange('box_three_adj')
-    def _onchange_totalVatDue(self):
-        self.totalVatDue = self.box_three + self.box_three_adj
+        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
 
     @api.onchange('box_four_adj')
     def _onchange_vatReclaimedCurrPeriod(self):
         self.vatReclaimedCurrPeriod = self.box_four + self.box_four_adj
-
-    @api.onchange('box_five_adj')
-    def _onchange_netVatDue(self):
-        self.netVatDue = self.box_five + self.box_five_adj
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
 
     @api.onchange('box_six_adj')
     def _onchange_totalValueSalesExVAT(self):

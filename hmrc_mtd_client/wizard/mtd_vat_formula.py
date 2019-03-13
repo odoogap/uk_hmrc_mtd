@@ -111,6 +111,11 @@ class MtdCalculationFormula(models.TransientModel):
         try:
             dummy_dict = self.get_dummy_dict()
             for parameter in formula:
-                safe_eval(formula.get(parameter), dummy_dict)
+                if formula.get(parameter):
+                    if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
+                        safe_eval(formula.get(parameter), dummy_dict)
+                    else:
+                        raise UserError(
+                            'Boxes formulas need to have arithmethic operations')
         except Exception as ex:
-            raise UserError(msgfy.to_error_message(ex,"{error_msg}"))
+            raise UserError(msgfy.to_error_message(ex, "{error_msg}"))
