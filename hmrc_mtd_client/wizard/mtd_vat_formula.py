@@ -31,20 +31,13 @@ class MtdCalculationFormula(models.TransientModel):
     def get_values(self):
         res = super(MtdCalculationFormula, self).get_values()
         params = self.env['ir.config_parameter'].sudo()
-        box_one = params.get_param(
-            'mtd.box1_formula', default="sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat")
-        box_two = params.get_param(
-            'mtd.box2_formula', default="sum([vat_PT8M])")
-        box_four = params.get_param(
-            'mtd.box4_formula', default="sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([credit_PT8R,debit_PT8R])")
-        box_six = params.get_param(
-            'mtd.box6_formula', default="sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net")
-        box_seven = params.get_param(
-            'mtd.box7_formula', default="sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])")
-        box_eight = params.get_param(
-            'mtd.box8_formula', default="sum([net_ST4])")
-        box_nine = params.get_param(
-            'mtd.box9_formula', default="sum([net_PT7, net_PT8])")
+        box_one = params.get_param('mtd.box1_formula', False)
+        box_two = params.get_param('mtd.box2_formula', False)
+        box_four = params.get_param('mtd.box4_formula', False)
+        box_six = params.get_param('mtd.box6_formula', False)
+        box_seven = params.get_param('mtd.box7_formula', False)
+        box_eight = params.get_param('mtd.box8_formula', False)
+        box_nine = params.get_param('mtd.box9_formula', False)
         res.update(
             box_one=box_one,
             box_two=box_two,
