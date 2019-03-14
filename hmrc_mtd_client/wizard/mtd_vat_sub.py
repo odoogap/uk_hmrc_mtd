@@ -47,12 +47,11 @@ class MtdVat(models.TransientModel):
                     periods = []
                     for value in message['obligations']:
                         if value['status'] == 'O':
-                            periods.append(('%s:%s-%s' % (value.get('periodKey'),'2019-02-01'.replace('-', '/'),
-                                                          '2019-02-28'.replace('-', '/')),
+                            periods.append(('%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
+                                                          value.get('end').replace('-', '/')),
                                             '%s - %s' % (
-                                                '2019-02-01'.replace(
-                                                    '-', '/'),
-                                                '2019-02-28'.replace('-', '/'))))
+                                                value.get('start').replace('-', '/'),
+                                                value.get('end').replace('-', '/'))))
                     self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',
@@ -179,23 +178,26 @@ class MtdVat(models.TransientModel):
 
     @api.multi
     def vat_calculation(self):
-        if self.env['account.move.line'].search_count(['&', ('is_mtd_submitted', '=', False), '|', ('tax_line_id', '!=', False), ('tax_ids', '!=', False)]) > 0:
-            channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
-            channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
-                                    message_type="notification", subtype="mail.mt_comment")
-            t = threading.Thread(target=self.vat_thread_calculation)
-            t.start()
-            view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-            return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                    'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new',
-                    'context': {'default_name': 'The VAT calculation has started please check MTD channel',
-                                'delay': False, 'no_delay': True}}
+        if self.env.user.company_id.submited_formula:
+            if self.env['account.move.line'].search_count(['&',('is_mtd_submitted', '=', False), '|', ('tax_line_id','!=', False), ('tax_ids','!=',False)]) > 0:
+                channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
+                channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
+                                        message_type="notification", subtype="mail.mt_comment")
+                t = threading.Thread(target=self.vat_thread_calculation)
+                t.start()
+                view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
+                return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
+                        'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
+                        'target': 'new',
+                        'context': {'default_name': 'The VAT calculation has started please check MTD channel',
+                                    'delay': False, 'no_delay': True}}
+            else:
+                view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
+                return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
+                        'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
+                        'target': 'new',
+                        'context': {
+                            'default_name': 'There are no invoices available for submission in the given date range',
+                            'delay': True, 'no_delay': False}}
         else:
-            view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-            return {'name': 'Message', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                    'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new',
-                    'context': {
-                        'default_name': 'There are no invoices available for submission in the given date range',
-                        'delay': True, 'no_delay': False}}
+            raise UserError('Please submit the VAT formula first.')

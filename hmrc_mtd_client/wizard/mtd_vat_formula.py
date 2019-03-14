@@ -31,6 +31,7 @@ class MtdCalculationFormula(models.TransientModel):
     def get_values(self):
         res = super(MtdCalculationFormula, self).get_values()
         params = self.env['ir.config_parameter'].sudo()
+
         box_one = params.get_param('mtd.box1_formula', False)
         box_two = params.get_param('mtd.box2_formula', False)
         box_four = params.get_param('mtd.box4_formula', False)

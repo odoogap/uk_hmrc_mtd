@@ -11,6 +11,8 @@ class Company(models.Model):
     _inherit = "res.company"
 
     vrn = fields.Char('VRN', compute='_compute_vrn', store=True)
+    submited_formula = fields.Boolean('submited formula', default=False)
+    formula = fields.Char('formula', default=False)
 
     @api.multi
     @api.depends('vat')
