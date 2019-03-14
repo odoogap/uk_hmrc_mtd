@@ -33,7 +33,7 @@
                                 <tr>
                                     <th width="50%" scope="row">[box 1] VAT due this period on sales and other outputs</th>
                                     <td width="50%">
-                                        <field name="box1_formula"/>
+                                        <field name="box_one"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -41,7 +41,7 @@
                                         other EC Member States
                                     </th>
                                     <td width="50%">
-                                        <field name="box2_formula"/>
+                                        <field name="box_two"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -49,7 +49,7 @@
                                         and other inputs
                                     </th>
                                     <td width="50%">
-                                        <field name="box4_formula"/>
+                                        <field name="box_four"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -57,7 +57,7 @@
                                         excluding VAT(including acquisitions from EC)
                                     </th>
                                     <td width="50%">
-                                        <field name="box6_formula"/>
+                                        <field name="box_six"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -65,7 +65,7 @@
                                         excluding VAT(including acquisitions from EC)
                                     </th>
                                     <td width="50%">
-                                        <field name="box7_formula"/>
+                                        <field name="box_seven"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -73,7 +73,7 @@
                                         any VAT, to other EC Member States
                                     </th>
                                     <td width="50%">
-                                        <field name="box8_formula"/>
+                                        <field name="box_eight"/>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #E5E5E5 !important;">
@@ -81,14 +81,16 @@
                                         excluding any VAT, from EC Member States
                                     </th>
                                     <td width="50%">
-                                        <field name="box9_formula"/>
+                                        <field name="box_nine"/>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     <footer>
-                        <button style="float: right;" name="submit_formula" string="Submit" confirm="This formula will be used for the calculation off VAT Return. This will have an affect on the result off VAT report." type="object" class="btn btn-primary" icon="fa-check"/>
+                        <div class="btn-group" role="group" style="float: right;">
+                            <button  name="submit_formula" string="Submit" confirm="This formula will be used for the calculation off VAT Return. This will have an affect on the result off VAT report." type="object" class="btn btn-primary" icon="fa-check"/>
+                        </div>
                     </footer>
                 </sheet>
             </form>

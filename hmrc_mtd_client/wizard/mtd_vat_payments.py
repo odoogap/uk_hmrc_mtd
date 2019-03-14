@@ -17,6 +17,9 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+        getattr(ssl, '_create_unverified_context', None)):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 class MtdVatPayments(models.TransientModel):
     _name = 'mtd.vat.payments'
