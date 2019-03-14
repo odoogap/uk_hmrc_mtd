@@ -13,7 +13,7 @@
                             <li>For net values use net_&#x2039;tax_tag&#x203A; eg: net_PT8</li>
                             <li>For vat values use vat_&#x2039;tax_tag&#x203A; eg: vat_PT8</li>
                             <li>To sum vat or net values use sum([vat_&#x2039;tax_tag&#x203A;]) eg: sum([vat_PT8M]) or sum([net_ST0,net_ST1,net_ST2,net_ST11]</li>
-                            <li>To use credits and debits for each use net_&#x2039;credit or debit&#x203A;__&#x2039;tax_tag&#x203A; eg: net_credit_PT8R, net_debit_PT8M</li>
+                            <li>To use credits and debits for each box use net_&#x2039;credit or debit&#x203A;__&#x2039;tax_tag&#x203A; eg:net_credit_PT8R,net_debit_PT8M,vat_credit_PT8R,vat_debit_PT8M</li>
                             <li>For fuel scale charge use fuel_net and fuel_vat variables wich refer to net and vat values</li>
                             <li>For bad debt use bad_net and bad_vat variables wich refer to net and vat values</li>
                         </ul>
