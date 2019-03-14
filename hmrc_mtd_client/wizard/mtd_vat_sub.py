@@ -64,11 +64,9 @@ class MtdVat(models.TransientModel):
                         'An error has occurred : \n status: %s \n message: %s' % (
                             str(response.status_code), message.get('message')))
 
-            raise RedirectWarning('Please set VAT value for your current company',
-                                  self.env.ref('base.action_res_company_form').id, _('Go to the configuration panel'))
+            raise UserError('Please set VAT value for your current company.')
 
-        raise RedirectWarning('Please configure MTD', self.env.ref('account.res_config_settings_view_form').id,
-                              _('Go to the configuration panel'))
+        raise UserError('Please configure MTD.')
 
     def _get_context_periods(self):
         return self._context.get('periods')

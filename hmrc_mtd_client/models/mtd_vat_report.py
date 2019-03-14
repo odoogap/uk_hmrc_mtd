@@ -5,7 +5,7 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, RedirectWarning
+from odoo.exceptions import UserError
 import time
 import requests
 import json

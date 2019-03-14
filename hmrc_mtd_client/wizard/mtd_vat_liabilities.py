@@ -6,7 +6,7 @@
 
 from odoo import models, fields, api, _
 from odoo import exceptions, _
-from odoo.exceptions import UserError, RedirectWarning
+from odoo.exceptions import UserError
 import json
 import requests
 import time
@@ -73,8 +73,6 @@ class MtdVatLiabilities(models.TransientModel):
                         'An error has occurred : \nstatus: ' + str(
                             response.status_code) + '\n' + 'message: ' + message.get(
                             'message'))
-            raise RedirectWarning('Please set VAT value for your current company',
-                                  self.env.ref('base.action_res_company_form').id, _('Go to the configuration panel'))
+            raise UserError('Please set VAT value for your current company.')
 
-        raise RedirectWarning('Please configure MTD', self.env.ref('account.res_config_settings_view_form').id,
-                              _('Go to the configuration panel'))
+        raise UserError('Please configure MTD.')
