@@ -88,17 +88,18 @@ class MtdVat(models.TransientModel):
     bad_base = fields.Monetary('Bad Net', currency_field='currency_id')
 
     def dict_refactor(self, data):
-        new_dict = {'tax_line': {}, 'tax_lines': {}}
+        new_dict = {}
         for tax in data.get('tax_line'):
-            new_dict['tax_line'].update({
+            new_dict.update({
                 'vat_%s' % str(tax.get('tag_line_id')[0]): tax.get('vat'),
-                'credit_%s' % str(tax.get('tag_line_id')[0]): tax.get('credit'),
-                'debit_%s' % str(tax.get('tag_line_id')[0]): tax.get('debit')})
+                'vat_credit_%s' % str(tax.get('tag_line_id')[0]): tax.get('credit'),
+                'vat_debit_%s' % str(tax.get('tag_line_id')[0]): tax.get('debit')})
         for tax in data.get('tax_lines'):
-            new_dict['tax_lines'].update({
+            new_dict.update({
                 'net_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('net'),
-                'credit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('credit'),
-                'debit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('debit')})
+                'net_credit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('credit'),
+                'net_debit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('debit')})
+        print(new_dict)
         return new_dict
 
     def get_tax_moves(self, date_to, vat_scheme):
@@ -141,10 +142,8 @@ class MtdVat(models.TransientModel):
             try:
                 submit_data = self.get_tax_moves(self.period.split(
                     '-')[1].replace('/', '-'), self.vat_scheme)
-                submit_data['tax_line'].update(
-                    {'fuel_vat': self.fuel_vat, 'bad_vat': self.bad_vat})
-                submit_data['tax_lines'].update(
-                    {'fuel_net': self.fuel_base, 'bad_net': self.bad_base})
+                submit_data.update(
+                    {'fuel_vat': self.fuel_vat, 'bad_vat': self.bad_vat, 'fuel_net': self.fuel_base, 'bad_net': self.bad_base})
                 response = self.env['mtd.connection'].open_connection_odoogap().execute(
                     'mtd.operations', 'calculate_boxes', submit_data)
                 if response.get('status') == 200:

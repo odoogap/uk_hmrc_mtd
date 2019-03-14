@@ -92,8 +92,11 @@ class MtdCalculationFormula(models.TransientModel):
             dummy_dict.update({
                 'vat_%s' % tax: 1,
                 'net_%s' % tax: 1,
-                'credit_%s' % tax: 1,
-                'debit_%s' % tax: 1})
+                'vat_credit_%s' % tax: 1,
+                'vat_debit_%s' % tax: 1,
+                'net_credit_%s' % tax: 1,
+                'net_debit_%s' % tax: 1
+                })
         dummy_dict.update({'fuel_net': 1, 'fuel_vat': 1,
                            'bad_net': 1, 'bad_vat': 1})
         return dummy_dict
