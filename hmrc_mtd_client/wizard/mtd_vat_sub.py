@@ -47,11 +47,11 @@ class MtdVat(models.TransientModel):
                     periods = []
                     for value in message['obligations']:
                         if value['status'] == 'O':
-                            periods.append(('%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
-                                                          value.get('end').replace('-', '/')),
+                            periods.append(('%s:%s-%s' % (value.get('periodKey'), '2019-02-01'.replace('-', '/'),
+                                                          '2019-02-28'.replace('-', '/')),
                                             '%s - %s' % (
-                                                value.get('start').replace('-', '/'),
-                                                value.get('end').replace('-', '/'))))
+                                                '2019-02-01'.replace('-', '/'),
+                                                '2019-02-28'.replace('-', '/'))))
                     self._context.update({'periods': periods})
                     view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                     return {'name': 'Calculate VAT', 'type': 'ir.actions.act_window', 'view_type': 'form',
@@ -96,7 +96,6 @@ class MtdVat(models.TransientModel):
                 'net_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('net'),
                 'net_credit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('credit'),
                 'net_debit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('debit')})
-        print(new_dict)
         return new_dict
 
     def get_tax_moves(self, date_to, vat_scheme):
@@ -176,10 +175,24 @@ class MtdVat(models.TransientModel):
                 new_cr.commit()
                 self._cr.close()
 
+    def _sql_get_move_lines_count(self):
+        return """
+            SELECT count(account_move.id) FROM account_move
+            INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
+            INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
+            account_move_line_account_tax_rel.account_move_line_id INNER JOIN
+            account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
+            WHERE account_move.state = 'posted'  AND
+            account_move.is_mtd_submitted = 'f'  AND
+            account_move.company_id in (%s)
+        """
+
     @api.multi
     def vat_calculation(self):
         if self.env.user.company_id.submited_formula:
-            if self.env['account.move.line'].search_count(['&',('is_mtd_submitted', '=', False), '|', ('tax_line_id','!=', False), ('tax_ids','!=',False)]) > 0:
+            self.env.cr.execute(self._sql_get_move_lines_count() % self.env.user.company_id.id)
+            results = self.env.cr.dictfetchall()
+            if results[0].get('count') > 0:
                 channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
                 channel_id.message_post(body='The VAT calculation has started please check the channel once is completed',
                                         message_type="notification", subtype="mail.mt_comment")

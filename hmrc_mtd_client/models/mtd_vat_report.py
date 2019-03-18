@@ -217,7 +217,9 @@ class MtdVatReport(models.Model):
                 results = rec.env.cr.fetchall()
                 ids = [res[0] for res in results]
                 rec.env.cr.execute(
-                    "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, tuple(ids)))
+                    "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, str(tuple(ids))))
+                rec.env.cr.execute(
+                    "update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
                 return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
                         'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
                         'target': 'new',

@@ -48,7 +48,6 @@
                                         </h4>
                                     </th>
                                     <th style="border-top: 0px; important; padding-top: 4em;">
-                                        <b>Details</b>
                                     </th>
                                     <th style="border-top: 0px; important; padding-top: 4em;">
                                         <b>Value</b>
@@ -63,12 +62,7 @@
                                 <tr>
                                     <th width="30%" scope="row">[box 1] VAT due this period on sales and other outputs
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_one" readonly="1"/>
                                     </td>
@@ -83,12 +77,7 @@
                                     <th width="30%" scope="row">[box 2] VAT due in this period on acquisitions from
                                         other EC Member States
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT8'], 'tag_type':'Box 2'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_two" readonly="1"/>
                                     </td>
@@ -116,12 +105,7 @@
                                     <th width="30%" scope="row">[box 4] VAT reclaimed in this period on purchases
                                         and other inputs
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT8'], 'tag_type':'Box 4'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_four" readonly="1"/>
                                     </td>
@@ -150,9 +134,7 @@
                                             <b>Sales and purchases excluding VAT</b>
                                         </h4>
                                     </th>
-                                    <th style="border-top: 0px; important; padding-top: 4em;">
-                                        <b>Details</b>
-                                    </th>
+                                    <th style="border-top: 0px; important; padding-top: 4em;"></th>
                                     <th style="border-top: 0px !important; padding-top: 4em;">
                                         <b>Value</b>
                                     </th>
@@ -167,12 +149,7 @@
                                     <th width="30%" scope="row">[box 6] Total value of sales and all other outputs
                                         excluding VAT
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST0', 'ST2', 'ST11', 'ST4', 'PT8'], 'tag_type':'Box 6'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_six" readonly="1"/>
                                     </td>
@@ -187,12 +164,7 @@
                                     <th width="30%" scope="row">[box 7] Total value of purchases and all other inputs
                                         excluding VAT(including acquisitions from EC)
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT11', 'PT0', 'PT1', 'PT2', 'PT5', 'PT7', 'PT8'], 'tag_type':'Box 7'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_seven" readonly="1"/>
                                     </td>
@@ -207,12 +179,7 @@
                                     <th width="40%" scope="row">[box 8] Total value of all supplies of goods, excluding
                                         any VAT, to other EC Member States
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['ST4', 'PT8'], 'tag_type':'Box 8'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_eight" readonly="1"/>
                                     </td>
@@ -227,12 +194,7 @@
                                     <th width="30%" scope="row">[box 9] Total value of all acquisitions of goods,
                                         excluding any VAT, from EC Member States
                                     </th>
-                                    <td width="10%">
-                                        <button name="get_invoices" type="object"
-                                                context="{'tags': ['PT7', 'PT8'], 'tag_type':'Box 9'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
-                                        </button>
-                                    </td>
+                                    <td width="10%"></td>
                                     <td width="20%">
                                         <field name="box_nine" readonly="1"/>
                                     </td>
