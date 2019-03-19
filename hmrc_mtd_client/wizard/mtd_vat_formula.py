@@ -32,13 +32,13 @@ class MtdCalculationFormula(models.TransientModel):
         res = super(MtdCalculationFormula, self).get_values()
         params = self.env['ir.config_parameter'].sudo()
 
-        box_one = params.get_param('mtd.box1_formula', False)
-        box_two = params.get_param('mtd.box2_formula', False)
-        box_four = params.get_param('mtd.box4_formula', False)
-        box_six = params.get_param('mtd.box6_formula', False)
-        box_seven = params.get_param('mtd.box7_formula', False)
-        box_eight = params.get_param('mtd.box8_formula', False)
-        box_nine = params.get_param('mtd.box9_formula', False)
+        box_one = params.get_param('mtd.box_one_formula', 'sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat')
+        box_two = params.get_param('mtd.box_two_formula', 'sum([vat_PT8M])')
+        box_four = params.get_param('mtd.box_four_formula', 'sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])')
+        box_six = params.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net')
+        box_seven = params.get_param('mtd.box_seven_formula', 'sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])')
+        box_eight = params.get_param('mtd.box_eight_formula', 'sum([net_ST4])')
+        box_nine = params.get_param('mtd.box_nine_formula', 'sum([net_PT7, net_PT8])')
         res.update(
             box_one=box_one,
             box_two=box_two,
@@ -53,13 +53,12 @@ class MtdCalculationFormula(models.TransientModel):
     def set_values(self):
         super(MtdCalculationFormula, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
-        set_param('mtd.box1_formula', self.box_one)
-        set_param('mtd.box2_formula', self.box_two)
-        set_param('mtd.box4_formula', self.box_four)
-        set_param('mtd.box6_formula', self.box_six)
-        set_param('mtd.box7_formula', self.box_seven)
-        set_param('mtd.box8_formula', self.box_eight)
-        set_param('mtd.box9_formula', self.box_nine)
+        attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
+        for attr in attrs:
+            if getattr(self, attr):
+                set_param('mtd.%s_formula' % attr, getattr(self, attr))
+            else:
+                set_param('mtd.%s_formula' % attr, 'N/A')
 
     def submit_formula(self):
         self.set_values()
@@ -68,7 +67,8 @@ class MtdCalculationFormula(models.TransientModel):
 
         for attr in attrs:
             if getattr(self, attr):
-                formula.update({attr:getattr(self, attr)})
+                if getattr(self, attr) !='N/A':
+                    formula.update({attr:getattr(self, attr)})
 
         self.test_formula(formula)
         conn = self.env['mtd.connection'].open_connection_odoogap()
@@ -107,10 +107,11 @@ class MtdCalculationFormula(models.TransientModel):
             dummy_dict = self.get_dummy_dict()
             for parameter in formula:
                 if formula.get(parameter):
-                    if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
-                        safe_eval(formula.get(parameter), dummy_dict)
-                    else:
-                        raise UserError(
-                            'Boxes formulas need to have arithmethic operations')
+                    if formula.get(parameter) != 'N/A':
+                        if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
+                            safe_eval(formula.get(parameter).encode('utf8'), dummy_dict)
+                        else:
+                            raise UserError(
+                                'Boxes formulas need to have arithmethic operations')
         except Exception as ex:
             raise UserError(msgfy.to_error_message(ex, "{error_msg}"))
