@@ -72,28 +72,28 @@ class MtdVatReport(models.Model):
     @api.model
     def create(self, values):
         res = super(MtdVatReport, self).create(values)
-        res.write({'vatDueSales': res.box_one + res.box_one_adj, 'vatDueAcquisitions': res.box_two + res.box_two_adj,
-                   'totalVatDue': res.box_three,
-                   'vatReclaimedCurrPeriod': res.box_four + res.box_four_adj,
-                   'netVatDue': res.box_five, 'totalValueSalesExVAT': res.box_six + res.box_six_adj,
-                   'totalValuePurchasesExVAT': res.box_seven + res.box_seven_adj,
-                   'totalValueGoodsSuppliedExVAT': res.box_eight + res.box_eight_adj,
-                   'totalAcquisitionsExVAT': res.box_nine + res.box_nine_adj})
+        res.write({'vatDueSales': round(res.box_one + res.box_one_adj, 2), 'vatDueAcquisitions': round(res.box_two + res.box_two_adj, 2),
+                   'totalVatDue': round(res.box_three, 2),
+                   'vatReclaimedCurrPeriod': round(res.box_four + res.box_four_adj, 2),
+                   'netVatDue': abs(round(res.box_five, 2)), 'totalValueSalesExVAT': round(res.box_six + res.box_six_adj, 0),
+                   'totalValuePurchasesExVAT': round(res.box_seven + res.box_seven_adj, 0),
+                   'totalValueGoodsSuppliedExVAT': round(res.box_eight + res.box_eight_adj, 0),
+                   'totalAcquisitionsExVAT': round(res.box_nine + res.box_nine_adj, 0)})
         return res
 
     @api.multi
     def write(self, values):
         if not self.is_submitted:
             values.update(
-                {'vatDueSales': self.box_one + values.get('box_one_adj', self.box_one_adj),
-                 'vatDueAcquisitions': self.box_two + values.get('box_two_adj', self.box_two_adj),
-                 'totalVatDue': (self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj)),
-                 'vatReclaimedCurrPeriod': self.box_four + values.get('box_four_adj', self.box_four_adj),
-                 'netVatDue': ((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))) - (self.box_four + self.box_four_adj),
-                 'totalValueSalesExVAT': self.box_six + values.get('box_six_adj', self.box_six_adj),
-                 'totalValuePurchasesExVAT': self.box_seven + values.get('box_seven_adj', self.box_seven_adj),
-                 'totalValueGoodsSuppliedExVAT': self.box_eight + values.get('box_eight', self.box_eight_adj),
-                 'totalAcquisitionsExVAT': self.box_nine + values.get('box_nine_adj', self.box_nine_adj)})
+                {'vatDueSales': round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2),
+                 'vatDueAcquisitions': round((self.box_two + values.get('box_two_adj', self.box_two_adj)), 2),
+                 'totalVatDue': round(((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))), 2),
+                 'vatReclaimedCurrPeriod': round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2),
+                 'netVatDue': abs(round((((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))) - (self.box_four + self.box_four_adj)), 2)),
+                 'totalValueSalesExVAT': round((self.box_six + values.get('box_six_adj', self.box_six_adj)), 0),
+                 'totalValuePurchasesExVAT': round((self.box_seven + values.get('box_seven_adj', self.box_seven_adj)), 0),
+                 'totalValueGoodsSuppliedExVAT': round((self.box_eight + values.get('box_eight', self.box_eight_adj)), 0),
+                 'totalAcquisitionsExVAT': round((self.box_nine + values.get('box_nine_adj', self.box_nine_adj)), 0)})
             return super(MtdVatReport, self).write(values)
 
     @api.onchange('box_one_adj')
@@ -186,15 +186,15 @@ class MtdVatReport(models.Model):
     @api.multi
     def submit_vat(self):
         for rec in self:
-            boxes = {'vatDueSales': round(rec.vatDueSales, 2), 'vatDueAcquisitions': round(rec.vatDueAcquisitions, 2),
-                     'totalVatDue': round(rec.totalVatDue, 2),
-                     'vatReclaimedCurrPeriod': round(rec.vatReclaimedCurrPeriod, 2),
-                     'netVatDue': abs(round(rec.netVatDue, 2)),
-                     'totalValueSalesExVAT': round(rec.totalValueSalesExVAT, 0),
-                     'totalValuePurchasesExVAT': round(rec.totalValuePurchasesExVAT, 0), 'periodKey': rec.period_key,
+            boxes = {'vatDueSales': rec.vatDueSales, 'vatDueAcquisitions': rec.vatDueAcquisitions,
+                     'totalVatDue': rec.totalVatDue,
+                     'vatReclaimedCurrPeriod': rec.vatReclaimedCurrPeriod,
+                     'netVatDue': rec.netVatDue,
+                     'totalValueSalesExVAT': rec.totalValueSalesExVAT,
+                     'totalValuePurchasesExVAT': rec.totalValuePurchasesExVAT, 'periodKey': rec.period_key,
                      'finalised': True,
-                     'totalValueGoodsSuppliedExVAT': round(rec.totalValueGoodsSuppliedExVAT, 0),
-                     'totalAcquisitionsExVAT': round(rec.totalAcquisitionsExVAT, 0)}
+                     'totalValueGoodsSuppliedExVAT': rec.totalValueGoodsSuppliedExVAT,
+                     'totalAcquisitionsExVAT': rec.totalAcquisitionsExVAT}
             params = rec.env['ir.config_parameter'].sudo()
             api_token = params.get_param('mtd.token', default=False)
             hmrc_url = params.get_param('mtd.hmrc.url', default=False)
