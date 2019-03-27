@@ -83,6 +83,7 @@ class MtdVatReport(models.Model):
 
     @api.multi
     def write(self, values):
+        self.ensure_one()
         if not self.is_submitted:
             values.update(
                 {'vatDueSales': round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2),
@@ -185,46 +186,46 @@ class MtdVatReport(models.Model):
 
     @api.multi
     def submit_vat(self):
-        for rec in self:
-            boxes = {'vatDueSales': rec.vatDueSales, 'vatDueAcquisitions': rec.vatDueAcquisitions,
-                     'totalVatDue': rec.totalVatDue,
-                     'vatReclaimedCurrPeriod': rec.vatReclaimedCurrPeriod,
-                     'netVatDue': rec.netVatDue,
-                     'totalValueSalesExVAT': rec.totalValueSalesExVAT,
-                     'totalValuePurchasesExVAT': rec.totalValuePurchasesExVAT, 'periodKey': rec.period_key,
-                     'finalised': True,
-                     'totalValueGoodsSuppliedExVAT': rec.totalValueGoodsSuppliedExVAT,
-                     'totalAcquisitionsExVAT': rec.totalAcquisitionsExVAT}
-            params = rec.env['ir.config_parameter'].sudo()
-            api_token = params.get_param('mtd.token', default=False)
-            hmrc_url = params.get_param('mtd.hmrc.url', default=False)
-            token_expire_date = params.get_param('mtd.token_expire_date')
-            if float(token_expire_date) - time.time() < 0:
-                api_token = rec.env['mtd.connection'].refresh_token()
-            response = requests.post('%s/organisations/vat/%s/returns' % (hmrc_url, str(rec.env.user.company_id.vrn)),
-                                     headers={'Content-Type': 'application/json',
-                                              'Accept': 'application/vnd.hmrc.1.0+json',
-                                              'Authorization': 'Bearer %s' % api_token}, json=boxes)
+        self.ensure_one()
+        boxes = {'vatDueSales': self.vatDueSales, 'vatDueAcquisitions': self.vatDueAcquisitions,
+                    'totalVatDue': self.totalVatDue,
+                    'vatReclaimedCurrPeriod': self.vatReclaimedCurrPeriod,
+                    'netVatDue': self.netVatDue,
+                    'totalValueSalesExVAT': self.totalValueSalesExVAT,
+                    'totalValuePurchasesExVAT': self.totalValuePurchasesExVAT, 'periodKey': self.period_key,
+                    'finalised': True,
+                    'totalValueGoodsSuppliedExVAT': self.totalValueGoodsSuppliedExVAT,
+                    'totalAcquisitionsExVAT': self.totalAcquisitionsExVAT}
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        hmrc_url = params.get_param('mtd.hmrc.url', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+        if float(token_expire_date) - time.time() < 0:
+            api_token = self.env['mtd.connection'].refresh_token()
+        response = requests.post('%s/organisations/vat/%s/returns' % (hmrc_url, str(self.env.user.company_id.vrn)),
+                                    headers={'Content-Type': 'application/json',
+                                            'Accept': 'application/vnd.hmrc.1.0+json',
+                                            'Authorization': 'Bearer %s' % api_token}, json=boxes)
 
-            if response.status_code == 201:
-                view = rec.env.ref('hmrc_mtd_client.pop_up_message_view')
-                rec.env['mtd.connection'].sudo().open_connection_odoogap().execute(
-                    'mtd.operations', 'validate_submission', rec.submission_token)
-                rec.write(
-                    {'is_submitted': True, 'submission_date': datetime.datetime.now()})
-                rec.env.cr.execute(rec.sql_get_account_move_lines() % (
-                    rec.name.split('-')[1].replace('/', '-'), rec.env.user.company_id.id))
-                results = rec.env.cr.fetchall()
-                ids = [res[0] for res in results]
-                rec.env.cr.execute(
-                    "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (rec.id, str(tuple(ids))))
-                rec.env.cr.execute(
-                    "update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
-                return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                        'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                        'target': 'new',
-                        'context': {'default_name': 'Successfully Submitted', 'no_delay': False, 'delay': True}}
-            message = json.loads(response._content.decode("utf-8"))
-            raise UserError(
-                'An error has occurred : \n status: %s \n message: %s' % (str(response.status_code), ''.join(
-                    [error.get('message') for error in message.get('errors')])))
+        if response.status_code == 201:
+            view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
+            self.env['mtd.connection'].sudo().open_connection_odoogap().execute(
+                'mtd.operations', 'validate_submission', self.submission_token)
+            self.write(
+                {'is_submitted': True, 'submission_date': datetime.datetime.now()})
+            self.env.cr.execute(self.sql_get_account_move_lines() % (
+                self.name.split('-')[1].replace('/', '-'), self.env.user.company_id.id))
+            results = self.env.cr.fetchall()
+            ids = [res[0] for res in results]
+            self.env.cr.execute(
+                "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (self.id, str(tuple(ids))))
+            self.env.cr.execute(
+                "update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
+            return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
+                    'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
+                    'target': 'new',
+                    'context': {'default_name': 'Successfully Submitted', 'no_delay': False, 'delay': True}}
+        message = json.loads(response._content.decode("utf-8"))
+        raise UserError(
+            'An error has occurred : \n status: %s \n message: %s' % (str(response.status_code), ''.join(
+                [error.get('message') for error in message.get('errors')])))
