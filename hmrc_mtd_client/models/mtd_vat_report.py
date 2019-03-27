@@ -83,7 +83,6 @@ class MtdVatReport(models.Model):
 
     @api.multi
     def write(self, values):
-        self.ensure_one()
         if not self.is_submitted:
             values.update(
                 {'vatDueSales': round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2),
