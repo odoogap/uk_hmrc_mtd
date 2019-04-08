@@ -84,12 +84,18 @@ class MtdVatReport(models.Model):
     @api.multi
     def write(self, values):
         if not self.is_submitted:
+            vatDueSales = round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2)
+            vatDueAcquisitions = round((self.box_two + values.get('box_two_adj', self.box_two_adj)), 2)
+            totalVatDue = vatDueSales + vatDueAcquisitions
+            vatReclaimedCurrPeriod = round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2)
+            netVatDue = round(abs((vatDueSales + vatDueAcquisitions) - vatReclaimedCurrPeriod), 2)
+
             values.update(
-                {'vatDueSales': round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2),
-                 'vatDueAcquisitions': round((self.box_two + values.get('box_two_adj', self.box_two_adj)), 2),
-                 'totalVatDue': round(((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))), 2),
-                 'vatReclaimedCurrPeriod': round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2),
-                 'netVatDue': abs(round(((self.box_one + values.get('box_one_adj', self.box_one_adj)) + (self.box_two + values.get('box_two_adj', self.box_two_adj))), 2) - round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2)),
+                {'vatDueSales': vatDueSales,
+                 'vatDueAcquisitions': vatDueAcquisitions,
+                 'totalVatDue': totalVatDue,
+                 'vatReclaimedCurrPeriod': vatReclaimedCurrPeriod,
+                 'netVatDue': netVatDue,
                  'totalValueSalesExVAT': round((self.box_six + values.get('box_six_adj', self.box_six_adj)), 0),
                  'totalValuePurchasesExVAT': round((self.box_seven + values.get('box_seven_adj', self.box_seven_adj)), 0),
                  'totalValueGoodsSuppliedExVAT': round((self.box_eight + values.get('box_eight_adj', self.box_eight_adj)), 0),

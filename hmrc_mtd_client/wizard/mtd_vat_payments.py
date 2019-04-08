@@ -17,10 +17,6 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
-
 class MtdVatPayments(models.TransientModel):
     _name = 'mtd.vat.payments'
 
@@ -42,8 +38,7 @@ class MtdVatPayments(models.TransientModel):
                 response = requests.get(
                     '%s/organisations/vat/%s/payments' % (hmrc_url, str(self.env.user.company_id.vrn)),
                     headers={'Content-Type': 'application/json',
-                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token,
-                             'Gov-Test-Scenario': 'MULTIPLE_LIABILITIES'},
+                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token},
                     params={"to": time.strftime("%Y-%m-%d"),
                             "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')})
                 if response.status_code == 200:
