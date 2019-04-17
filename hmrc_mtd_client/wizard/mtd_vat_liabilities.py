@@ -17,7 +17,6 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
-
 class MtdVatLiabilities(models.TransientModel):
     _name = 'mtd.vat.liabilities'
 
