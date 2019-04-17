@@ -72,13 +72,19 @@ class MtdVatReport(models.Model):
     @api.model
     def create(self, values):
         res = super(MtdVatReport, self).create(values)
-        res.write({'vatDueSales': round(res.box_one + res.box_one_adj, 2), 'vatDueAcquisitions': round(res.box_two + res.box_two_adj, 2),
-                   'totalVatDue': round(res.box_three, 2),
-                   'vatReclaimedCurrPeriod': round(res.box_four + res.box_four_adj, 2),
-                   'netVatDue': abs(round(res.box_five, 2)), 'totalValueSalesExVAT': round(res.box_six + res.box_six_adj, 0),
-                   'totalValuePurchasesExVAT': round(res.box_seven + res.box_seven_adj, 0),
-                   'totalValueGoodsSuppliedExVAT': round(res.box_eight + res.box_eight_adj, 0),
-                   'totalAcquisitionsExVAT': round(res.box_nine + res.box_nine_adj, 0)})
+        res.write(
+            {
+                'vatDueSales': round(res.box_one + res.box_one_adj, 2),
+                'vatDueAcquisitions': round(res.box_two + res.box_two_adj, 2),
+                'totalVatDue': round(res.box_three, 2),
+                'vatReclaimedCurrPeriod': round(res.box_four + res.box_four_adj, 2),
+                'netVatDue': abs(round(res.box_five, 2)),
+                'totalValueSalesExVAT': round(res.box_six + res.box_six_adj, 0),
+                'totalValuePurchasesExVAT': round(res.box_seven + res.box_seven_adj, 0),
+                'totalValueGoodsSuppliedExVAT': round(res.box_eight + res.box_eight_adj, 0),
+                'totalAcquisitionsExVAT': round(res.box_nine + res.box_nine_adj, 0)
+            })
+
         return res
 
     @api.multi
@@ -86,20 +92,22 @@ class MtdVatReport(models.Model):
         if not self.is_submitted:
             vatDueSales = round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2)
             vatDueAcquisitions = round((self.box_two + values.get('box_two_adj', self.box_two_adj)), 2)
-            totalVatDue = vatDueSales + vatDueAcquisitions
+            totalVatDue = round((vatDueSales + vatDueAcquisitions), 2)
             vatReclaimedCurrPeriod = round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2)
             netVatDue = round(abs((vatDueSales + vatDueAcquisitions) - vatReclaimedCurrPeriod), 2)
 
             values.update(
-                {'vatDueSales': vatDueSales,
-                 'vatDueAcquisitions': vatDueAcquisitions,
-                 'totalVatDue': totalVatDue,
-                 'vatReclaimedCurrPeriod': vatReclaimedCurrPeriod,
-                 'netVatDue': netVatDue,
-                 'totalValueSalesExVAT': round((self.box_six + values.get('box_six_adj', self.box_six_adj)), 0),
-                 'totalValuePurchasesExVAT': round((self.box_seven + values.get('box_seven_adj', self.box_seven_adj)), 0),
-                 'totalValueGoodsSuppliedExVAT': round((self.box_eight + values.get('box_eight_adj', self.box_eight_adj)), 0),
-                 'totalAcquisitionsExVAT': round((self.box_nine + values.get('box_nine_adj', self.box_nine_adj)), 0)})
+                {
+                    'vatDueSales': vatDueSales,
+                    'vatDueAcquisitions': vatDueAcquisitions,
+                    'totalVatDue': totalVatDue,
+                    'vatReclaimedCurrPeriod': vatReclaimedCurrPeriod,
+                    'netVatDue': netVatDue,
+                    'totalValueSalesExVAT': round((self.box_six + values.get('box_six_adj', self.box_six_adj)), 0),
+                    'totalValuePurchasesExVAT': round((self.box_seven + values.get('box_seven_adj', self.box_seven_adj)), 0),
+                    'totalValueGoodsSuppliedExVAT': round((self.box_eight + values.get('box_eight_adj', self.box_eight_adj)), 0),
+                    'totalAcquisitionsExVAT': round((self.box_nine + values.get('box_nine_adj', self.box_nine_adj)), 0)
+                })
             return super(MtdVatReport, self).write(values)
 
     @api.onchange('box_one_adj')
@@ -155,15 +163,25 @@ class MtdVatReport(models.Model):
 
     def sql_get_account_move_lines(self):
         return """
+            SELECT account_move.id
+                FROM account_move INNER JOIN account_move_line ON
+                account_move.id = account_move_line.move_id
+                WHERE account_move_line.move_id=account_move.id AND
+                account_move_line.tax_line_id IS NOT NULL  AND
+                account_move_line.date <= '%s'  AND
+                account_move.state = 'posted'  AND
+                account_move.is_mtd_submitted = 'f'  AND
+                account_move.company_id in (%s)
+            UNION
             SELECT account_move.id FROM account_move
-            INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
-            INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
-            account_move_line_account_tax_rel.account_move_line_id INNER JOIN
-            account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
-            WHERE account_move.date <= '%s'  AND
-            account_move.state = 'posted'  AND
-            account_move.is_mtd_submitted = 'f'  AND
-            account_move.company_id in (%s)
+                INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
+                INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
+                account_move_line_account_tax_rel.account_move_line_id INNER JOIN
+                account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
+                WHERE account_move.date <= '%s'  AND
+                account_move.state = 'posted'  AND
+                account_move.is_mtd_submitted = 'f'  AND
+                account_move.company_id in (%s)
         """
 
     @api.multi
@@ -192,15 +210,19 @@ class MtdVatReport(models.Model):
     @api.multi
     def submit_vat(self):
         self.ensure_one()
-        boxes = {'vatDueSales': self.vatDueSales, 'vatDueAcquisitions': self.vatDueAcquisitions,
-                    'totalVatDue': self.totalVatDue,
-                    'vatReclaimedCurrPeriod': self.vatReclaimedCurrPeriod,
-                    'netVatDue': self.netVatDue,
-                    'totalValueSalesExVAT': self.totalValueSalesExVAT,
-                    'totalValuePurchasesExVAT': self.totalValuePurchasesExVAT, 'periodKey': self.period_key,
-                    'finalised': True,
-                    'totalValueGoodsSuppliedExVAT': self.totalValueGoodsSuppliedExVAT,
-                    'totalAcquisitionsExVAT': self.totalAcquisitionsExVAT}
+        boxes = {
+            'vatDueSales': self.vatDueSales,
+            'vatDueAcquisitions': self.vatDueAcquisitions,
+            'totalVatDue': self.totalVatDue,
+            'vatReclaimedCurrPeriod': self.vatReclaimedCurrPeriod,
+            'netVatDue': self.netVatDue,
+            'totalValueSalesExVAT': self.totalValueSalesExVAT,
+            'totalValuePurchasesExVAT': self.totalValuePurchasesExVAT,
+            'periodKey': self.period_key,
+            'finalised': True,
+            'totalValueGoodsSuppliedExVAT': self.totalValueGoodsSuppliedExVAT,
+            'totalAcquisitionsExVAT': self.totalAcquisitionsExVAT
+        }
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
@@ -208,28 +230,46 @@ class MtdVatReport(models.Model):
         if float(token_expire_date) - time.time() < 0:
             api_token = self.env['mtd.connection'].refresh_token()
         response = requests.post('%s/organisations/vat/%s/returns' % (hmrc_url, str(self.env.user.company_id.vrn)),
-                                    headers={'Content-Type': 'application/json',
-                                            'Accept': 'application/vnd.hmrc.1.0+json',
-                                            'Authorization': 'Bearer %s' % api_token}, json=boxes)
-
+                                    headers={
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/vnd.hmrc.1.0+json',
+                                        'Authorization': 'Bearer %s' % api_token
+                                        }, json=boxes)
         if response.status_code == 201:
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
             self.env['mtd.connection'].sudo().open_connection_odoogap().execute(
                 'mtd.operations', 'validate_submission', self.submission_token)
             self.write(
                 {'is_submitted': True, 'submission_date': datetime.datetime.now()})
-            self.env.cr.execute(self.sql_get_account_move_lines() % (
-                self.name.split('-')[1].replace('/', '-'), self.env.user.company_id.id))
+            self.env.cr.execute(
+                self.sql_get_account_move_lines() % (
+                self.name.split('-')[1].replace('/', '-'),
+                self.env.user.company_id.id,
+                self.name.split('-')[1].replace('/', '-'),
+                self.env.user.company_id.id
+                )
+            )
             results = self.env.cr.fetchall()
             ids = [res[0] for res in results]
-            self.env.cr.execute(
-                "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (self.id, str(tuple(ids))))
-            self.env.cr.execute(
-                "update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
-            return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                    'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new',
-                    'context': {'default_name': 'Successfully Submitted', 'no_delay': False, 'delay': True}}
+            if ids:
+                self.env.cr.execute(
+                    "update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (self.id, str(tuple(ids))))
+                self.env.cr.execute(
+                    "update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
+            return {
+                'name': 'Success',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pop.up.message',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': {
+                    'default_name': 'Successfully Submitted',
+                    'no_delay': False,
+                    'delay': True}
+                }
         message = json.loads(response._content.decode("utf-8"))
         raise UserError(
             'An error has occurred : \n status: %s \n message: %s' % (str(response.status_code), ''.join(

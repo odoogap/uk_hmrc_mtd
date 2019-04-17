@@ -10,11 +10,10 @@ from odoo.http import request
 
 class Mtd(http.Controller):
 
-    @http.route('/mtd/<string:token>/<string:ex_date>', auth='user')
+    @http.route('/mtd/<string:message>', auth='user')
     def redirect(self, **kw):
-        if kw.get('token') != 'Invalid':
-            request.env['ir.config_parameter'].sudo().set_param('mtd.token', kw.get('token'))
-            request.env['ir.config_parameter'].sudo().set_param('mtd.token_expire_date', float(kw.get('ex_date')))
+        if kw.get('message') == 'Success':
+            request.env['mtd.connection'].get_token()
             return 'Success! you can close the HMRC Page'
         else:
             return 'Failed! Something went wrong'
