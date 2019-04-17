@@ -51,3 +51,15 @@ class MtdConnection(models.TransientModel):
             raise UserError(
                 'An error has occurred : \n status: %s\n message: %s' % (
                     str(response.get('status')), response.get('message')))
+
+    def get_token(self):
+            conn = self.open_connection_odoogap()
+            response = conn.execute('mtd.operations', 'get_token')
+            if response.get('status') == 200:
+                set_param = self.env['ir.config_parameter'].sudo().set_param
+                set_param('mtd.token', response.get('message').get('token'))
+                set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
+            else:
+                raise UserError(
+                    'An error has occurred : \n status: %s\n message: %s' % (
+                        str(response.get('status')), response.get('message')))
