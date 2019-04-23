@@ -258,13 +258,14 @@ class MtdVatReport(models.Model):
                 'submiting': True,
                 'is_submitted': True,
                 'submission_date': datetime.datetime.now(),
-                'processing_date': message['processingDate'],
-                'payment_indicator': message['paymentIndicator'],
-                'form_bundle_number': message['formBundleNumber'],
-                'x_correlation_id': headers['X-Correlationid'],
-                'receipt_id': headers['Receipt-ID'],
-                'receipt_timestamp': headers['Receipt-Timestamp'],
-                'receipt_signature': headers['Receipt-Signature']
+                'processing_date': message.get('processingDate'),
+                'payment_indicator': message.get('paymentIndicator'),
+                'form_bundle_number': message.get('formBundleNumber'),
+                'charge_ref_number':message.get('chargeRefNumber'),
+                'x_correlation_id': headers.get('X-Correlationid'),
+                'receipt_id': headers.get('Receipt-ID'),
+                'receipt_timestamp': headers.get('Receipt-Timestamp'),
+                'receipt_signature': headers.get('Receipt-Signature')
                 })
 
             self.env.cr.execute(
