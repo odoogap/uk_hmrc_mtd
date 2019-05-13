@@ -10,6 +10,7 @@ import time
 
 class pop_up_message(models.TransientModel):
     _name = "pop.up.message"
+    _description="pop up message"
 
     def get_message(self):
         return self.env.context.get("message")
@@ -24,7 +25,9 @@ class pop_up_message(models.TransientModel):
             'res_model': 'mtd.vat.report',
             'view_mode': 'tree,form',
             'view_type': 'tree',
-            'views': [[self.env.ref('hmrc_mtd_client.mtd_vat_report_tree_view').id, 'list'],
-                      [self.env.ref('hmrc_mtd_client.mtd_vat_report_form').id, 'form']],
+            'views': [
+                [self.env.ref('hmrc_mtd_client.mtd_vat_report_tree_view').id, 'list'],
+                [self.env.ref('hmrc_mtd_client.mtd_vat_report_form').id, 'form']
+            ],
             'context': {"search_default_not_submitted": 1}
         }

@@ -6,17 +6,13 @@
 
 from odoo import api, fields, models, _
 
-
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
     mtd_date = fields.Date('Mtd date', compute='_compute_mtd_date', search="_search_mtd_date")
-    net_amount_total = fields.Monetary(string='Amount Net', currency_field='company_currency_id',
-                                       compute='_compute_net_amount')
-    vat_amount_total = fields.Monetary(string='Amount VAT', currency_field='company_currency_id',
-                                       compute='_compute_vat_amount')
-    reverse_vat_amount = fields.Monetary(string='Reverse VAT', currency_field='company_currency_id',
-                                         compute='_compute_reverse_vat_amount')
+    net_amount_total = fields.Monetary(string='Amount Net', currency_field='company_currency_id', compute='_compute_net_amount')
+    vat_amount_total = fields.Monetary(string='Amount VAT', currency_field='company_currency_id', compute='_compute_vat_amount')
+    reverse_vat_amount = fields.Monetary(string='Reverse VAT', currency_field='company_currency_id', compute='_compute_reverse_vat_amount')
 
     @api.multi
     def _compute_mtd_date(self):

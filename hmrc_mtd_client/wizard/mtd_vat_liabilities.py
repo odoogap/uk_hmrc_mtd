@@ -17,8 +17,14 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+        getattr(ssl, '_create_unverified_context', None)):
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+
 class MtdVatLiabilities(models.TransientModel):
     _name = 'mtd.vat.liabilities'
+    _description = "VAT Liabilites"
 
     name = fields.Char(default='Liability details')
     tax_period_start = fields.Date('from')
@@ -31,6 +37,10 @@ class MtdVatLiabilities(models.TransientModel):
     due_date = fields.Date('Due')
 
     def get_liabilities(self):
+        """gets the liabilities from HMRC API and returns a tree view with the info
+        Returns:
+            [dict] -- [liabilities tree view]
+        """
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
@@ -39,34 +49,50 @@ class MtdVatLiabilities(models.TransientModel):
         if api_token:
             if float(token_expire_date) - time.time() < 0:
                 api_token = self.env['mtd.connection'].refresh_token()
+
             if self.env.user.company_id.vat:
-                response = requests.get(
-                    '%s/organisations/vat/%s/liabilities' % (hmrc_url, str(self.env.user.company_id.vrn)),
-                    headers={'Content-Type': 'application/json',
-                             'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token},
-                    params={"to": time.strftime("%Y-%m-%d"),
-                            "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')})
+                req_url = '%s/organisations/vat/%s/liabilities' % (hmrc_url, str(self.env.user.company_id.vrn))
+                req_headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token
+                }
+                req_params = {
+                    "to": time.strftime("%Y-%m-%d"),
+                    "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
+                }
+
+                response = requests.get(req_url, headers=req_headers, params=req_params)
+
                 if response.status_code == 200:
                     self.search([]).unlink()
                     message = json.loads(response._content.decode("utf-8"))
+
                     for liability in message.get('liabilities'):
-                        self.create({'tax_period_start': liability.get('taxPeriod').get('from'),
-                                     'tax_period_end': liability.get('taxPeriod').get('to'),
-                                     'liability_type': liability.get('type'),
-                                     'original_amount': liability.get('originalAmount'),
-                                     'outstanding_amount': liability.get('outstandingAmount'),
-                                     'due_date': liability.get('due')})
-                    return {'name': 'Liabilities', 'type': 'ir.actions.act_window',
-                            'view_mode': 'tree,form', 'res_model': 'mtd.vat.liabilities',
-                            'views': [[self.env.ref('hmrc_mtd_client.mtd_vat_liabilities_tree_view').id, 'list'],
-                                      [self.env.ref('hmrc_mtd_client.mtd_vat_liabilities_form_view').id, 'form']],
-                            'target': 'current'}
+                        self.create(
+                            {
+                                'tax_period_start': liability.get('taxPeriod').get('from'),
+                                'tax_period_end': liability.get('taxPeriod').get('to'),
+                                'liability_type': liability.get('type'),
+                                'original_amount': liability.get('originalAmount'),
+                                'outstanding_amount': liability.get('outstandingAmount'),
+                                'due_date': liability.get('due')
+                            })
+
+                    return {
+                            'name': 'Liabilities',
+                            'type': 'ir.actions.act_window',
+                            'view_mode': 'tree,form',
+                            'res_model': 'mtd.vat.liabilities',
+                            'views': [
+                                [self.env.ref('hmrc_mtd_client.mtd_vat_liabilities_tree_view').id, 'list'],
+                                [self.env.ref('hmrc_mtd_client.mtd_vat_liabilities_form_view').id, 'form']
+                            ],
+                            'target': 'current'
+                        }
                 else:
                     message = json.loads(response._content.decode("utf-8"))
-                    raise UserError(
-                        'An error has occurred : \nstatus: ' + str(
-                            response.status_code) + '\n' + 'message: ' + message.get(
-                            'message'))
+                    raise UserError('An error has occurred:\nstatus: %s\nmessage: %s' % (str(response.status_code), message.get('message')))
+
             raise UserError('Please set VAT value for your current company.')
 
         raise UserError('Please configure MTD.')

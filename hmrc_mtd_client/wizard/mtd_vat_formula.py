@@ -5,12 +5,16 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-import odoorpc
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.safe_eval import safe_eval
 import os
 import ssl
 import msgfy
+import odoorpc
+
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+        getattr(ssl, '_create_unverified_context', None)):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -42,7 +46,9 @@ class MtdCalculationFormula(models.TransientModel):
             box_six=box_six,
             box_seven=box_seven,
             box_eight=box_eight,
-            box_nine=box_nine)
+            box_nine=box_nine
+        )
+
         return res
 
     @api.multi
@@ -50,13 +56,19 @@ class MtdCalculationFormula(models.TransientModel):
         super(MtdCalculationFormula, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
         attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
+
         for attr in attrs:
             if getattr(self, attr):
                 set_param('mtd.%s_formula' % attr, getattr(self, attr))
             else:
                 set_param('mtd.%s_formula' % attr, 'N/A')
 
+
     def submit_formula(self):
+        """allows the submission off the formula to the server
+        Returns:
+            [dict] -- [popup message]
+        """
         self.set_values()
         attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
         formula = {}
@@ -69,22 +81,40 @@ class MtdCalculationFormula(models.TransientModel):
         self.test_formula(formula)
         conn = self.env['mtd.connection'].open_connection_odoogap()
         response = conn.execute('mtd.operations', 'submit_formula', formula)
+
         if response.get('status') == 200:
             self.env.user.company_id.submited_formula = True
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-            return {'name': 'Success', 'type': 'ir.actions.act_window', 'view_type': 'form', 'view_mode': 'form',
-                    'res_model': 'pop.up.message', 'views': [(view.id, 'form')], 'view_id': view.id,
-                    'target': 'new',
-                    'context': {
-                        'default_name': response.get('message'),
-                        'delay': True, 'no_delay': False}}
-        raise UserError(
-            'An error has occurred : \n status: %s \n message: %s ' % (
-                str(response.get('status')), response.get('message')))
+
+            return {
+                'name': 'Success',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pop.up.message',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': {
+                    'default_name': response.get('message'),
+                    'delay': True,
+                    'no_delay': False
+                }
+            }
+
+        raise UserError('An error has occurred : \n status: %s \n message: %s ' % (
+                str(response.get('status')),
+                response.get('message'))
+            )
 
     def get_dummy_dict(self):
+        """creates a dummy dict to ensure that the formula is correctly configured
+        Returns:
+            [dict] -- [dummy dict with the formula keys]
+        """
         account_taxes = self.env['account.tax'].search([('active', '=', True)]).mapped('tag_ids').mapped('name')
         dummy_dict = {}
+
         for tax in account_taxes:
             dummy_dict.update({
                 'vat_%s' % tax: 1,
@@ -94,20 +124,33 @@ class MtdCalculationFormula(models.TransientModel):
                 'net_credit_%s' % tax: 1,
                 'net_debit_%s' % tax: 1
                 })
-        dummy_dict.update({'fuel_net': 1, 'fuel_vat': 1,
-                           'bad_net': 1, 'bad_vat': 1})
+
+        dummy_dict.update({
+                'fuel_net': 1,
+                'fuel_vat': 1,
+                'bad_net': 1,
+                'bad_vat': 1
+            })
+
         return dummy_dict
 
     def test_formula(self, formula):
+        """tests the formula with the dummy dict
+        Arguments:
+            formula {dict} -- [formula dummy dict]
+        """
         try:
             dummy_dict = self.get_dummy_dict()
+
             for parameter in formula:
                 if formula.get(parameter):
+
                     if formula.get(parameter) != 'N/A':
                         if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
                             safe_eval(formula.get(parameter).encode('utf8'), dummy_dict)
+
                         else:
-                            raise UserError(
-                                'Boxes formulas need to have arithmethic operations')
+                            raise UserError('Boxes formulas need to have arithmethic operations.')
+
         except Exception as ex:
             raise UserError(msgfy.to_error_message(ex, "{error_msg}"))

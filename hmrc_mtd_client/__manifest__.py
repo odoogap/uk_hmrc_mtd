@@ -8,7 +8,7 @@
     'author': "Odoogap",
     'website': "https://www.odoomtd.co.uk/",
     'category': 'Invoicing Management',
-    'version': '0.1',
+    'version': '1.1.5',
     'depends': ['base', 'account', 'l10n_uk'],
     'data': [
         'views/vat_sub_view.xml',

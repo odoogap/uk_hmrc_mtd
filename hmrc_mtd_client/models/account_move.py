@@ -6,7 +6,6 @@
 
 from odoo import models, fields, api, _
 
-
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
@@ -17,5 +16,4 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    is_mtd_submitted = fields.Boolean(
-        'mtd state', default=False, store=True, related='move_id.is_mtd_submitted')
+    is_mtd_submitted = fields.Boolean('mtd state', default=False, store=True, related='move_id.is_mtd_submitted')
