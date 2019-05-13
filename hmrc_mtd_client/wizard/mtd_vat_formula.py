@@ -92,7 +92,9 @@ class MtdCalculationFormula(models.TransientModel):
                 'view_type': 'form',
                 'view_mode': 'form',
                 'res_model': 'pop.up.message',
-                'views': [(view.id, 'form')],
+                'views': [
+                    (view.id, 'form')
+                ],
                 'view_id': view.id,
                 'target': 'new',
                 'context': {

@@ -137,25 +137,7 @@ class MtdVatReport(models.Model):
     def _onchange_totalAcquisitionsExVAT(self):
         self.totalAcquisitionsExVAT = self.box_nine + self.box_nine_adj
 
-    def sql_select_invoices_by_tag(self):
-        return """
-            SELECT account_invoice.id FROM account_move
-            INNER JOIN account_invoice ON account_invoice.move_id = account_move.id
-            INNER JOIN account_move_line ON account_move_line.move_id = account_move.id
-            INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
-            account_move_line_account_tax_rel.account_move_line_id INNER JOIN
-            account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id INNER JOIN
-            account_tax_account_tag ON account_tax_account_tag.account_tax_id =
-            account_tax.id INNER JOIN account_account_tag ON
-            account_account_tag.id =
-            account_tax_account_tag.account_account_tag_id
-            WHERE account_move.state = 'posted' AND
-            account_move.is_mtd_submitted = 'f' AND
-            account_move.date <= '%s'  AND
-            account_move.company_id IN ('%s') AND account_account_tag.name in (%s)
-        """
-
-    def sql_get_account_move_lines(self):
+    def sql_get_account_moves(self):
         return """
             SELECT account_move.id
                 FROM account_move INNER JOIN account_move_line ON
@@ -178,28 +160,59 @@ class MtdVatReport(models.Model):
                 account_move.company_id in (%s)
         """
 
-    @api.multi
-    def get_invoices(self):
-        for rec in self:
-            rec.env.cr.execute(rec.sql_select_invoices_by_tag() % (
-                rec.name.split('-')[1], rec.env.user.company_id.id,
-                str(rec._context.get('tags')).strip('[]')))
-            documents = rec.env.cr.fetchall()
-            view = self.env.ref('hmrc_mtd_client.invoice_tree')
-            context = self.env.context.copy()
+    def sql_get_account_move_lines_by_tag(self):
+        return """
+            SELECT account_move_line.id
+                FROM account_move INNER JOIN account_move_line ON
+                account_move.id = account_move_line.move_id
+                INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
+                account_move_line_account_tax_rel.account_move_line_id INNER JOIN
+                account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
+                WHERE account_move.date <= '%s'  AND
+                account_move.state = 'posted'  AND
+                account_move.is_mtd_submitted = 'f'  AND
+                account_move.company_id in (%s) AND
+                account_tax.id IN (
+                    SELECT account_tax.id FROM account_tax INNER JOIN account_tax_account_tag ON
+                    account_tax_account_tag.account_tax_id=account_tax.id INNER JOIN
+                    account_account_tag ON account_account_tag.id =
+                    account_tax_account_tag.account_account_tag_id
+                    WHERE account_account_tag.name IN (%s)
+                )
+        """
 
-            list_view = self.env.ref('hmrc_mtd_client.invoice_tree').id
-            form_view = self.env.ref('account.invoice_form').id
-            if self._context.get('tag_type') in ['Box 2', 'Box 4', 'Box 7', 'Box 9']:
-                form_view = self.env.ref('account.invoice_supplier_form').id
+    def get_account_moves(self):
+        self.env.cr.execute(self.sql_get_account_move_lines_by_tag() % (
+            self.name.split('-')[1],
+            self.env.user.company_id.id,
+            str(self._context.get('tags')).strip('[]'))
+        )
+        account_moves = self.env.cr.fetchall()
+        view = self.env.ref('account.view_account_journal_tree')
+        context = self.env.context.copy()
+        list_view = self.env.ref('account.view_move_line_tree').id
+        form_view = self.env.ref('account.view_move_line_form').id
 
-            context.update(
-                {'mtd_date': self.name.split('-')[0].replace('/', '-').strip(), 'mtd_due_invoice': 1})
-            action = {'name': _(self._context.get('tag_type')), 'type': 'ir.actions.act_window',
-                      'res_model': 'account.invoice', 'views': [[list_view, 'list'], [form_view, 'form']],
-                      'view_id': view.id, 'target': 'current', 'view_mode': 'tree,form',
-                      'domain': [('id', 'in', [document[0] for document in documents])], 'context': context}
-            return action
+        context.update({
+            'mtd_date': self.name.split('-')[0].replace('/', '-').strip(),
+            'mtd_due_invoice': 1
+        })
+
+        action = {
+            'name': _(self._context.get('box_name')),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move.line',
+            'views': [
+                [list_view, 'list'],
+                [form_view, 'form']
+                ],
+            'view_id': view.id,
+            'target': 'current',
+            'view_mode': 'tree,form',
+            'domain': [('id', 'in', [move[0] for move in account_moves])],
+            'context': context
+        }
+        return action
 
     def check_version(self):
         values = {
@@ -232,7 +245,7 @@ class MtdVatReport(models.Model):
             })
 
         self.env.cr.execute(
-            self.sql_get_account_move_lines() % (
+            self.sql_get_account_moves() % (
             self.name.split('-')[1].replace('/', '-'),
             self.env.user.company_id.id,
             self.name.split('-')[1].replace('/', '-'),
