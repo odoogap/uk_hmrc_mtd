@@ -59,7 +59,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST11'], 'box_name':'Box 1'}">
+                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -73,7 +73,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -86,7 +86,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -100,7 +100,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -113,7 +113,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -140,7 +140,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -154,7 +154,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -168,7 +168,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>
@@ -182,7 +182,7 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'tags': ['ST0', 'ST1', 'ST2', 'ST11'], 'tag_type':'Box 1'}">
+                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}">
                                             <i class="fa fa-search-plus" aria-hidden="true"/>
                                         </button>
                                     </td>

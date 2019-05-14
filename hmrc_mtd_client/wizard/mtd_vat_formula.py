@@ -19,13 +19,13 @@ if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    box_one = fields.Char('Formula')
-    box_two = fields.Char('Formula')
-    box_four = fields.Char('Formula')
-    box_six = fields.Char('Formula')
-    box_seven = fields.Char('Formula')
-    box_eight = fields.Char('Formula')
-    box_nine = fields.Char('Formula')
+    box_one = fields.Char('Box One Formula')
+    box_two = fields.Char('Box Two Formula')
+    box_four = fields.Char('Box Three Formula')
+    box_six = fields.Char('Box Six Formula')
+    box_seven = fields.Char('Box Seven Formula')
+    box_eight = fields.Char('Box Eight Formula')
+    box_nine = fields.Char('Box Nine Formula')
 
     @api.model
     def get_values(self):
@@ -56,13 +56,43 @@ class MtdCalculationFormula(models.TransientModel):
         super(MtdCalculationFormula, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
         attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
+        replace_items = [
+            'sum([', '])', '+', '-', 'fuel_net', 'fuel_vat', 'bad_vat', 'bad_net',
+            'vat_credit_', 'net_credit_', 'vat_debit_', 'net_debit_', 'net_', 'vat_', ','
+        ]#items that should be replaced in the formula in order to get the taxes tag
+        box_three_taxes = []
+        box_five_taxes = []
 
         for attr in attrs:
             if getattr(self, attr):
                 set_param('mtd.%s_formula' % attr, getattr(self, attr))
-            else:
-                set_param('mtd.%s_formula' % attr, 'N/A')
+                box_taxes = getattr(self, attr)
 
+                for item in replace_items:
+                    if item == ',':
+                        box_taxes = box_taxes.strip()
+                        box_taxes = box_taxes.replace(item, ' ') #replace ',' with ' ' for split
+                        box_taxes = box_taxes.split() #convert string into list
+                        box_taxes = list(dict.fromkeys(box_taxes)) #remove duplicated entries
+                    else:
+                        box_taxes = box_taxes.replace(item, '')
+
+                set_param('mtd.%s_taxes' % attr, str(box_taxes))
+                if attr == 'box_one' or attr == 'box_two':
+                    box_three_taxes.extend(box_taxes)
+                    box_five_taxes.extend(box_taxes)
+                if attr == 'box_four':
+                    box_five_taxes.extend(box_taxes)
+            else:
+                set_param('mtd.%s_taxes' % attr, 'N/A')
+
+        if box_five_taxes:
+            box_five_taxes = list(dict.fromkeys(box_five_taxes)) #remove duplicated entries
+            set_param('mtd.box_five_taxes', str(box_five_taxes))
+
+        if box_three_taxes:
+            box_three_taxes = list(dict.fromkeys(box_three_taxes)) #remove duplicated entries
+            set_param('mtd.box_three_taxes', str(box_three_taxes))
 
     def submit_formula(self):
         """allows the submission off the formula to the server
@@ -70,7 +100,7 @@ class MtdCalculationFormula(models.TransientModel):
             [dict] -- [popup message]
         """
         self.set_values()
-        attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
+        attrs = ['box_one', 'box_two', 'box_four', 'box_six', 'box_seven', 'box_eight', 'box_nine']
         formula = {}
 
         for attr in attrs:

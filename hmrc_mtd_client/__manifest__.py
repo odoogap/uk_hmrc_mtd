@@ -21,6 +21,7 @@
         'views/mtd_vat_payments_view.xml',
         'views/vat_liabilities_view.xml',
         'views/menu_item_view.xml',
-        'views/mtd_formula_views.xml'],
+        'views/mtd_formula_views.xml',
+        'views/mtd_account_move_line_view.xml'],
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
 }

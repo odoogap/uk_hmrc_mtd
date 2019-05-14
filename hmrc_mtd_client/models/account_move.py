@@ -16,4 +16,20 @@ class AccountMove(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
+    mtd_date = fields.Date('Mtd date', compute='_compute_mtd_date', search="_search_mtd_date")
     is_mtd_submitted = fields.Boolean('mtd state', default=False, store=True, related='move_id.is_mtd_submitted')
+
+    @api.multi
+    def _compute_mtd_date(self):
+        for record in self:
+            record.mtd_date = self._context.get('mtd_date')
+
+    @api.multi
+    def _search_mtd_date(self, operator, value):
+        mtd = fields.Date.from_string(self._context.get('mtd_date'))
+        sql = "SELECT id FROM account_move_line where date < '%s'" % mtd
+        self.env.cr.execute(sql)
+        results = self.env.cr.fetchall()
+        ids = [result[0] for result in results]
+        return [('id', 'in', ids)]
+

@@ -182,15 +182,22 @@ class MtdVatReport(models.Model):
         """
 
     def get_account_moves(self):
+        params = self.env['ir.config_parameter'].sudo()
+        print(self._context.get('taxes'))
+        taxes = params.get_param('mtd.%s' % self._context.get('taxes'), default=False)
+        print(taxes)
+        if not taxes:
+            raise UserError('This box does not have any journal entries.')
+
         self.env.cr.execute(self.sql_get_account_move_lines_by_tag() % (
             self.name.split('-')[1],
             self.env.user.company_id.id,
-            str(self._context.get('tags')).strip('[]'))
+            str(taxes).strip('[]'))
         )
         account_moves = self.env.cr.fetchall()
         view = self.env.ref('account.view_account_journal_tree')
         context = self.env.context.copy()
-        list_view = self.env.ref('account.view_move_line_tree').id
+        list_view = self.env.ref('hmrc_mtd_client.view_move_line_tree').id
         form_view = self.env.ref('account.view_move_line_form').id
 
         context.update({
