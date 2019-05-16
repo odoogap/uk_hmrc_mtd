@@ -10,3 +10,5 @@ from . import pop_up_message
 from . import mtd_vat_liabilities
 from . import mtd_vat_payments
 from . import mtd_vat_formula
+from . import mtd_fuel_scale_charge
+from . import mtd_fuel_scale_wizard

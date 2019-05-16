@@ -10,18 +10,6 @@
             <xpath expr="//tree" position="attributes">
                 <attribute name="decoration-danger">mtd_date > date</attribute>
             </xpath>
-            <!--<xpath expr="//field[@name='date']" position="after">
-                <field name="mtd_date" invisible="1"/>
-            </xpath>
-            <xpath expr="//field[@name='reference']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//field[@name='origin']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>-->
             <xpath expr="//field[@name='company_id']" position="after">
                 <field name="mtd_date" invisible="1"/>
             </xpath>
@@ -31,12 +19,12 @@
         </field>
     </record>
 
-    <!--<record id="view_mtd_account_invoice_search" model="ir.ui.view">
+    <record id="view_mtd_account_invoice_search" model="ir.ui.view">
         <field name="model">account.move.line</field>
         <field name="arch" type="xml">
             <search string="due_invoices">
                 <filter name='mtd_due_invoice' string="mtd due" domain="[('mtd_date', '>', '')]"/>
             </search>
         </field>
-    </record>-->
+    </record>
 </odoo>

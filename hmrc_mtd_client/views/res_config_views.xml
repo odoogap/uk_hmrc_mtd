@@ -50,6 +50,42 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label string="Init submission date" for="is_sandbox"/>
+                            <div class="text-muted">
+                                Set the date from which the system must include the journal items
+                            </div>
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label string="Date" for="init_submission_date" class="col-md-3 o_light_label"/>
+                                    <field name="init_submission_date"/>
+                                </div>
+
+                                <div class="row mt16">
+                                    <div class="col-xs-12 col-md-6">
+                                        <button string="Submit" name='set_init_submission_date' type="object" class="btn-primary"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label string="Submission period" for="is_sandbox"/>
+                            <div class="text-muted">
+                                Select the submission period
+                            </div>
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label string="Period" for="submission_period" class="col-md-3 o_light_label"/>
+                                    <field name="submission_period"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </xpath>
         </field>

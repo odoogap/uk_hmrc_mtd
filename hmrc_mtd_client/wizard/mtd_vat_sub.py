@@ -33,11 +33,12 @@ class MtdVat(models.TransientModel):
             raise UserError(response.get('message'))
 
     def check_version(self):
+        latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v10',
-            'mtd_client_version': '1.1.5'
+            'odoo_version': 'v11',
+            'mtd_client_version': latest_version
         }
-
+        print(latest_version)
         response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))
@@ -111,12 +112,12 @@ class MtdVat(models.TransientModel):
     date_to = fields.Date('Invoice date to')
     period = fields.Selection(_get_context_periods, string='Period')
     vat_scheme = fields.Selection([('AC', 'Accrual Basis')], default='AC', string='VAT scheme')
-    currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
+    """currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
     fuel_vat = fields.Monetary('Fuel VAT', currency_field='currency_id')
     fuel_base = fields.Monetary('Fuel Net', currency_field='currency_id')
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
     bad_vat = fields.Monetary('Bad VAT', currency_field='currency_id')
-    bad_base = fields.Monetary('Bad Net', currency_field='currency_id')
+    bad_base = fields.Monetary('Bad Net', currency_field='currency_id')"""
 
     def dict_refactor(self, data):
         """
@@ -205,13 +206,13 @@ class MtdVat(models.TransientModel):
 
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
-                submit_data.update(
+                """submit_data.update(
                     {
                         'fuel_vat': self.fuel_vat,
                         'bad_vat': self.bad_vat,
                         'fuel_net': self.fuel_base,
                         'bad_net': self.bad_base
-                    })
+                    })"""
 
                 response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'calculate_boxes', submit_data)
 

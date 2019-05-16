@@ -27,9 +27,10 @@ class AccountMoveLine(models.Model):
     @api.multi
     def _search_mtd_date(self, operator, value):
         mtd = fields.Date.from_string(self._context.get('mtd_date'))
-        sql = "SELECT id FROM account_move_line where date < '%s'" % mtd
-        self.env.cr.execute(sql)
-        results = self.env.cr.fetchall()
-        ids = [result[0] for result in results]
-        return [('id', 'in', ids)]
+        res = self.env.cr.execute("""
+        SELECT id
+        FROM account_move_line
+        WHERE date < '%s'""" % mtd)
+        res = self.env.cr.fetchall()
+        return [('id', 'in', [r[0] for r in res])]
 

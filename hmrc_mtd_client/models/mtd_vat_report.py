@@ -103,7 +103,7 @@ class MtdVatReport(models.Model):
                 values.pop('submiting')
 
             return super(MtdVatReport, self).write(values)
-
+    """
     @api.onchange('box_one_adj')
     def _onchange_vatDueSales(self):
         self.vatDueSales = self.box_one + self.box_one_adj
@@ -136,6 +136,7 @@ class MtdVatReport(models.Model):
     @api.onchange('box_nine_adj')
     def _onchange_totalAcquisitionsExVAT(self):
         self.totalAcquisitionsExVAT = self.box_nine + self.box_nine_adj
+    """
 
     def sql_get_account_moves(self):
         return """
@@ -143,10 +144,10 @@ class MtdVatReport(models.Model):
                 FROM account_move INNER JOIN account_move_line ON
                 account_move.id = account_move_line.move_id
                 WHERE account_move_line.move_id=account_move.id AND
-                account_move_line.tax_line_id IS NOT NULL  AND
-                account_move_line.date <= '%s'  AND
-                account_move.state = 'posted'  AND
-                account_move.is_mtd_submitted = 'f'  AND
+                account_move_line.tax_line_id IS NOT NULL AND
+                account_move_line.date <= '%s' AND
+                account_move.state = 'posted' AND
+                account_move.is_mtd_submitted = 'f' AND
                 account_move.company_id in (%s)
             UNION
             SELECT account_move.id FROM account_move
@@ -154,9 +155,9 @@ class MtdVatReport(models.Model):
                 INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
                 account_move_line_account_tax_rel.account_move_line_id INNER JOIN
                 account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
-                WHERE account_move.date <= '%s'  AND
-                account_move.state = 'posted'  AND
-                account_move.is_mtd_submitted = 'f'  AND
+                WHERE account_move.date <= '%s' AND
+                account_move.state = 'posted' AND
+                account_move.is_mtd_submitted = 'f' AND
                 account_move.company_id in (%s)
         """
 
@@ -168,12 +169,13 @@ class MtdVatReport(models.Model):
                 INNER JOIN account_move_line_account_tax_rel ON account_move_line.id =
                 account_move_line_account_tax_rel.account_move_line_id INNER JOIN
                 account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
-                WHERE account_move.date <= '%s'  AND
-                account_move.state = 'posted'  AND
-                account_move.is_mtd_submitted = 'f'  AND
+                WHERE account_move.date <= '%s' AND
+                account_move.state = 'posted' AND
+                account_move.is_mtd_submitted = '%s' %s
                 account_move.company_id in (%s) AND
                 account_tax.id IN (
-                    SELECT account_tax.id FROM account_tax INNER JOIN account_tax_account_tag ON
+                    SELECT account_tax.id
+                    FROM account_tax INNER JOIN account_tax_account_tag ON
                     account_tax_account_tag.account_tax_id=account_tax.id INNER JOIN
                     account_account_tag ON account_account_tag.id =
                     account_tax_account_tag.account_account_tag_id
@@ -183,14 +185,21 @@ class MtdVatReport(models.Model):
 
     def get_account_moves(self):
         params = self.env['ir.config_parameter'].sudo()
-        print(self._context.get('taxes'))
         taxes = params.get_param('mtd.%s' % self._context.get('taxes'), default=False)
-        print(taxes)
+        mtd_state = 'f'
+        condition = 'AND'
+
         if not taxes:
             raise UserError('This box does not have any journal entries.')
 
+        if self.is_submitted:
+            mtd_state = 't'
+            condition = 'AND account_move.vat_report_id in (%s) AND' % self.id
+
         self.env.cr.execute(self.sql_get_account_move_lines_by_tag() % (
             self.name.split('-')[1],
+            mtd_state,
+            condition,
             self.env.user.company_id.id,
             str(taxes).strip('[]'))
         )
@@ -222,10 +231,12 @@ class MtdVatReport(models.Model):
         return action
 
     def check_version(self):
+        latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v10',
-            'mtd_client_version': '1.1.5'
+            'odoo_version': 'v11',
+            'mtd_client_version': latest_version
         }
+        print(latest_version)
         response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))

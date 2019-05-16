@@ -155,7 +155,7 @@ class MtdCalculationFormula(models.TransientModel):
                 'vat_debit_%s' % tax: 1,
                 'net_credit_%s' % tax: 1,
                 'net_debit_%s' % tax: 1
-                })
+            })
 
         dummy_dict.update({
                 'fuel_net': 1,

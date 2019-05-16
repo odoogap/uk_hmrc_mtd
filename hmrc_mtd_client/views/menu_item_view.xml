@@ -6,5 +6,8 @@
     <menuitem id="menu_finance_mtd_vat_list" name="VAT Reports" parent="menu_finance_mtd_vat" sequence="2" action="action_mtd_vat_tree"/>
     <menuitem id="menu_finance_mtd_vat_liabilities" name="Liabilities" parent="menu_finance_mtd_vat" sequence="3" action="action_mtd_vat_liabilities"/>
     <menuitem id="menu_finance_mtd_vat_payments" name="Payments" parent="menu_finance_mtd_vat" sequence="4" action="action_mtd_vat_payments"/>
+    <menuitem id="menu_finance_mtd_vat_journals" name="Journal Adjustments" parent="menu_finance_mtd" sequence="2"/>
+    <menuitem id="menu_finance_mtd_vat_tax_adjustment" name="Tax Adjustment" parent="menu_finance_mtd_vat_journals" sequence="1" action="account.tax_adjustments_form"/>
+    <menuitem id="menu_finance_mtd_vat_fuel_scale_journal" name="Fuel Scale Charge" parent="menu_finance_mtd_vat_journals" sequence="2" action="action_fuel_scale_charge_form"/>
 </odoo>
 
