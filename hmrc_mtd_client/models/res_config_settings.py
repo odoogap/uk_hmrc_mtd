@@ -35,7 +35,7 @@ class ResConfigSettings(models.TransientModel):
         password = params.get_param('mtd.password', default=False)
         token = params.get_param('mtd.token', default=False)
         is_sandbox = params.get_param('mtd.sandbox', default=False)
-        period = params.get_param('mtd.period', default=False)
+        period = params.get_param('mtd.submission_period', default=False)
         init_submission_date = params.get_param('mtd.init_submission_date', default=False)
         is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
         res.update(
@@ -56,7 +56,7 @@ class ResConfigSettings(models.TransientModel):
         set_param('mtd.login', self.login)
         set_param('mtd.password', self.password)
         set_param('mtd.sandbox', self.is_sandbox)
-        set_param('mtd.period', self.submission_period)
+        set_param('mtd.submission_period', self.submission_period)
         set_param('mtd.init_submission_date', self.init_submission_date)
 
     @api.multi

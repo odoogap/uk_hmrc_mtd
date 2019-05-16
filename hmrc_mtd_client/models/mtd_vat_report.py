@@ -236,7 +236,7 @@ class MtdVatReport(models.Model):
             'odoo_version': 'v11',
             'mtd_client_version': latest_version
         }
-        print(latest_version)
+
         response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))

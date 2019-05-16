@@ -27,11 +27,10 @@ class MtdFuelScaleValues(models.TransientModel):
     _description = "Fuel scale values"
 
     name = fields.Char(default='Fuel scale value')
-    co2_band = fields.Char(string='CO2 band')
     company_currency_id = fields.Many2one('res.currency', readonly=True, default=lambda self: self.env.user.company_id.currency_id)
-    vat_fuel_scale_charge = fields.Monetary(string='VAT fuel scale charge', currency_field='company_currency_id', required=True)
-    vat_period_charge = fields.Float(string='VAT period charge', currency_field='company_currency_id', required=True)
-    vat_exclusive_period_charge = fields.Float(string='VAT exclusive period charge', currency_field='company_currency_id', required=True)
+    vat_fuel_scale_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
+    vat_period_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
+    vat_exclusive_period_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
 
     def get_fuel_scale_values(self):
         """gets the fuel scale values from server and saves the records
@@ -57,8 +56,22 @@ class MtdFuelScaleValues(models.TransientModel):
         for fuel_charge in response.get('fuel_charges'):
             self.create(
                 {
-                    'co2_band': fuel_charge.get('CO2_band'),
+                    'name': fuel_charge.get('CO2_band'),
                     'vat_fuel_scale_charge': fuel_charge.get('vat_fuel_scale_charge'),
                     'vat_period_charge': fuel_charge.get('vat_period_charge'),
                     'vat_exclusive_period_charge': fuel_charge.get('vat_exclusive_period_charge')
                 })
+
+        view = self.env.ref('hmrc_mtd_client.fuel_scale_charge_form_wizard')
+
+        return {
+                'name': 'Fuel Scale Charge',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'mtd.fuel.scale.wizard',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': self._context
+            }

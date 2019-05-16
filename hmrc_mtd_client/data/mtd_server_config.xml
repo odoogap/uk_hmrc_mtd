@@ -15,5 +15,12 @@
             <field name="key">mtd.db</field>
             <field name="value">v12_odoo</field>
         </record>
+
+        <record id="fuel_scale_charge_tax" model="account.tax">
+            <field name="name">Fuel scale charge[FCS]</field>
+            <field name="type_tax_use">none</field>
+            <field name="tax_adjustment">True</field>
+            <field name="amount">0.0</field>
+        </record>
     </data>
 </odoo>
