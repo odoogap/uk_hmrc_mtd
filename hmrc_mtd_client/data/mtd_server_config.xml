@@ -22,5 +22,26 @@
             <field name="tax_adjustment">True</field>
             <field name="amount">0.0</field>
         </record>
+
+        <record id="fuel_scale_charge_tax_tag" model="account.account.tag">
+            <field name="name">fuel</field>
+            <field name="applicability">taxes</field>
+            <field name="color">10</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="bad_debt_relief_tax" model="account.tax">
+            <field name="name">Bad debt relief</field>
+            <field name="type_tax_use">none</field>
+            <field name="tax_adjustment">True</field>
+            <field name="amount">0.0</field>
+        </record>
+
+        <record id="bad_debt_relief_tag" model="account.account.tag">
+            <field name="name">bad</field>
+            <field name="applicability">taxes</field>
+            <field name="color">10</field>
+            <field name="active">True</field>
+        </record>
     </data>
 </odoo>

@@ -35,7 +35,7 @@ class MtdFuelScaleValues(models.TransientModel):
     def get_fuel_scale_values(self):
         """gets the fuel scale values from server and saves the records
         Returns:
-            [dict] -- [liabilities tree view]
+            [dict] -- [fuel scale wizard]
         """
         params = self.env['ir.config_parameter'].sudo()
         submission_period = params.get_param('mtd.submission_period', default=False)
