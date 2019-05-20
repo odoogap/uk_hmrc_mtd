@@ -5,7 +5,7 @@
         <field name="model_id" ref="hmrc_mtd_client.model_mtd_fuel_scale"/>
         <field name="state">code</field>
         <field name="code">
-            action = env['mtd.fuel.scale'].get_fuel_scale_values()
+            action = env['mtd.fuel.scale.wizard'].set_fuel_scale_charge_date()
         </field>
     </record>
 
@@ -15,7 +15,7 @@
         <field name="arch" type="xml">
         <form>
             <group>
-                <group string="Fuel Scale Value">
+                <group string="Fuel Scale Values">
                     <field name="co2_band"/>
                     <field name="submission_period" invisible="1"/>
                     <field name="vat_fuel_scale_charge" string="VAT fuel scale charge, 3 month period" attrs="{'invisible': [('submission_period', '!=', 'quaterly')]}"/>
@@ -28,29 +28,44 @@
                     <field name="vat_exclusive_period_charge" string="VAT exclusive 12 month charge" attrs="{'invisible': [('submission_period', '!=', 'annual')]}" readonly="1"/>
                     <field name="vat_exclusive_period_charge" string="VAT exclusive 1 month charge " attrs="{'invisible': [('submission_period', '!=', 'monthly')]}" readonly="1"/>
                 </group>
-                <group string="Adjustment">
-                    <field name="adjustment_type"/>
-                </group>
-                <group string="Accounts">
-                    <field name="debit_account_id"/>
-                    <field name="credit_account_id"/>
-                </group>
-                <group string="Options">
-                    <field name="journal_id"/>
+                <group string="Journal Date">
                     <field name="date"/>
                 </group>
             </group>
             <footer>
-              <div attrs="{'invisible': [('adjustment_type', '=', 'credit')]}">
-                <button name="create_move_debit" string="Create and post move" type="object" default_focus="1" class="oe_highlight"/>
-                <button string="Cancel" class="btn btn-secondary" special="cancel" />
-              </div>
-              <div attrs="{'invisible': [('adjustment_type', '!=', 'credit')]}">
-                <button name="create_move_credit" string="Create and post move" type="object" default_focus="1" class="oe_highlight"/>
+              <div>
+                <button name="create_move" string="Create and post move" type="object" default_focus="1" class="oe_highlight"/>
                 <button string="Cancel" class="btn btn-secondary" special="cancel" />
               </div>
             </footer>
         </form>
         </field>
+    </record>
+
+    <record id="fuel_scale_date_form_wizard" model="ir.ui.view">
+		<field name="name">fuel.scale.date.form.view</field>
+		<field name="model">mtd.fuel.scale.wizard</field>
+		<field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Why are you seeing this?</strong>
+                        <p>
+                            This form allows you to choose the date, in which you want to set the fuel scale charge.<br/>
+                            This step will allow the module to get the correct fuel scale charge tables for the date you set up.
+                        </p>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="fuel_scale_charge_date" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Ok" class="btn-primary" type="object" name="get_fuel_scale_table"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+		</field>
     </record>
 </odoo>

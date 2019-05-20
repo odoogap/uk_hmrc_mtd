@@ -43,6 +43,52 @@ class MtdVat(models.TransientModel):
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
+    def request_periods(self, hmrc_url, api_token):
+        self.check_credits()
+        self.check_version()
+        if self.env.user.company_id.vat:
+            url = '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.user.company_id.vrn))
+            req_headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.hmrc.1.0+json',
+                    'Authorization': 'Bearer %s' % api_token
+                }
+            req_params = {
+                    'to': time.strftime("%Y-%m-%d"),
+                    'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
+                }
+            response = requests.get(url, headers=req_headers, params=req_params)
+            if response.status_code == 200:
+                message = json.loads(response._content.decode("utf-8"))
+                periods = []
+
+                for value in message['obligations']:
+                    if value['status'] == 'O':
+                        period = '%s:%s-%s' % (value.get('periodKey'), '2019/02/01', '2019/02/28')
+                        date = '%s - %s' % ('2019/02/01', '2019/02/28')
+                        periods.append((period, date))
+
+                self._context.update({'periods': periods})
+                view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
+                return {
+                        'name': 'Calculate VAT',
+                        'type': 'ir.actions.act_window',
+                        'view_type': 'form',
+                        'view_mode': 'form',
+                        'res_model': 'mtd.vat.sub',
+                        'views': [(view.id, 'form')],
+                        'view_id': view.id,
+                        'target': 'new',
+                        'context': self._context
+                    }
+            else:
+                message = json.loads(response._content.decode("utf-8"))
+                raise UserError('An error has occurred : \n status: %s \n message: %s' % (
+                    str(response.status_code), message.get('message')))
+
+        raise UserError('Please set VAT value for your current company.')
+
+
     def get_periods(self):
         """
         gets the periods from the HMRC API
@@ -53,55 +99,26 @@ class MtdVat(models.TransientModel):
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
         token_expire_date = params.get_param('mtd.token_expire_date')
+        is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
+
+        if not is_set_old_journal:
+            view = self.env.ref('hmrc_mtd_client.mtd_set_old_submission_view')
+            return {
+                    'name': 'Set old journal submission',
+                    'type': 'ir.actions.act_window',
+                    'view_type': 'form',
+                    'view_mode': 'form',
+                    'res_model': 'mtd.set.old.journal.submission',
+                    'views': [(view.id, 'form')],
+                    'view_id': view.id,
+                    'target': 'new'
+                }
 
         if api_token:
             if float(token_expire_date) - time.time() < 0:
                 api_token = self.env['mtd.connection'].refresh_token()
-            self.check_credits()
-            self.check_version()
-            if self.env.user.company_id.vat:
-                url = '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.user.company_id.vrn))
-                req_headers = {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.hmrc.1.0+json',
-                        'Authorization': 'Bearer %s' % api_token
-                    }
-                req_params = {
-                        'to': time.strftime("%Y-%m-%d"),
-                        'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
-                    }
 
-                response = requests.get(url, headers=req_headers, params=req_params)
-
-                if response.status_code == 200:
-                    message = json.loads(response._content.decode("utf-8"))
-                    periods = []
-
-                    for value in message['obligations']:
-                        if value['status'] == 'O':
-                            period = '%s:%s-%s' % (value.get('periodKey'), '2019/02/01', '2019/02/28')
-                            date = '%s - %s' % ('2019/02/01', '2019/02/28')
-                            periods.append((period, date))
-
-                    self._context.update({'periods': periods})
-                    view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
-                    return {
-                            'name': 'Calculate VAT',
-                            'type': 'ir.actions.act_window',
-                            'view_type': 'form',
-                            'view_mode': 'form',
-                            'res_model': 'mtd.vat.sub',
-                            'views': [(view.id, 'form')],
-                            'view_id': view.id,
-                            'target': 'new',
-                            'context': self._context
-                        }
-                else:
-                    message = json.loads(response._content.decode("utf-8"))
-                    raise UserError('An error has occurred : \n status: %s \n message: %s' % (
-                        str(response.status_code), message.get('message')))
-
-            raise UserError('Please set VAT value for your current company.')
+            return self.request_periods(hmrc_url, api_token)
 
         raise UserError('Please configure MTD.')
 
@@ -122,7 +139,6 @@ class MtdVat(models.TransientModel):
             [dict] -- [dict with the refatored values]
         """
         new_dict = {}
-
         for tax in data.get('tax_line'):
             if tax.get('tag_line_id'):
                 new_dict.update(
@@ -140,8 +156,6 @@ class MtdVat(models.TransientModel):
                         'net_credit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('credit'),
                         'net_debit_%s' % str(tax.get('tag_tax_ids')[0]): tax.get('debit')
                     })
-        print('refatored dict')
-        print(new_dict)
         return new_dict
 
     def get_tax_moves(self, date_to, vat_scheme):
@@ -167,7 +181,6 @@ class MtdVat(models.TransientModel):
 
             data = {'tax_line': [], 'tax_lines': []}
             for account_tax in account_taxes:
-
                 if vat_scheme == 'AC':
                     params[0] = account_tax.id
 
@@ -179,8 +192,7 @@ class MtdVat(models.TransientModel):
                 results = self.env.cr.dictfetchall()
                 results[0].update({'tag_tax_ids': [tag.name for tag in account_tax.tag_ids]})
                 data['tax_lines'].append(results[0])
-            print('I got the data')
-            print(data)
+
             return self.dict_refactor(data)
 
         else:
@@ -230,7 +242,6 @@ class MtdVat(models.TransientModel):
                             'period_key': self.period.split(':')[0]
                         }
                     self.env['mtd.vat.report'].create(vat_report_data)
-
                 else:
                     channel_id.message_post(
                         body='Response from server : \n status: %s\n message: %s' % (str(response.get('status')), response.get('message')),
@@ -279,7 +290,7 @@ class MtdVat(models.TransientModel):
             if results[0].get('count') > 0:
                 channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
                 channel_id.message_post(
-                    body='The VAT calculation has started please check the channel once is completed',
+                    body='The VAT calculation has started please check the channel once is completed.',
                     message_type="notification",
                     subtype="mail.mt_comment"
                 )
@@ -297,7 +308,7 @@ class MtdVat(models.TransientModel):
                     'view_id': view.id,
                     'target': 'new',
                     'context': {
-                        'default_name': 'The VAT calculation has started please check MTD channel',
+                        'default_name': 'The VAT calculation has started please check MTD channel.',
                         'delay': False,
                         'no_delay': True
                     }
@@ -313,7 +324,7 @@ class MtdVat(models.TransientModel):
                     'view_id': view.id,
                     'target': 'new',
                     'context': {
-                        'default_name': 'There are no invoices available for submission in the given date range',
+                        'default_name': 'There are no invoices available for submission in the given date range.',
                         'delay': True,
                         'no_delay': False
                     }

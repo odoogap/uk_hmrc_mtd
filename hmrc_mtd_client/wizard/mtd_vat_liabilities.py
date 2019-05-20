@@ -60,7 +60,6 @@ class MtdVatLiabilities(models.TransientModel):
                     "to": time.strftime("%Y-%m-%d"),
                     "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
                 }
-
                 response = requests.get(req_url, headers=req_headers, params=req_params)
 
                 if response.status_code == 200:
@@ -77,7 +76,6 @@ class MtdVatLiabilities(models.TransientModel):
                                 'outstanding_amount': liability.get('outstandingAmount'),
                                 'due_date': liability.get('due')
                             })
-
                     return {
                             'name': 'Liabilities',
                             'type': 'ir.actions.act_window',
@@ -92,7 +90,5 @@ class MtdVatLiabilities(models.TransientModel):
                 else:
                     message = json.loads(response._content.decode("utf-8"))
                     raise UserError('An error has occurred:\nstatus: %s\nmessage: %s' % (str(response.status_code), message.get('message')))
-
             raise UserError('Please set VAT value for your current company.')
-
         raise UserError('Please configure MTD.')

@@ -23,6 +23,7 @@
         'views/mtd_fuel_scale_charge_view.xml',
         'views/menu_item_view.xml',
         'views/mtd_formula_views.xml',
-        'views/mtd_account_move_line_view.xml'],
+        'views/mtd_account_move_line_view.xml',
+        'views/mtd_set_old_journal_submission_view.xml'],
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
 }

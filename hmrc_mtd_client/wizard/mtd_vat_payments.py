@@ -55,7 +55,6 @@ class MtdVatPayments(models.TransientModel):
                         "to": time.strftime("%Y-%m-%d"),
                         "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
                     }
-
                 response = requests.get(req_url, headers=req_headers, params=req_params)
 
                 if response.status_code == 200:
@@ -67,7 +66,6 @@ class MtdVatPayments(models.TransientModel):
                             'payment_amount': payment.get('amount'),
                             'received_date': payment.get('received')
                         })
-
                     return {
                         'name': 'Payments',
                         'type': 'ir.actions.act_window',
@@ -76,7 +74,6 @@ class MtdVatPayments(models.TransientModel):
                         'view': self.env.ref('hmrc_mtd_client.mtd_vat_payments_tree_view').id,
                         'target': 'current'
                     }
-
                 else:
                     message = json.loads(response._content.decode("utf-8"))
                     raise UserError('An error has occurred : \nstatus: %s \nmessage: %s' %(
@@ -84,5 +81,4 @@ class MtdVatPayments(models.TransientModel):
                         message.get('message')
                     ))
             raise UserError('Please set VAT value for your current company.')
-
         raise UserError('Please configure MTD.')

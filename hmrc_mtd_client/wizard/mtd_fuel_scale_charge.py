@@ -28,11 +28,11 @@ class MtdFuelScaleValues(models.TransientModel):
 
     name = fields.Char(default='Fuel scale value')
     company_currency_id = fields.Many2one('res.currency', readonly=True, default=lambda self: self.env.user.company_id.currency_id)
-    vat_fuel_scale_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
-    vat_period_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
-    vat_exclusive_period_charge = fields.Monetary(string="", currency_field='company_currency_id', required=True)
+    vat_fuel_scale_charge = fields.Monetary(currency_field='company_currency_id', required=True)
+    vat_period_charge = fields.Monetary(currency_field='company_currency_id', required=True)
+    vat_exclusive_period_charge = fields.Monetary(currency_field='company_currency_id', required=True)
 
-    def get_fuel_scale_values(self):
+    def get_fuel_scale_values(self, date):
         """gets the fuel scale values from server and saves the records
         Returns:
             [dict] -- [fuel scale wizard]
@@ -43,7 +43,12 @@ class MtdFuelScaleValues(models.TransientModel):
         if not submission_period:
             raise UserError('Please set the submission period.')
 
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'get_fuel_scale_table', submission_period)
+        response = self.env['mtd.connection'].open_connection_odoogap().execute(
+            'mtd.operations',
+            'get_fuel_scale_table',
+            submission_period,
+            date
+        )
 
         if response.get('status') != 200:
             raise UserError('An error has occurred : \n status: %s \n message: %s' % (

@@ -12,6 +12,8 @@ class Company(models.Model):
     vrn = fields.Char('VRN', compute='_compute_vrn', store=True)
     submited_formula = fields.Boolean('submited formula', default=False)
     formula = fields.Char('formula', default=False)
+    fuel_debit_account_id = fields.Many2one('account.account', string='Debit account')
+    fuel_credit_account_id = fields.Many2one('account.account', string='Credit account')
 
     @api.multi
     @api.depends('vat')
