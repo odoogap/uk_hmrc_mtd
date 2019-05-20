@@ -20,7 +20,6 @@ if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
 
-
 _logger = logging.getLogger(__name__)
 
 class MtdVat(models.TransientModel):
@@ -272,7 +271,8 @@ class MtdVat(models.TransientModel):
             account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
             WHERE account_move.state = 'posted'  AND
             account_move.is_mtd_submitted = 'f'  AND
-            account_move.company_id in (%s)
+            account_move.company_id in (%s) AND
+            account_move.date <= '%s'
         """
 
     @api.multi
@@ -283,7 +283,7 @@ class MtdVat(models.TransientModel):
             [Dict] -- returns a pop up message
         """
         if self.env.user.company_id.submited_formula:
-            self.env.cr.execute(self._sql_get_move_lines_count() % self.env.user.company_id.id)
+            self.env.cr.execute(self._sql_get_move_lines_count() % (self.env.user.company_id.id, self.period.split('-')[1].replace('/', '-')))
             results = self.env.cr.dictfetchall()
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
 

@@ -21,7 +21,7 @@ class MtdConnection(models.TransientModel):
     def open_connection_odoogap(self):
         """opens the connection to the mtd server
         Returns:
-            [odoorpc] -- [odoorpc object]
+            [odoorpc] -- odoorpc object
         """
         params = self.env['ir.config_parameter'].sudo()
         login = params.get_param('mtd.login', default=False)
