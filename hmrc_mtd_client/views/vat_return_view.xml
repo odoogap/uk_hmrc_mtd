@@ -59,8 +59,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -73,8 +73,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -86,8 +86,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -100,8 +100,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -113,8 +113,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -140,8 +140,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -154,8 +154,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -168,8 +168,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -182,8 +182,8 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}" aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -195,7 +195,7 @@
                                 name="submit_vat" string="Submit"
                                 confirm="When you submit this VAT information you are making a legal declaration that the information is true and complete.
                                 A false declaration can result in prosecution."
-                                type="object" class="btn btn-primary oe_read_only" icon="fa-check"/>
+                                type="object" class="btn btn-primary oe_read_only" icon="fa-check" aria-label="Info" title="Info"/>
                     </footer>
                 </sheet>
             </form>
