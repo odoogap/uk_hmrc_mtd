@@ -59,8 +59,8 @@ class MtdVat(models.TransientModel):
 
                 for value in message['obligations']:
                     if value['status'] == 'O':
-                        period = '%s:%s-%s' % (value.get('periodKey'), '2019/01/01', '2019/03/31')
-                        date = '%s - %s' % ('2019/01/01', '2019/03/31')
+                        period = '%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
+                        date = '%s - %s' % (value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
                         periods.append((period, date))
 
                 context = self.env.context.copy()
