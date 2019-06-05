@@ -5,6 +5,9 @@
 ###############################################################################
 
 from odoo import api, fields, models, tools, _
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class Company(models.Model):
     _inherit = "res.company"
@@ -24,4 +27,6 @@ class Company(models.Model):
                 for number in rec.vat:
                     if number.isdigit():
                         vrn += number
+
                 rec.vrn = vrn
+        _logger.info("Company vrn is %s." % vrn)

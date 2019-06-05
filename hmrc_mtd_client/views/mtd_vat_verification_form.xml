@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="mtd_vat_verification_form_view" model="ir.ui.view">
+        <field name="model">mtd.vat.verification</field>
+        <field name="arch" type="xml">
+            <form string="VAT Verification" edit="0" create="0" delete="0">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Why are you seeing this?</strong>
+                        <p>
+                            This pop up allows you to see the values that are already submitted in the HMRC platform.<br/>
+                            Is always good to verify the values after the submission to check that your local report adds up with what is in the HMRC API.
+                        </p>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="vatDueSales"/>
+                            <field name="vatDueAcquisitions"/>
+                            <field name="totalVatDue"/>
+                            <field name="vatReclaimedCurrPeriod"/>
+                            <field name="netVatDue"/>
+                            <field name="totalValueSalesExVAT"/>
+                            <field name="totalValuePurchasesExVAT"/>
+                            <field name="totalValueGoodsSuppliedExVAT"/>
+                            <field name="totalAcquisitionsExVAT"/>
+                        </group>
+                    </group>
+                </sheet>
+            <footer>
+                <button name="cancel" string="Cancel" special="cancel" class="oe_link"/>
+            </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

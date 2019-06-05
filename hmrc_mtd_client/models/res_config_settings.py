@@ -16,8 +16,8 @@ if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    login = fields.Char('Name', help='Account name of mtd')
-    password = fields.Char('Password', help='Account password of mtd')
+    mtd_login = fields.Char('Name', help='Account name of mtd')
+    mtd_password = fields.Char('Password', help='Account password of mtd')
     server = fields.Char('Server')
     db = fields.Char('Database')
     port = fields.Char('Port')
@@ -30,33 +30,24 @@ class ResConfigSettings(models.TransientModel):
     fuel_credit_account_id = fields.Many2one('account.account', string='Credit account', related='company_id.fuel_credit_account_id')
 
     @api.model
-    def get_values(self):
-        res = super(ResConfigSettings, self).get_values()
-        params = self.env['ir.config_parameter'].sudo()
-        login = params.get_param('mtd.login', default=False)
-        password = params.get_param('mtd.password', default=False)
-        token = params.get_param('mtd.token', default=False)
-        is_sandbox = params.get_param('mtd.sandbox', default=False)
-        period = params.get_param('mtd.submission_period', default=False)
-        is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
-        res.update(
-            login=login,
-            password=password,
-            token=token,
-            is_sandbox=is_sandbox,
-            submission_period=period,
-            is_set_old_journal=is_set_old_journal
-        )
-        return res
+    def get_default_params_mtd(self, fields):
+        IrConfigParam = self.env['ir.config_parameter'].sudo()
+        return {
+            'mtd_login': IrConfigParam.get_param('mtd.login', ''),
+            'mtd_password': IrConfigParam.get_param('mtd.password', ''),
+            'token': IrConfigParam.get_param('mtd.token', ''),
+            'is_sandbox': IrConfigParam.get_param('mtd.sandbox', False),
+            'submission_period': IrConfigParam.get_param('mtd.submission_period', False),
+            'is_set_old_journal': IrConfigParam.get_param('mtd.is_set_old_journal', False),
+    }
 
-    @api.multi
-    def set_values(self):
-        super(ResConfigSettings, self).set_values()
-        set_param = self.env['ir.config_parameter'].sudo().set_param
-        set_param('mtd.login', self.login)
-        set_param('mtd.password', self.password)
-        set_param('mtd.sandbox', self.is_sandbox)
-        set_param('mtd.submission_period', self.submission_period)
+    @api.one
+    def set_default_params_mtd(self):
+        IrConfigParam = self.env['ir.config_parameter'].sudo()
+        IrConfigParam.set_param('mtd.login', self.mtd_login)
+        IrConfigParam.set_param('mtd.password', self.mtd_password)
+        IrConfigParam.set_param('mtd.sandbox', self.is_sandbox)
+        IrConfigParam.set_param('mtd.submission_period', self.submission_period)
 
     @api.multi
     def get_authorization(self):

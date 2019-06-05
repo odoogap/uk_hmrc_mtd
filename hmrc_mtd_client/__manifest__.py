@@ -9,7 +9,7 @@
     'website': "https://www.odoomtd.co.uk/",
     'category': 'Invoicing Management',
     'version': '1.1.5',
-    'depends': ['base', 'account', 'l10n_uk', 'account_invoicing'],
+    'depends': ['base', 'account', 'l10n_uk'],
     'data': [
         'views/vat_sub_view.xml',
         'views/res_config_views.xml',
@@ -24,6 +24,7 @@
         'views/menu_item_view.xml',
         'views/mtd_formula_views.xml',
         'views/mtd_account_move_line_view.xml',
-        'views/mtd_set_old_journal_submission_view.xml'],
+        'views/mtd_set_old_journal_submission_view.xml',
+        'views/mtd_vat_verification_form.xml'],
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
 }

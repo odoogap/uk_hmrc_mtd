@@ -14,6 +14,6 @@ class Mtd(http.Controller):
     def redirect(self, **kw):
         if kw.get('message') == 'Success':
             request.env['mtd.connection'].get_token()
-            return 'Success! you can close the HMRC Page'
+            return 'Success! you can close the HMRC Page.'
         else:
-            return 'Failed! Something went wrong'
+            return 'Failed! Something went wrong.'

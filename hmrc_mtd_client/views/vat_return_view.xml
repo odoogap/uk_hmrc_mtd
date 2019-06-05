@@ -6,6 +6,13 @@
         <field name="arch" type="xml">
             <form string="Vat Return Data" class="o_invoice_form" edit="0" create="0" delete="0">
                 <sheet string="VAT return">
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" class="oe_stat_button" icon="fa-file" name="verify_submission">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Verify</span>
+                            </div>
+                        </button>
+                    </div>
                     <h2 class="text-center">VAT Report</h2>
                     <div class="table-responsive">
                         <table class="table" style="margin-top:40px;">
@@ -16,6 +23,7 @@
                                             <b>Details</b>
                                             <field name="id" invisible="1"/>
                                             <field name="is_submitted" invisible="1"/>
+                                            <field name="period_key" invisible="1"/>
                                             <field name="currency_id" invisible="1" readonly="1"/>
                                         </h4>
                                     </th>

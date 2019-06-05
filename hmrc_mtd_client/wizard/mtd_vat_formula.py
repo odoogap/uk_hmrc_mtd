@@ -28,32 +28,20 @@ class MtdCalculationFormula(models.TransientModel):
     box_nine = fields.Char('Box Nine Formula')
 
     @api.model
-    def get_values(self):
-        res = super(MtdCalculationFormula, self).get_values()
-        params = self.env['ir.config_parameter'].sudo()
+    def get_default_params_formula(self, fields):
+        IrConfigParam = self.env['ir.config_parameter']
+        return {
+            'box_one': IrConfigParam.get_param('mtd.box_one_formula', 'sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat'),
+            'box_two': IrConfigParam.get_param('mtd.box_two_formula', 'sum([vat_PT8M])'),
+            'box_four': IrConfigParam.get_param('mtd.box_four_formula', 'sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])'),
+            'box_six': IrConfigParam.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net'),
+            'box_seven': IrConfigParam.get_param('mtd.box_seven_formula', 'sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])'),
+            'box_eight': IrConfigParam.get_param('mtd.box_eight_formula', 'sum([net_ST4])'),
+            'box_nine': IrConfigParam.get_param('mtd.box_nine_formula', 'sum([net_PT7, net_PT8])')
+        }
 
-        box_one = params.get_param('mtd.box_one_formula', 'sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat')
-        box_two = params.get_param('mtd.box_two_formula', 'sum([vat_PT8M])')
-        box_four = params.get_param('mtd.box_four_formula', 'sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])')
-        box_six = params.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net')
-        box_seven = params.get_param('mtd.box_seven_formula', 'sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])')
-        box_eight = params.get_param('mtd.box_eight_formula', 'sum([net_ST4])')
-        box_nine = params.get_param('mtd.box_nine_formula', 'sum([net_PT7, net_PT8])')
-        res.update(
-            box_one=box_one,
-            box_two=box_two,
-            box_four=box_four,
-            box_six=box_six,
-            box_seven=box_seven,
-            box_eight=box_eight,
-            box_nine=box_nine
-        )
-
-        return res
-
-    @api.multi
-    def set_values(self):
-        super(MtdCalculationFormula, self).set_values()
+    @api.one
+    def set_default_params_formula(self):
         set_param = self.env['ir.config_parameter'].sudo().set_param
         attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
         replace_items = [
@@ -73,7 +61,7 @@ class MtdCalculationFormula(models.TransientModel):
                         box_taxes = box_taxes.strip()
                         box_taxes = box_taxes.replace(item, ' ') #replace ',' with ' ' for split
                         box_taxes = box_taxes.split() #convert string into list
-                        box_taxes = list(dict.fromkeys(box_taxes)) #remove duplicated entries
+                        box_taxes = [box_tax.encode('utf-8') for box_tax in list(dict.fromkeys(box_taxes))] #remove duplicated entries and encode
                     else:
                         box_taxes = box_taxes.replace(item, '')
 
@@ -99,7 +87,7 @@ class MtdCalculationFormula(models.TransientModel):
         Returns:
             [dict] -- [popup message]
         """
-        self.set_values()
+        self.set_default_params_formula()
         attrs = ['box_one', 'box_two', 'box_four', 'box_six', 'box_seven', 'box_eight', 'box_nine']
         formula = {}
 
