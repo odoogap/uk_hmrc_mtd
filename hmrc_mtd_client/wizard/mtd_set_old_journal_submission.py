@@ -26,19 +26,23 @@ class MtdSetOldJournalSubmission(models.TransientModel):
     def set_init_submission_date(self):
         self.ensure_one()
         view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
-        self.env.cr.execute("UPDATE account_move SET is_mtd_submitted = 't' WHERE date < '%s' AND account_move.company_id IN (%s)" % (
+        self.env.cr.execute(
+            """
+                UPDATE account_move 
+                SET is_mtd_submitted = 't'
+                WHERE date < '%s' AND account_move.company_id IN (%s)
+                AND account_move.state='posted'
+            """ % (
             self.init_submission_date,
             self.env.user.company_id.id
         ))
-        self.env.cr.execute("UPDATE account_move_line SET is_mtd_submitted = 't' WHERE date < '%s' AND account_move_line.company_id IN (%s)" % (
-            self.init_submission_date,
-            self.env.user.company_id.id
-        ))
-        self.env.cr.execute("UPDATE account_move SET is_mtd_submitted = 'f' WHERE date >= '%s' AND account_move.company_id IN (%s)" % (
-            self.init_submission_date,
-            self.env.user.company_id.id
-        ))
-        self.env.cr.execute("UPDATE account_move_line SET is_mtd_submitted = 'f' WHERE date >= '%s' AND account_move_line.company_id IN (%s)" % (
+        self.env.cr.execute(
+            """
+                UPDATE account_move 
+                SET is_mtd_submitted = 'f'
+                WHERE date >= '%s' AND account_move.company_id IN (%s)
+                AND account_move.state='posted'
+            """ % (
             self.init_submission_date,
             self.env.user.company_id.id
         ))
