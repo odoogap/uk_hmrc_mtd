@@ -16,10 +16,6 @@ import threading
 import os
 import ssl
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
-
 _logger = logging.getLogger(__name__)
 
 class MtdVat(models.TransientModel):
@@ -63,8 +59,8 @@ class MtdVat(models.TransientModel):
 
                 for value in message['obligations']:
                     if value['status'] == 'O':
-                        period = '%s:%s-%s' % (value.get('periodKey'), '2019/03/01', '2019/03/31')
-                        date = '%s - %s' % ('2019/03/01', '2019/03/31')
+                        period = '%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
+                        date = '%s - %s' % (value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
                         periods.append((period, date))
 
                 self._context.update({'periods': periods})

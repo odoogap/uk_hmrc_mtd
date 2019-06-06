@@ -12,10 +12,6 @@ import ssl
 import msgfy
 import odoorpc
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
-
 class MtdSetOldJournalSubmission(models.TransientModel):
     _name = 'mtd.set.old.journal.submission'
     _description = 'allows the user to update submission state of old journals'
