@@ -10,10 +10,6 @@ import os
 import ssl
 import odoorpc
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
-
 class MtdConnection(models.TransientModel):
     _name = 'mtd.connection'
     _description = "MTD connection control"

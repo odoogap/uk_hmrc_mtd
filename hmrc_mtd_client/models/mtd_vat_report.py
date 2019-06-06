@@ -213,6 +213,7 @@ class MtdVatReport(models.Model):
     @api.multi
     def submit_vat(self):
         self.ensure_one()
+        self.check_version()
         boxes = {
             'vatDueSales': self.vatDueSales,
             'vatDueAcquisitions': self.vatDueAcquisitions,
@@ -241,7 +242,6 @@ class MtdVatReport(models.Model):
                 'Authorization': 'Bearer %s' % api_token
             }
         response = requests.post(req_url, headers=req_headers, json=boxes)
-        self.check_version()
         if response.status_code == 201:
             message = json.loads(response._content.decode("utf-8"))
             headers = response.headers
@@ -271,8 +271,6 @@ class MtdVatReport(models.Model):
     
     @api.multi
     def verify_submission(self):
-        print('verify submission')
-
         context = self._context.copy()
         context.update({'period_key': self.period_key})
         return self.env['mtd.vat.verification'].with_context(context).verify_submission()
