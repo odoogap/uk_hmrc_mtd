@@ -53,21 +53,20 @@ class MtdHmrcBoxesVerification(models.TransientModel):
                     'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token
                 }
                 response = requests.get(req_url, headers=req_headers)
-
                 if response.status_code == 200:
                     self.search([]).unlink()
                     message = json.loads(response._content.decode("utf-8"))
                     rec_id = self.create(
                         {
-                            'vatDueSales': message.get('vatDueSales'),
-                            'vatDueAcquisitions': message.get('vatDueAcquisitions'),
-                            'totalVatDue': message.get('totalVatDue'),
-                            'vatReclaimedCurrPeriod': message.get('vatReclaimedCurrPeriod'),
-                            'netVatDue': message.get('netVatDue'),
-                            'totalValueSalesExVAT': message.get('totalValueSalesExVAT'),
-                            'totalValuePurchasesExVAT': message.get('totalValuePurchasesExVAT'),
-                            'totalValueGoodsSuppliedExVAT': message.get('totalValueGoodsSuppliedExVAT'),
-                            'totalAcquisitionsExVAT': message.get('totalAcquisitionsExVAT')
+                            'vatDueSales': str(message.get('vatDueSales')),
+                            'vatDueAcquisitions': str(message.get('vatDueAcquisitions')),
+                            'totalVatDue': str(message.get('totalVatDue')),
+                            'vatReclaimedCurrPeriod': str(message.get('vatReclaimedCurrPeriod')),
+                            'netVatDue': str(message.get('netVatDue')),
+                            'totalValueSalesExVAT': str(message.get('totalValueSalesExVAT')),
+                            'totalValuePurchasesExVAT': str(message.get('totalValuePurchasesExVAT')),
+                            'totalValueGoodsSuppliedExVAT': str(message.get('totalValueGoodsSuppliedExVAT')),
+                            'totalAcquisitionsExVAT': str(message.get('totalAcquisitionsExVAT'))
                         })
                     
                     return {

@@ -7,7 +7,7 @@
             <form string="Vat Return Data" class="o_invoice_form" edit="0" create="0" delete="0">
                 <sheet string="VAT return">
                     <div class="oe_button_box" name="button_box">
-                        <button type="object" class="oe_stat_button" icon="fa-file" name="verify_submission">
+                        <button type="object" class="oe_stat_button" icon="fa-file" name="verify_submission" attrs="{'invisible': [('is_submitted', '==', False)]}">
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Verify</span>
                             </div>
