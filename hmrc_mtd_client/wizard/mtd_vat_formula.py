@@ -175,7 +175,7 @@ class MtdCalculationFormula(models.TransientModel):
 
                     if formula.get(parameter) != 'N/A':
                         if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
-                            safe_eval(formula.get(parameter).encode('utf8'), dummy_dict)
+                            safe_eval(formula.get(parameter), dummy_dict)
 
                         else:
                             raise UserError('Boxes formulas need to have arithmethic operations.')

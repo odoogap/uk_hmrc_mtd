@@ -137,7 +137,7 @@ class MtdVatReport(models.Model):
 
     def get_account_moves(self):
         params = self.env['ir.config_parameter'].sudo()
-        taxes = params.get_param('mtd.%s' % self._context.get('taxes').encode("utf-8"), default=False)
+        taxes = params.get_param('mtd.%s' % self._context.get('taxes'), default=False)
         mtd_state = 'f'
         condition = 'AND'
 
@@ -154,7 +154,7 @@ class MtdVatReport(models.Model):
                 mtd_state,
                 condition,
                 self.env.user.company_id.id,
-                str(taxes).strip('[]').encode("utf-8"))
+                str(taxes).strip('[]'))
             )
         else:
             self.env.cr.execute(self.sql_get_account_move_lines_by_tag_fb() % (
@@ -162,7 +162,7 @@ class MtdVatReport(models.Model):
                 mtd_state,
                 condition,
                 self.env.user.company_id.id,
-                str(taxes).strip('[]').encode("utf-8"))
+                str(taxes).strip('[]'))
             )
 
         account_moves = self.env.cr.fetchall()
