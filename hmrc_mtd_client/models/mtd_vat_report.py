@@ -93,7 +93,27 @@ class MtdVatReport(models.Model):
                 account_move.company_id in (%s)
         """
 
-    def sql_get_account_move_lines_by_tag(self):
+    def sql_get_account_move_lines_by_tag_fb(self):
+        return """
+            SELECT account_move_line.id
+                FROM account_move INNER JOIN account_move_line ON
+                account_move.id = account_move_line.move_id
+                INNER JOIN account_tax ON account_move_line.tax_line_id = account_tax.id
+                WHERE account_move.date <= '%s' AND
+                account_move.state = 'posted' AND
+                account_move.is_mtd_submitted = '%s' %s
+                account_move.company_id in (%s) AND
+                account_tax.id IN (
+                    SELECT account_tax.id
+                    FROM account_tax INNER JOIN account_tax_account_tag ON
+                    account_tax_account_tag.account_tax_id=account_tax.id INNER JOIN
+                    account_account_tag ON account_account_tag.id =
+                    account_tax_account_tag.account_account_tag_id
+                    WHERE account_account_tag.name IN (%s)
+                )
+        """
+
+    def sql_get_account_move_lines_by_tag_lb(self):
         return """
             SELECT account_move_line.id
                 FROM account_move INNER JOIN account_move_line ON
@@ -128,13 +148,23 @@ class MtdVatReport(models.Model):
             mtd_state = 't'
             condition = 'AND account_move.vat_report_id in (%s) AND' % self.id
 
-        self.env.cr.execute(self.sql_get_account_move_lines_by_tag() % (
-            self.name.split('-')[1],
-            mtd_state,
-            condition,
-            self.env.user.company_id.id,
-            str(taxes).strip('[]').encode("utf-8"))
-        )
+        if self._context.get('box_name') in ['Box 6', 'Box 7', 'Box 8', 'Box 9']:
+            self.env.cr.execute(self.sql_get_account_move_lines_by_tag_lb() % (
+                self.name.split('-')[1],
+                mtd_state,
+                condition,
+                self.env.user.company_id.id,
+                str(taxes).strip('[]').encode("utf-8"))
+            )
+        else:
+            self.env.cr.execute(self.sql_get_account_move_lines_by_tag_fb() % (
+                self.name.split('-')[1],
+                mtd_state,
+                condition,
+                self.env.user.company_id.id,
+                str(taxes).strip('[]').encode("utf-8"))
+            )
+
         account_moves = self.env.cr.fetchall()
         view = self.env.ref('account.view_account_journal_tree')
         context = self.env.context.copy()
