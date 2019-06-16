@@ -21,10 +21,11 @@
 
     <record id="view_mtd_account_invoice_search" model="ir.ui.view">
         <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_account_move_line_filter"/>
         <field name="arch" type="xml">
-            <search string="due_invoices">
+            <xpath expr="//field[@name='tax_ids']" position="after">
                 <filter name='mtd_due_invoice' string="mtd due" domain="[('mtd_date', '>', '')]"/>
-            </search>
+            </xpath>
         </field>
     </record>
 </odoo>
