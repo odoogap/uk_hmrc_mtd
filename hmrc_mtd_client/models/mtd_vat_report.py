@@ -194,7 +194,7 @@ class MtdVatReport(models.Model):
         return action
 
     def check_version(self):
-        latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
+        latest_version = self.env['ir.module.module'].sudo().search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
             'odoo_version': 'v11',
             'mtd_client_version': latest_version
@@ -272,6 +272,8 @@ class MtdVatReport(models.Model):
                 'Accept': 'application/vnd.hmrc.1.0+json',
                 'Authorization': 'Bearer %s' % api_token
             }
+        prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+        req_headers.update(prevention_headers)
         response = requests.post(req_url, headers=req_headers, json=boxes)
         if response.status_code == 201:
             message = json.loads(response._content.decode("utf-8"))

@@ -13,7 +13,7 @@
 
         <record id="config_mtd_server_db" model="ir.config_parameter">
             <field name="key">mtd.db</field>
-            <field name="value">v12_odoo</field>
+            <field name="value">v12_odoomtd</field>
         </record>
 
         <record id="fuel_scale_charge_tax" model="account.tax">

@@ -28,7 +28,7 @@ class MtdVat(models.TransientModel):
             raise UserError(response.get('message'))
 
     def check_version(self):
-        latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
+        latest_version = self.env['ir.module.module'].sudo().search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
             'odoo_version': 'v11',
             'mtd_client_version': latest_version
@@ -48,6 +48,8 @@ class MtdVat(models.TransientModel):
                     'Accept': 'application/vnd.hmrc.1.0+json',
                     'Authorization': 'Bearer %s' % api_token
                 }
+            prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+            req_headers.update(prevention_headers)
             req_params = {
                     'to': time.strftime("%Y-%m-%d"),
                     'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')

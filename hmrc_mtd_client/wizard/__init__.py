@@ -14,3 +14,4 @@ from . import mtd_fuel_scale_charge
 from . import mtd_fuel_scale_wizard
 from . import mtd_set_old_journal_submission
 from . import mtd_hmrc_boxes_verification
+from . import mtd_fraud_prevention
