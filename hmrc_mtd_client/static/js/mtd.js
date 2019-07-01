@@ -23,4 +23,3 @@ odoo.define('mtd.module.js', function (require) {
     var app = new mtd_js();
     app.start();
 });
-    
