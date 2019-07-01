@@ -9,6 +9,9 @@ from odoo.exceptions import UserError, RedirectWarning
 import os
 import ssl
 import odoorpc
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class MtdConnection(models.TransientModel):
     _name = 'mtd.connection'
@@ -35,62 +38,76 @@ class MtdConnection(models.TransientModel):
         Returns:
             [dict] -- [redirect url action]
         """
-        conn = self.open_connection_odoogap()
-        mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
-        response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
+        try:
+            conn = self.open_connection_odoogap()
+            mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
+            response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
 
-        if response.get('status') == 200:
-            self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
-            client_action = {
-                'type': 'ir.actions.act_url',
-                'name': "HMRC authentication",
-                'target': 'new',
-                'url': response.get('message')
-            }
+            if response.get('status') == 200:
+                self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
+                client_action = {
+                    'type': 'ir.actions.act_url',
+                    'name': "HMRC authentication",
+                    'target': 'new',
+                    'url': response.get('message')
+                }
 
-            return client_action
+                return client_action
 
-        raise UserError('An error has occurred : \n status: %s \n message: %s ' % (
-            str(response.get('status')),
-            response.get('message')
-        ))
+            raise UserError('An error has occurred : \n status: %s \n message: %s ' % (
+                str(response.get('status')),
+                response.get('message')
+            ))
+        except Exception as e:
+            logging.error('Invalid connection %s' % str(e))
+            raise UserError('Wrong Login or Password.')
 
     def refresh_token(self):
         """refreshs HMRC token
         Returns:
             [type] -- [HMRC token]
         """
-        conn = self.open_connection_odoogap()
-        mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
-        response = conn.execute('mtd.operations', 'refresh_token', mtd_sandbox)
+        try:
+            conn = self.open_connection_odoogap()
+            mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
+            response = conn.execute('mtd.operations', 'refresh_token', mtd_sandbox)
 
-        if response.get('status') == 200:
-            set_param = self.env['ir.config_parameter'].sudo().set_param
-            set_param('mtd.token', response.get('message').get('token'))
-            set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
+            if response.get('status') == 200:
+                set_param = self.env['ir.config_parameter'].sudo().set_param
+                set_param('mtd.token', response.get('message').get('token'))
+                set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
 
-            return response.get('message').get('token')
+                return response.get('message').get('token')
 
-        else:
-            raise UserError('An error has occurred : \n status: %s\n message: %s' % (
-                    str(response.get('status')),
-                    response.get('message')
-            ))
+            else:
+                raise UserError('An error has occurred : \n status: %s\n message: %s' % (
+                        str(response.get('status')),
+                        response.get('message')
+                ))
+
+        except Exception as e:
+            logging.error('Invalid connection %s' % str(e))
+            raise UserError('Invalid user.')
 
     def get_token(self):
         """stores the HMRC token in the system
         """
-        conn = self.open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'get_token')
+        try:
+            conn = self.open_connection_odoogap()
+            response = conn.execute('mtd.operations', 'get_token')
 
-        if response.get('status') == 200:
-            set_param = self.env['ir.config_parameter'].sudo().set_param
-            set_param('mtd.token', response.get('message').get('token'))
-            set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
+            if response.get('status') == 200:
+                set_param = self.env['ir.config_parameter'].sudo().set_param
+                set_param('mtd.token', response.get('message').get('token'))
+                set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
 
-        else:
-            raise UserError(
-                'An error has occurred : \n status: %s\n message: %s' % (
-                    str(response.get('status')),
-                    response.get('message')
-                ))
+            else:
+                raise UserError(
+                    'An error has occurred : \n status: %s\n message: %s' % (
+                        str(response.get('status')),
+                        response.get('message')
+                    ))
+
+        except Exception as e:  
+            logging.error('Invalid connection %s' % str(e))
+            raise UserError('Invalid user.')
