@@ -49,8 +49,11 @@ class MtdVatLiabilities(models.TransientModel):
                 req_url = '%s/organisations/vat/%s/liabilities' % (hmrc_url, str(self.env.user.company_id.vrn))
                 req_headers = {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token
+                    'Accept': 'application/vnd.hmrc.1.0+json', 
+                    'Authorization': 'Bearer %s' % api_token
                 }
+                prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+                req_headers.update(prevention_headers)
                 req_params = {
                     "to": time.strftime("%Y-%m-%d"),
                     "from": "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')

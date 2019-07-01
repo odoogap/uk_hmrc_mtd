@@ -52,6 +52,8 @@ class MtdVat(models.TransientModel):
                     'to': time.strftime("%Y-%m-%d"),
                     'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
                 }
+            prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+            req_headers.update(prevention_headers)
             response = requests.get(url, headers=req_headers, params=req_params)
             if response.status_code == 200:
                 message = json.loads(response._content.decode("utf-8"))

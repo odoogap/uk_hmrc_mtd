@@ -52,6 +52,8 @@ class MtdHmrcBoxesVerification(models.TransientModel):
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.hmrc.1.0+json', 'Authorization': 'Bearer %s' % api_token
                 }
+                prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+                req_headers.update(prevention_headers)
                 response = requests.get(req_url, headers=req_headers)
                 if response.status_code == 200:
                     self.search([]).unlink()

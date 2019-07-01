@@ -27,10 +27,10 @@ class MtdCalculationFormula(models.TransientModel):
     def get_default_params_formula(self, fields):
         IrConfigParam = self.env['ir.config_parameter']
         return {
-            'box_one': IrConfigParam.get_param('mtd.box_one_formula', 'sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat'),
+            'box_one': IrConfigParam.get_param('mtd.box_one_formula', 'sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + vat_fuel + vat_bad'),
             'box_two': IrConfigParam.get_param('mtd.box_two_formula', 'sum([vat_PT8M])'),
             'box_four': IrConfigParam.get_param('mtd.box_four_formula', 'sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])'),
-            'box_six': IrConfigParam.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net'),
+            'box_six': IrConfigParam.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + net_fuel + net_bad'),
             'box_seven': IrConfigParam.get_param('mtd.box_seven_formula', 'sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])'),
             'box_eight': IrConfigParam.get_param('mtd.box_eight_formula', 'sum([net_ST4])'),
             'box_nine': IrConfigParam.get_param('mtd.box_nine_formula', 'sum([net_PT7, net_PT8])')
