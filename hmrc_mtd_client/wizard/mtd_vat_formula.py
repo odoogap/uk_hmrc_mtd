@@ -12,6 +12,10 @@ import ssl
 import msgfy
 import odoorpc
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -105,8 +109,12 @@ class MtdCalculationFormula(models.TransientModel):
                     formula.update({attr:getattr(self, attr)})
 
         self.test_formula(formula)
-        conn = self.env['mtd.connection'].open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'submit_formula', formula)
+        try:
+            conn = self.env['mtd.connection'].open_connection_odoogap()
+            response = conn.execute('mtd.operations', 'submit_formula', formula)
+        except Exception as e:
+            logging.error('Invalid connection %s' % str(e))
+            raise UserError('Invalid User')
 
         if response.get('status') == 200:
             self.env.user.company_id.submited_formula = True
