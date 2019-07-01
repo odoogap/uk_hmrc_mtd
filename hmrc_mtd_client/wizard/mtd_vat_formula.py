@@ -109,12 +109,8 @@ class MtdCalculationFormula(models.TransientModel):
                     formula.update({attr:getattr(self, attr)})
 
         self.test_formula(formula)
-        try:
-            conn = self.env['mtd.connection'].open_connection_odoogap()
-            response = conn.execute('mtd.operations', 'submit_formula', formula)
-        except Exception as e:
-            logging.error('Invalid connection %s' % str(e))
-            raise UserError('Invalid User')
+        conn = self.env['mtd.connection'].open_connection_odoogap()
+        response = conn.execute('mtd.operations', 'submit_formula', formula)
 
         if response.get('status') == 200:
             self.env.user.company_id.submited_formula = True
