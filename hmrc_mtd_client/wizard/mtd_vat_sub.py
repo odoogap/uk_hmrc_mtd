@@ -49,8 +49,7 @@ class MtdVat(models.TransientModel):
                     'Authorization': 'Bearer %s' % api_token
                 }
             req_params = {
-                    'to': time.strftime("%Y-%m-%d"),
-                    'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
+                    'status': 'O'
                 }
             prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
             req_headers.update(prevention_headers)
