@@ -17,12 +17,14 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdFuelScaleValues(models.TransientModel):
     _name = 'mtd.fuel.scale'
     _description = "Fuel scale values"
 
     name = fields.Char(default='Fuel scale value')
-    company_currency_id = fields.Many2one('res.currency', readonly=True, default=lambda self: self.env.user.company_id.currency_id)
+    company_currency_id = fields.Many2one('res.currency', readonly=True,
+                                          default=lambda self: self.env.user.company_id.currency_id)
     vat_fuel_scale_charge = fields.Monetary(currency_field='company_currency_id', required=True)
     vat_period_charge = fields.Monetary(currency_field='company_currency_id', required=True)
     vat_exclusive_period_charge = fields.Monetary(currency_field='company_currency_id', required=True)
@@ -65,13 +67,13 @@ class MtdFuelScaleValues(models.TransientModel):
         view = self.env.ref('hmrc_mtd_client.fuel_scale_charge_form_wizard')
 
         return {
-                'name': 'Fuel Scale Charge',
-                'type': 'ir.actions.act_window',
-                'view_type': 'form',
-                'view_mode': 'form',
-                'res_model': 'mtd.fuel.scale.wizard',
-                'views': [(view.id, 'form')],
-                'view_id': view.id,
-                'target': 'new',
-                'context': self._context
-            }
+            'name': 'Fuel Scale Charge',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'mtd.fuel.scale.wizard',
+            'views': [(view.id, 'form')],
+            'view_id': view.id,
+            'target': 'new',
+            'context': self._context
+        }

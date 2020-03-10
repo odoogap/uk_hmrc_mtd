@@ -18,6 +18,7 @@ import ssl
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdVat(models.TransientModel):
     _name = 'mtd.vat.sub'
     _description = "VAT Calculation"
@@ -34,7 +35,8 @@ class MtdVat(models.TransientModel):
             'mtd_client_version': latest_version
         }
 
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
+        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version',
+                                                                                values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
@@ -44,15 +46,16 @@ class MtdVat(models.TransientModel):
         if self.env.user.company_id.vat:
             url = '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.user.company_id.vrn))
             req_headers = {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.hmrc.1.0+json',
-                    'Authorization': 'Bearer %s' % api_token
-                }
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.hmrc.1.0+json',
+                'Authorization': 'Bearer %s' % api_token
+            }
             prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
             req_headers.update(prevention_headers)
             req_params = {
-                    'status': 'O'
-                }
+                'to': time.strftime("%Y-%m-%d"),
+                'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
+            }
             response = requests.get(url, headers=req_headers, params=req_params)
             if response.status_code == 200:
                 message = json.loads(response._content.decode("utf-8"))
@@ -60,30 +63,30 @@ class MtdVat(models.TransientModel):
 
                 for value in message['obligations']:
                     if value['status'] == 'O':
-                        period = '%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
+                        period = '%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
+                                             value.get('end').replace('-', '/'))
                         date = '%s - %s' % (value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
                         periods.append((period, date))
 
                 self._context.update({'periods': periods})
                 view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                 return {
-                        'name': 'Calculate VAT',
-                        'type': 'ir.actions.act_window',
-                        'view_type': 'form',
-                        'view_mode': 'form',
-                        'res_model': 'mtd.vat.sub',
-                        'views': [(view.id, 'form')],
-                        'view_id': view.id,
-                        'target': 'new',
-                        'context': self._context
-                    }
+                    'name': 'Calculate VAT',
+                    'type': 'ir.actions.act_window',
+                    'view_type': 'form',
+                    'view_mode': 'form',
+                    'res_model': 'mtd.vat.sub',
+                    'views': [(view.id, 'form')],
+                    'view_id': view.id,
+                    'target': 'new',
+                    'context': self._context
+                }
             else:
                 message = json.loads(response._content.decode("utf-8"))
                 raise UserError('An error has occurred : \n status: %s \n message: %s' % (
                     str(response.status_code), message.get('message')))
 
         raise UserError('Please set VAT value for your current company.')
-
 
     def get_periods(self):
         """
@@ -100,15 +103,15 @@ class MtdVat(models.TransientModel):
         if not is_set_old_journal:
             view = self.env.ref('hmrc_mtd_client.mtd_set_old_submission_view')
             return {
-                    'name': 'Set old journal submission',
-                    'type': 'ir.actions.act_window',
-                    'view_type': 'form',
-                    'view_mode': 'form',
-                    'res_model': 'mtd.set.old.journal.submission',
-                    'views': [(view.id, 'form')],
-                    'view_id': view.id,
-                    'target': 'new'
-                }
+                'name': 'Set old journal submission',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'mtd.set.old.journal.submission',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new'
+            }
 
         if api_token:
             if float(token_expire_date) - time.time() < 0:
@@ -163,7 +166,8 @@ class MtdVat(models.TransientModel):
         Returns:
             [dict] -- [dict with all the moves]
         """
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'get_payload', vat_scheme)
+        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'get_payload',
+                                                                                vat_scheme)
         channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
 
         if response.get('status') == 200:
@@ -192,10 +196,12 @@ class MtdVat(models.TransientModel):
             return self.dict_refactor(data)
 
         else:
-            _logger.error('Response from server :\n status: %s\n message: %s' % (str(response.get('status')), response.get('message')))
-            channel_id.message_post('Attempt to run vat calculation failed!\nResponse from server : \nstatus: %s \nmessage: %s' % (
-                str(response.get('status')),
-                response.get('message')
+            _logger.error('Response from server :\n status: %s\n message: %s' % (
+                str(response.get('status')), response.get('message')))
+            channel_id.message_post(
+                'Attempt to run vat calculation failed!\nResponse from server : \nstatus: %s \nmessage: %s' % (
+                    str(response.get('status')),
+                    response.get('message')
                 )
             )
 
@@ -212,35 +218,38 @@ class MtdVat(models.TransientModel):
 
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
-                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'calculate_boxes', submit_data)
+                print(submit_data)
+                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
+                                                                                        'calculate_boxes', submit_data)
 
                 if response.get('status') == 200:
                     channel_id.message_post(
-                            body='The VAT calculation was successfull!',
-                            message_type="notification",
-                            subtype="mail.mt_comment"
-                        )
+                        body='The VAT calculation was successfull!',
+                        message_type="notification",
+                        subtype="mail.mt_comment"
+                    )
                     self.env['mtd.vat.report'].search([('name', '=', self.period.split(':')[1])]).unlink()
                     vat_report_data = {
-                            'registration_number': self.env.user.company_id.vat,
-                            'vat_scheme': 'Accrual Basis ' if self.vat_scheme == 'AC' else 'Cash Basis',
-                            'name': self.period.split(':')[1],
-                            'box_one': float(response.get('message').get('box_one')),
-                            'box_two': float(response.get('message').get('box_two')),
-                            'box_three': float(response.get('message').get('box_three')),
-                            'box_four': float(response.get('message').get('box_four')),
-                            'box_five': float(response.get('message').get('box_five')),
-                            'box_six': float(response.get('message').get('box_six')),
-                            'box_seven': float(response.get('message').get('box_seven')),
-                            'box_eight': float(response.get('message').get('box_eight')),
-                            'box_nine': float(response.get('message').get('box_nine')),
-                            'submission_token': response.get('message').get('submission_token'),
-                            'period_key': self.period.split(':')[0]
-                        }
+                        'registration_number': self.env.user.company_id.vat,
+                        'vat_scheme': 'Accrual Basis ' if self.vat_scheme == 'AC' else 'Cash Basis',
+                        'name': self.period.split(':')[1],
+                        'box_one': float(response.get('message').get('box_one')),
+                        'box_two': float(response.get('message').get('box_two')),
+                        'box_three': float(response.get('message').get('box_three')),
+                        'box_four': float(response.get('message').get('box_four')),
+                        'box_five': float(response.get('message').get('box_five')),
+                        'box_six': float(response.get('message').get('box_six')),
+                        'box_seven': float(response.get('message').get('box_seven')),
+                        'box_eight': float(response.get('message').get('box_eight')),
+                        'box_nine': float(response.get('message').get('box_nine')),
+                        'submission_token': response.get('message').get('submission_token'),
+                        'period_key': self.period.split(':')[0]
+                    }
                     self.env['mtd.vat.report'].create(vat_report_data)
                 else:
                     channel_id.message_post(
-                        body='Response from server : \n status: %s\n message: %s' % (str(response.get('status')), response.get('message')),
+                        body='Response from server : \n status: %s\n message: %s' % (
+                            str(response.get('status')), response.get('message')),
                         message_type="notification",
                         subtype="mail.mt_comment")
                 new_cr.commit()
@@ -249,7 +258,7 @@ class MtdVat(models.TransientModel):
                 self._cr.rollback()
                 _logger.error('Attempt to run vat calculation failed %s ' % str(ex))
                 channel_id.message_post(
-                    body = 'Attempt to run vat calculation failed! %s' % str(ex),
+                    body='Attempt to run vat calculation failed! %s' % str(ex),
                     message_type="notification",
                     subtype="mail.mt_comment")
                 new_cr.commit()
@@ -280,7 +289,8 @@ class MtdVat(models.TransientModel):
             [Dict] -- returns a pop up message
         """
         if self.env.user.company_id.submited_formula:
-            self.env.cr.execute(self._sql_get_move_lines_count() % (self.env.user.company_id.id, self.period.split('-')[1].replace('/', '-')))
+            self.env.cr.execute(self._sql_get_move_lines_count() % (
+                self.env.user.company_id.id, self.period.split('-')[1].replace('/', '-')))
             results = self.env.cr.dictfetchall()
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
 

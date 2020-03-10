@@ -13,6 +13,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdConnection(models.TransientModel):
     _name = 'mtd.connection'
     _description = "MTD connection control"
@@ -80,8 +81,8 @@ class MtdConnection(models.TransientModel):
 
         else:
             raise UserError('An error has occurred : \n status: %s\n message: %s' % (
-                    str(response.get('status')),
-                    response.get('message')
+                str(response.get('status')),
+                response.get('message')
             ))
 
     def get_token(self):
