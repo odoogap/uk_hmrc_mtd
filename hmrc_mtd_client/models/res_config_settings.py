@@ -8,6 +8,10 @@ from odoo import models, fields, api, _
 import os
 import ssl
 from odoo.exceptions import UserError
+import requests
+import json
+import time
+
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -48,6 +52,57 @@ class ResConfigSettings(models.TransientModel):
     @api.multi
     def get_authorization(self):
         return self.env['mtd.connection'].get_authorization()
+
+    def json_pretty(self, request):
+        complete_str = '[%s]' % request
+        parsed = json.loads(complete_str)
+        return json.dumps(parsed, indent=4, sort_keys=True)
+
+    @api.multi
+    def test_headers(self):
+        params = self.env['ir.config_parameter'].sudo()
+        is_sandbox = params.get_param('mtd.sandbox', default=False)
+
+        if is_sandbox:
+            api_token = params.get_param('mtd.token', default=False)
+            token_expire_date = params.get_param('mtd.token_expire_date')
+            hmrc_url = params.get_param('mtd.hmrc.url', default=False)
+
+            if api_token:
+                if float(token_expire_date) - time.time() < 0:
+                    api_token = self.env['mtd.connection'].refresh_token()
+
+            url = '%s/test/fraud-prevention-headers/validate' % hmrc_url
+            req_headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.hmrc.1.0+json',
+                'Authorization': 'Bearer %s' % api_token
+            }
+            prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+            req_headers.update(prevention_headers)
+            response = requests.get(url, headers=req_headers)
+            view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
+
+            return {
+                'name': 'Message',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pop.up.message',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': {
+                    'default_name': 'Status:%s\nContent:%s' % (
+                        response.status_code, self.json_pretty(response._content.decode("utf-8"))),
+                    'delay': True,
+                    'no_delay': False
+                }
+            }
+
+        else:
+            raise UserError("Must be in sandbox environment to test the headers.\n"
+                            "This Feature is used for development purposes.")
 
     @api.multi
     def vat_formula(self):

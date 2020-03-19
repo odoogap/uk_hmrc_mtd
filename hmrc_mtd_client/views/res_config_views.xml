@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//separator[@name='analytic_account']" position="before">
                 <group string="HMRC MTD">
-                    <div>
+                    <div class="content-group">
                         <div>
                             <label string="Login" for="mtd_login" class="col-md-3 o_light_label"/>
                             <field name="mtd_login" class="oe_inline"/>
@@ -20,9 +20,15 @@
                             <label string="Sandbox" for="is_sandbox" class="col-md-3 o_light_label"/>
                             <field name="is_sandbox" class="oe_inline"/>
                         </div>
+
                         <div class="btn-group" role="group">
-                            <button attrs="{'invisible': [('mtd_login', '=', False), ('mtd_password','=',False)]}" string="Authorize" name='get_authorization' type="object" class="btn-primary"/>
-                            <button attrs="{'invisible': [('mtd_login', '=', False), ('mtd_password','=',False)]}" string="Formula" name='vat_formula' type="object" class="btn-primary"/>
+                            <button groups="base.group_no_one"
+                                                string="Test Headers" name='test_headers' type="object"
+                                                class="btn-primary"/>
+                            <button attrs="{'invisible': [('mtd_login', '=', False), ('mtd_password','=',False)]}"
+                                    string="Authorize" name='get_authorization' type="object" class="btn-primary"/>
+                            <button attrs="{'invisible': [('mtd_login', '=', False), ('mtd_password','=',False)]}"
+                                    string="Formula" name='vat_formula' type="object" class="btn-primary"/>
                         </div>
                     </div>
                 </group>

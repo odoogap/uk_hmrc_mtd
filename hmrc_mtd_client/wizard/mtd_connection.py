@@ -13,6 +13,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdConnection(models.TransientModel):
     _name = 'mtd.connection'
     _description = "MTD connection control"

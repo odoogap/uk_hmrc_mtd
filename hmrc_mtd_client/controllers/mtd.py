@@ -19,10 +19,11 @@ class Mtd(http.Controller):
             return 'Failed! Something went wrong.'
 
     @http.route('/web/mtd/js', type='json', auth="user")
-    def save_js_parameters(self, js_user_agent, window_size, screens):
+    def save_js_parameters(self, js_user_agent, window_size, screens, browser_plugin):
         request.env['mtd.fraud.prevention'].set_java_script_headers({
             'js_user_agent': js_user_agent,
             'window_size':window_size,
-            'screens': window_size
+            'screens': window_size,
+            'browser_plugin': browser_plugin
             })
 
