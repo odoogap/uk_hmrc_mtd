@@ -85,7 +85,6 @@ class MtdVat(models.TransientModel):
 
         raise UserError('Please set VAT value for your current company.')
 
-
     def get_periods(self):
         """
         gets the periods from the HMRC API
@@ -97,27 +96,34 @@ class MtdVat(models.TransientModel):
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
         token_expire_date = params.get_param('mtd.token_expire_date')
         is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
+        mtd_login = params.get_param('mtd.mtd_login', default=False)
+        mtd_password = params.get_param('mtd.mtd_password', default=False)
 
-        if not is_set_old_journal:
-            view = self.env.ref('hmrc_mtd_client.mtd_set_old_submission_view')
-            return {
-                    'name': 'Set old journal submission',
-                    'type': 'ir.actions.act_window',
-                    'view_type': 'form',
-                    'view_mode': 'form',
-                    'res_model': 'mtd.set.old.journal.submission',
-                    'views': [(view.id, 'form')],
-                    'view_id': view.id,
-                    'target': 'new'
-                }
+        if not (mtd_login or mtd_password):
+            raise UserError('Your Odoo/MTD credentials are empty! Please go to configuration and fill in the '
+                            'parameters, or if you are not signed up, go to our website and request access using the '
+                            'contact form!')
+        else:
+            if not is_set_old_journal:
+                view = self.env.ref('hmrc_mtd_client.mtd_set_old_submission_view')
+                return {
+                        'name': 'Set old journal submission',
+                        'type': 'ir.actions.act_window',
+                        'view_type': 'form',
+                        'view_mode': 'form',
+                        'res_model': 'mtd.set.old.journal.submission',
+                        'views': [(view.id, 'form')],
+                        'view_id': view.id,
+                        'target': 'new'
+                    }
 
-        if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                api_token = self.env['mtd.connection'].refresh_token()
+            if api_token:
+                if float(token_expire_date) - time.time() < 0:
+                    api_token = self.env['mtd.connection'].refresh_token()
 
-            return self.request_periods(hmrc_url, api_token)
+                return self.request_periods(hmrc_url, api_token)
 
-        raise UserError('Please configure MTD.')
+            raise UserError('Please configure MTD.')
 
     def _get_context_periods(self):
         return self._context.get('periods')

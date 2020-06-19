@@ -1,14 +1,15 @@
 {
     'name': "hmrc_mtd_client",
-    'summary': """
-        Client module for management of HMRC""",
+    'version': '1.1.5',
+    'summary': """Client module for management of HMRC""",
     'description': """
         Enables the user to commit HMRC VAT return to HMRC api.
     """,
-    'author': "Odoogap",
-    'website': "https://www.odoomtd.co.uk/",
     'category': 'Invoicing Management',
-    'version': '1.1.5',
+    'author': 'Odoogap',
+    'licence': 'LGPL-3',
+    'website': 'https://www.odoogap.com/',
+    'images': ['images/main_screenshot.png'],
     'depends': ['base', 'account', 'l10n_uk'],
     'data': [
         'views/vat_sub_view.xml',
@@ -29,4 +30,7 @@
         'views/templates.xml'
     ],
     'external_dependencies': {'python': ['odoorpc', 'msgfy', 'dateutil']},
+    'installable': True,
+    'auto_install': False,
+    'support': 'info@odoogap.com',
 }
