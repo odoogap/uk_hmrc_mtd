@@ -6,6 +6,7 @@
 
 from odoo import models, fields, api, _
 
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
@@ -33,4 +34,3 @@ class AccountMoveLine(models.Model):
         WHERE date < '%s'""" % mtd)
         res = self.env.cr.fetchall()
         return [('id', 'in', [r[0] for r in res])]
-
