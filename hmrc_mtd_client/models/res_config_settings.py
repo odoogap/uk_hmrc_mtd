@@ -5,13 +5,17 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 import os
 import ssl
-from odoo.exceptions import UserError
+import requests
+import json
+import time
 
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
+
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -19,6 +23,7 @@ class ResConfigSettings(models.TransientModel):
     login = fields.Char('Name', help='Account name of mtd')
     password = fields.Char('Password', help='Account password of mtd')
     server = fields.Char('Server')
+    test_server = fields.Char('Test Server')
     db = fields.Char('Database')
     port = fields.Char('Port')
     token = fields.Char('token')
@@ -57,6 +62,56 @@ class ResConfigSettings(models.TransientModel):
         set_param('mtd.password', self.password)
         set_param('mtd.sandbox', self.is_sandbox)
         set_param('mtd.submission_period', self.submission_period)
+
+    @api.multi
+    def json_pretty(self, request):
+        complete_str = '[%s]' % request
+        parsed = json.loads(complete_str)
+        return json.dumps(parsed, indent=4, sort_keys=True)
+
+    @api.multi
+    def test_headers(self):
+        params = self.env['ir.config_parameter'].sudo()
+        is_sandbox = params.get_param('mtd.sandbox', default=False)
+
+        if is_sandbox:
+            api_token = params.get_param('mtd.token', default=False)
+            token_expire_date = params.get_param('mtd.token_expire_date')
+            test_hmrc_url = params.get_param('mtd.hmrc.url', default=False)
+
+            if api_token:
+                if float(token_expire_date) - time.time() < 0:
+                    api_token = self.env['mtd.connection'].refresh_token()
+
+            req_headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.hmrc.1.0+json',
+                'Authorization': 'Bearer %s' % api_token
+            }
+            prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+            req_headers.update(prevention_headers)
+            response = requests.get(test_hmrc_url, headers=req_headers)
+            view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
+
+            return {
+                'name': 'Message',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pop.up.message',
+                'views': [(view.id, 'form')],
+                'view_id': view.id,
+                'target': 'new',
+                'context': {
+                    'default_name': 'Status:%s\nContent:%s' % (
+                        response.status_code, self.json_pretty(response._content.decode("utf-8"))),
+                    'delay': True,
+                    'no_delay': False
+                }
+            }
+        else:
+            raise UserError("Must be in sandbox environment to test the headers.\n"
+                            "This Feature is used for development purposes.")
 
     @api.multi
     def get_authorization(self):
