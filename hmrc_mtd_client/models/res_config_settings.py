@@ -77,12 +77,13 @@ class ResConfigSettings(models.TransientModel):
         if is_sandbox:
             api_token = params.get_param('mtd.token', default=False)
             token_expire_date = params.get_param('mtd.token_expire_date')
-            test_hmrc_url = params.get_param('mtd.hmrc.url', default=False)
+            test_hmrc_url = params.get_param('mtd.test_server', default=False)
 
             if api_token:
                 if float(token_expire_date) - time.time() < 0:
                     api_token = self.env['mtd.connection'].refresh_token()
 
+            url = '%s/test/fraud-prevention-headers/validate' % test_hmrc_url
             req_headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/vnd.hmrc.1.0+json',
@@ -90,7 +91,7 @@ class ResConfigSettings(models.TransientModel):
             }
             prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
             req_headers.update(prevention_headers)
-            response = requests.get(test_hmrc_url, headers=req_headers)
+            response = requests.get(url, headers=req_headers)
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
 
             return {

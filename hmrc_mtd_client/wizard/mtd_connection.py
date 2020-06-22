@@ -9,10 +9,10 @@ from odoo.exceptions import UserError, RedirectWarning
 import os
 import ssl
 import odoorpc
+import logging
 
-if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
-        getattr(ssl, '_create_unverified_context', None)):
-    ssl._create_default_https_context = ssl._create_unverified_context
+_logger = logging.getLogger(__name__)
+
 
 class MtdConnection(models.TransientModel):
     _name = 'mtd.connection'
@@ -23,15 +23,19 @@ class MtdConnection(models.TransientModel):
         Returns:
             [odoorpc] -- odoorpc object
         """
-        params = self.env['ir.config_parameter'].sudo()
-        login = params.get_param('mtd.login', default=False)
-        password = params.get_param('mtd.password', default=False)
-        server = params.get_param('mtd.server', default=False)
-        db = params.get_param('mtd.db', default=False)
-        port = params.get_param('mtd.port', default=False)
-        odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
-        odoo_instance.login(db, login, password)
-        return odoo_instance
+        try:
+            params = self.env['ir.config_parameter'].sudo()
+            login = params.get_param('mtd.login', default=False)
+            password = params.get_param('mtd.password', default=False)
+            server = params.get_param('mtd.server', default=False)
+            db = params.get_param('mtd.db', default=False)
+            port = params.get_param('mtd.port', default=False)
+            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            odoo_instance.login(db, login, password)
+            return odoo_instance
+        except Exception as e:
+            logging.error('Invalid connection %s' % str(e))
+            raise UserError('Invalid user.')
 
     @api.multi
     def get_authorization(self):
@@ -77,8 +81,8 @@ class MtdConnection(models.TransientModel):
 
         else:
             raise UserError('An error has occurred : \n status: %s\n message: %s' % (
-                    str(response.get('status')),
-                    response.get('message')
+                str(response.get('status')),
+                response.get('message')
             ))
 
     def get_token(self):
