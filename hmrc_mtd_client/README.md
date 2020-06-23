@@ -30,12 +30,11 @@ platform with the main objective of creating a Sage Invoice from a Sale Order.
 
 ## How to configure
 
-- Go to Website -> Settings -> Invoicing
-- Search for "Sage Cloud" and fill in the fields:
-  - Client ID - ID of the Sage Cloud API
-  - Client Secret - secret given by Sage Cloud API
-  - State String - Custom word or phrase without spaces
-- Finish by synchronizing sage ledger account.
+- Go to Accounting/Invoice -> Configuration -> Settings
+- Search for "HMRC MTD" and fill in the fields:
+  - Login
+  - Password
+Note: Those credentials are provided by us. [Contact us](https://www.odoogap.com/page/contactus/) to ask for our credentials.
 
 ## How to use
 
