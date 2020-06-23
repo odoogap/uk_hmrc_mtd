@@ -34,6 +34,7 @@ platform with the main objective of creating a Sage Invoice from a Sale Order.
 - Search for "HMRC MTD" and fill in the fields:
   - Login
   - Password
+  
 Note: Those credentials are provided by us. [Contact us](https://www.odoogap.com/page/contactus/) to ask for our credentials.
 
 ## How to use
@@ -48,4 +49,4 @@ Is that easy!
 To report a problem please [contact us](https://www.odoogap.com/page/contactus/).
 
 Commercial support is available, please email [info@odoogap.com](info@odoogap.com)
-or call tel:+351 917848501 for further information.
+or call tel:+44 7480 538242 for further information.
