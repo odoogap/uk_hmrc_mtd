@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_mtd_vat_report_account_user,hmrc_mtd_client.vat.report.account.user,hmrc_mtd_client.model_mtd_vat_report,account.group_account_user,1,1,1,1
 access_mtd_vat_report_account_manager,hmrc_mtd_client.vat.report.account.manager,hmrc_mtd_client.model_mtd_vat_report,account.group_account_manager,1,1,1,1
 access_mtd_vat_report_account_invoice,hmrc_mtd_client.vat.report.account.invoice,hmrc_mtd_client.model_mtd_vat_report,account.group_account_invoice,1,1,1,1
+access_mtd_fraud_prevention,hmrc_mtd_client.mtd.fraud.prevention,hmrc_mtd_client.model_mtd_fraud_prevention,,1,1,1,1

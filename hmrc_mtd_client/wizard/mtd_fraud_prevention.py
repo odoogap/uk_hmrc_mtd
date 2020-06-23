@@ -62,9 +62,8 @@ class MtdFraudPrevention(models.TransientModel):
         gov_device_id = params.get_param('mtd.gov_device_id', default=False)
         date_string = str(datetime.now(timezone.utc).astimezone().isoformat())
         user = self.env['res.users'].sudo().browse(self.env.uid)
-        # timestamp = int(user.login_date.replace(" ", "T").replace(":", "%3A") + "Z")
-        timestamp = user.login_date
-        print(timestamp)
+        login_date_format = user.login_date.strftime("%Y/%m/%d, %H:%M")
+        timestamp = login_date_format.replace("/", "-").replace(", ", "T").replace(":", "%3A") + "Z"
         unique_reference = user.company_id.id
 
         if not gov_device_id:
@@ -78,7 +77,6 @@ class MtdFraudPrevention(models.TransientModel):
             utc_time = "UTC-%s" % str(data[1])
 
         record = self.search([('user_id', '=', self.env.user.id)], limit=1)
-        print(record)
 
         return {
             'Gov-Client-Connection-Method': 'WEB_APP_VIA_SERVER',
@@ -93,7 +91,7 @@ class MtdFraudPrevention(models.TransientModel):
             'Gov-Client-Browser-Plugins': str(record.browser_plugin),
             'Gov-Client-Browser-JS-User-Agent': record.js_user_agent if record else "",
             'Gov-Client-Browser-Do-Not-Track': "false",
-            'Gov-Client-Multi-Factor': "type=OTHER&timestamp=" + str(hash(timestamp)) + "&unique-reference=" + str(hash(unique_reference)),
+            'Gov-Client-Multi-Factor': "type=OTHER&timestamp=" + timestamp + "&unique-reference=" + str(hash(unique_reference)),
             'Gov-Vendor-Version': "hmrc_mtd_client" + "=" + "1.1.5" + "&hmrc_mtd_server" + "=" + "0.1",
             'Gov-Vendor-License-IDs': "hmrc_mtd_server" + "=" + str(hash(0.1)),
             'Gov-Vendor-Public-IP': public_vendor_ip,

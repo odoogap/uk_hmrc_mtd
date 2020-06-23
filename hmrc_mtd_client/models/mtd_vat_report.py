@@ -231,7 +231,7 @@ class MtdVatReport(models.Model):
         return action
 
     def check_version(self):
-        latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
+        latest_version = self.env['ir.module.module'].sudo().search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
             'odoo_version': 'v11',
             'mtd_client_version': latest_version
@@ -284,6 +284,7 @@ class MtdVatReport(models.Model):
     @api.multi
     def submit_vat(self):
         self.ensure_one()
+        self.check_version()
         boxes = {
             'vatDueSales': self.vatDueSales,
             'vatDueAcquisitions': self.vatDueAcquisitions,
@@ -307,12 +308,13 @@ class MtdVatReport(models.Model):
 
         req_url = '%s/organisations/vat/%s/returns' % (hmrc_url, str(self.env.user.company_id.vrn))
         req_headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.hmrc.1.0+json',
-                'Authorization': 'Bearer %s' % api_token
-            }
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.hmrc.1.0+json',
+            'Authorization': 'Bearer %s' % api_token
+        }
+        prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+        req_headers.update(prevention_headers)
         response = requests.post(req_url, headers=req_headers, json=boxes)
-        self.check_version()
         if response.status_code == 201:
             message = json.loads(response._content.decode("utf-8"))
             headers = response.headers
@@ -329,13 +331,13 @@ class MtdVatReport(models.Model):
                 'view_id': view.id,
                 'target': 'new',
                 'context': {
-                        'default_name': 'Successfully Submitted',
-                        'no_delay': False,
-                        'delay': True
-                    }
+                    'default_name': 'Successfully Submitted',
+                    'no_delay': False,
+                    'delay': True
                 }
+            }
 
         message = json.loads(response._content.decode("utf-8"))
         raise UserError('An error has occurred : \n status: %s \n message: %s' % (
-                str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
-            ))
+            str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
+        ))
