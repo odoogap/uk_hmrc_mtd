@@ -5,18 +5,15 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError, RedirectWarning
 import json
 import requests
 import time
-import datetime
 import logging
 import threading
-import os
-import ssl
 
 _logger = logging.getLogger(__name__)
+
 
 class MtdVat(models.TransientModel):
     _name = 'mtd.vat.sub'
@@ -96,10 +93,10 @@ class MtdVat(models.TransientModel):
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
         token_expire_date = params.get_param('mtd.token_expire_date')
         is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
-        mtd_login = params.get_param('mtd.mtd_login', default=False)
-        mtd_password = params.get_param('mtd.mtd_password', default=False)
+        mtd_login = params.get_param('mtd.login', default=False)
+        mtd_password = params.get_param('mtd.password', default=False)
 
-        if not (mtd_login or mtd_password):
+        if not (mtd_login and mtd_password):
             raise UserError('Your Odoo/MTD credentials are empty! Please go to configuration and fill in the '
                             'parameters, or if you are not signed up, go to our website and request access using the '
                             'contact form!')

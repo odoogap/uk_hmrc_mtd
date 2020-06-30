@@ -19,6 +19,7 @@ class ResConfigSettings(models.TransientModel):
     mtd_login = fields.Char('Name', help='Account name of mtd')
     mtd_password = fields.Char('Password', help='Account password of mtd')
     server = fields.Char('Server')
+    test_server = fields.Char('Test Server')
     db = fields.Char('Database')
     port = fields.Char('Port')
     token = fields.Char('token')
@@ -66,13 +67,13 @@ class ResConfigSettings(models.TransientModel):
         if is_sandbox:
             api_token = params.get_param('mtd.token', default=False)
             token_expire_date = params.get_param('mtd.token_expire_date')
-            hmrc_url = params.get_param('mtd.hmrc.url', default=False)
+            test_hmrc_url = params.get_param('mtd.hmrc.url', default=False)
 
             if api_token:
                 if float(token_expire_date) - time.time() < 0:
                     api_token = self.env['mtd.connection'].refresh_token()
 
-            url = '%s/test/fraud-prevention-headers/validate' % hmrc_url
+            url = '%s/test/fraud-prevention-headers/validate' % test_hmrc_url
             req_headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/vnd.hmrc.1.0+json',

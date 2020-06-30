@@ -16,7 +16,7 @@
                             <label string="Password" for="mtd_password" class="col-md-3 o_light_label"/>
                             <field name="mtd_password" class="oe_inline"/>
                         </div>
-                        <div>
+                        <div groups="base.group_no_one">
                             <label string="Sandbox" for="is_sandbox" class="col-md-3 o_light_label"/>
                             <field name="is_sandbox" class="oe_inline"/>
                         </div>
