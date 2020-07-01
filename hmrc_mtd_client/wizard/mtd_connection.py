@@ -10,6 +10,7 @@ import os
 import ssl
 import odoorpc
 import logging
+import time
 
 _logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ class MtdConnection(models.TransientModel):
             server = params.get_param('mtd.server', default=False)
             db = params.get_param('mtd.db', default=False)
             port = params.get_param('mtd.port', default=False)
-            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            # odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc', port=int(port))
             odoo_instance.login(db, login, password)
             return odoo_instance
         except Exception as e:
@@ -46,6 +48,14 @@ class MtdConnection(models.TransientModel):
         conn = self.open_connection_odoogap()
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
         response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
+
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+
+        if api_token:
+            if float(token_expire_date) - time.time() < 0:
+                self.env['mtd.connection'].refresh_token()
 
         if response.get('status') == 200:
             self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))

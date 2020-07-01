@@ -11,6 +11,7 @@ from datetime import datetime
 from dateutil.tz import tzlocal
 from odoo.http import request
 import socket
+import time
 
 
 class MtdFraudPrevention(models.TransientModel):
@@ -66,6 +67,14 @@ class MtdFraudPrevention(models.TransientModel):
         timestamp = user.login_date.replace(" ", "T").replace(":", "%3A") + "Z"
         unique_reference = user.company_id.id
 
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+
+        if api_token:
+            if float(token_expire_date) - time.time() < 0:
+                self.env['mtd.connection'].refresh_token()
+
         if not gov_device_id:
             gov_device_id = self.generate_device_id()
 
@@ -77,8 +86,6 @@ class MtdFraudPrevention(models.TransientModel):
             utc_time = "UTC-%s" % str(data[1])
 
         record = self.search([('user_id', '=', self.env.user.id)], limit=1)
-
-        print("hmrc_mtd_server" + "=" + str(hash(0.1)))
 
         return {
             'Gov-Client-Connection-Method': 'WEB_APP_VIA_SERVER',
