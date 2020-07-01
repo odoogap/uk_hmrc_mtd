@@ -6,6 +6,11 @@
             <field name="value">www.odoomtd.co.uk</field>
         </record>
 
+        <record id="config_mtd_test_server_ip" model="ir.config_parameter">
+            <field name="key">mtd.test_server</field>
+            <field name="value">https://test-api.service.hmrc.gov.uk</field>
+        </record>
+
         <record id="config_mtd_server_port" model="ir.config_parameter">
             <field name="key">mtd.port</field>
             <field name="value">443</field>
