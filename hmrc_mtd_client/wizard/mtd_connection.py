@@ -8,6 +8,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
 import os
 import ssl
+import time
 import odoorpc
 import logging
 
@@ -46,6 +47,14 @@ class MtdConnection(models.TransientModel):
         conn = self.open_connection_odoogap()
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
         response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
+
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+
+        if api_token:
+            if float(token_expire_date) - time.time() < 0:
+                self.env['mtd.connection'].refresh_token()
 
         if response.get('status') == 200:
             self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
