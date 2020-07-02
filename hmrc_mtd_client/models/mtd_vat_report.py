@@ -189,6 +189,14 @@ class MtdVatReport(models.Model):
         mtd_state = 'f'
         condition = 'AND'
 
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+
+        if api_token:
+            if float(token_expire_date) - time.time() < 0:
+                self.env['mtd.connection'].refresh_token()
+
         if not taxes:
             raise UserError('This box does not have any journal entries.')
 

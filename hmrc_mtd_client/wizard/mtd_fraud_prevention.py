@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime, timezone
 from odoo.http import request
 import socket
+import time
 
 
 class MtdFraudPrevention(models.TransientModel):
@@ -65,6 +66,14 @@ class MtdFraudPrevention(models.TransientModel):
         login_date_format = user.login_date.strftime("%Y/%m/%d, %H:%M")
         timestamp = login_date_format.replace("/", "-").replace(", ", "T").replace(":", "%3A") + "Z"
         unique_reference = user.company_id.id
+
+        params = self.env['ir.config_parameter'].sudo()
+        api_token = params.get_param('mtd.token', default=False)
+        token_expire_date = params.get_param('mtd.token_expire_date')
+
+        if api_token:
+            if float(token_expire_date) - time.time() < 0:
+                self.env['mtd.connection'].refresh_token()
 
         if not gov_device_id:
             gov_device_id = self.generate_device_id()

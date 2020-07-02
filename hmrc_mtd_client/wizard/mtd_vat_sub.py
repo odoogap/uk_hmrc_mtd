@@ -5,7 +5,6 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError, RedirectWarning
 import json
 import requests
@@ -15,7 +14,6 @@ import logging
 import threading
 import os
 import ssl
-import webbrowser
 
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
