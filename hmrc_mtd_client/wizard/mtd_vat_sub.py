@@ -97,7 +97,6 @@ class MtdVat(models.TransientModel):
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
         is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
         login = params.get_param('mtd.login', default=False)
         password = params.get_param('mtd.password', default=False)
@@ -121,9 +120,6 @@ class MtdVat(models.TransientModel):
                 }
 
             if api_token:
-                if float(token_expire_date) - time.time() < 0:
-                    api_token = self.env['mtd.connection'].refresh_token()
-
                 return self.request_periods(hmrc_url, api_token)
 
             raise UserError('Please configure MTD.')

@@ -31,7 +31,8 @@ class MtdConnection(models.TransientModel):
             server = params.get_param('mtd.server', default=False)
             db = params.get_param('mtd.db', default=False)
             port = params.get_param('mtd.port', default=False)
-            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            # odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc', port=int(port))
             odoo_instance.login(db, login, password)
             return odoo_instance
         except Exception as e:
@@ -85,7 +86,9 @@ class MtdConnection(models.TransientModel):
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))
             set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
-
+            print("Token *" * 100)
+            print(response.get('message').get('token'))
+            print(response.get('message').get('exp_date'))
             return response.get('message').get('token')
 
         else:
