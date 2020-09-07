@@ -82,9 +82,9 @@ class ResConfigSettings(models.TransientModel):
             token_expire_date = params.get_param('mtd.token_expire_date')
             test_hmrc_url = params.get_param('mtd.test_server', default=False)
 
-            if api_token:
-                if float(token_expire_date) - time.time() < 0:
-                    api_token = self.env['mtd.connection'].refresh_token()
+            # if api_token:
+            #    if float(token_expire_date) - time.time() < 0:
+            #        api_token = self.env['mtd.connection'].refresh_token()
 
             url = '%s/test/fraud-prevention-headers/validate' % test_hmrc_url
             req_headers = {
@@ -122,13 +122,13 @@ class ResConfigSettings(models.TransientModel):
     def vat_formula(self):
         view = self.env.ref('hmrc_mtd_client.vat_calculation_formula_view')
 
-        params = self.env['ir.config_parameter'].sudo()
-        api_token = params.get_param('mtd.token', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
+        # params = self.env['ir.config_parameter'].sudo()
+        # api_token = params.get_param('mtd.token', default=False)
+        # token_expire_date = params.get_param('mtd.token_expire_date')
 
-        if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                self.env['mtd.connection'].refresh_token()
+        # if api_token:
+        #  if float(token_expire_date) - time.time() < 0:
+        #       self.env['mtd.connection'].refresh_token()
 
         return {
             'name': 'VAT Formula',

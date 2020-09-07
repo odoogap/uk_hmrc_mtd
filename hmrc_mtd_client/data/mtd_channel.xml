@@ -5,4 +5,10 @@
         <field name="public">public</field>
         <field name="description">Discussion about mtd process.</field>
     </record>
+
+    <record id="channel_mtd_token" model="mail.channel">
+        <field name="name">MTD Token Channel</field>
+        <field name="public">public</field>
+        <field name="description">Logs for refresh token.</field>
+    </record>
 </odoo>

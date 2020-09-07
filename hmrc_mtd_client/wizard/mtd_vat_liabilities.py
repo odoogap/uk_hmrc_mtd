@@ -39,11 +39,11 @@ class MtdVatLiabilities(models.TransientModel):
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
+        # token_expire_date = params.get_param('mtd.token_expire_date')
 
         if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                api_token = self.env['mtd.connection'].refresh_token()
+            # if float(token_expire_date) - time.time() < 0:
+            #   api_token = self.env['mtd.connection'].refresh_token()
 
             if self.env.user.company_id.vat:
                 req_url = '%s/organisations/vat/%s/liabilities' % (hmrc_url, str(self.env.user.company_id.vrn))
