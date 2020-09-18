@@ -5,7 +5,6 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError, RedirectWarning
 import json
 import requests
@@ -13,8 +12,6 @@ import time
 import datetime
 import logging
 import threading
-import os
-import ssl
 
 _logger = logging.getLogger(__name__)
 

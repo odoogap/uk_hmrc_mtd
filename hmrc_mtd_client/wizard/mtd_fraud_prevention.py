@@ -10,7 +10,6 @@ import uuid
 from datetime import datetime, timezone
 from odoo.http import request
 import socket
-import time
 
 
 class MtdFraudPrevention(models.TransientModel):
@@ -65,14 +64,8 @@ class MtdFraudPrevention(models.TransientModel):
         user = self.env['res.users'].sudo().browse(self.env.uid)
         timestamp = user.login_date.replace(" ", "T").replace(":", "%3A") + "Z"
         unique_reference = user.company_id.id
-
-        # params = self.env['ir.config_parameter'].sudo()
-        # api_token = params.get_param('mtd.token', default=False)
-        # token_expire_date = params.get_param('mtd.token_expire_date')
-
-        # if api_token:
-        #     if float(token_expire_date) - time.time() < 0:
-        #         self.env['mtd.connection'].refresh_token()
+        module_version = self.env['ir.module.module'].search([('name','=','hmrc_mtd_client')]).installed_version
+        licence_ids = self.env['ir.module.module'].search([('name','=','hmrc_mtd_client')]).license
 
         if not gov_device_id:
             gov_device_id = self.generate_device_id()
@@ -91,18 +84,17 @@ class MtdFraudPrevention(models.TransientModel):
             'Gov-Client-Public-IP': public_ip,
             'Gov-Client-Public-Port': request.httprequest.environ.get('SERVER_PORT'),
             'Gov-Client-Device-ID': gov_device_id,
-            'Gov-Client-User-IDs': "web=" + str(self.env.user.id) + "&my-vendor-online-account=" + "null",
+            'Gov-Client-User-IDs': 'My_Webapp_Software=' + str(self.env.user.id),
             'Gov-Client-Timezone': utc_time,
             'Gov-Client-Local-IPs': self.get_local_ip(),
-            'Gov-Client-Screens': record.screens if record else "",
-            'Gov-Client-Window-Size': record.window_size if record else "",
-            'Gov-Client-Browser-Plugins': record.browser_plugin,
+            'Gov-Client-Screens': record.screens if record else "width=1920&height=1080&scaling-factor=1.7777777777777777&colour-depth=24",
+            'Gov-Client-Window-Size': record.window_size if record else "width=1920&height=1080",
+            'Gov-Client-Browser-Plugins': record.browser_plugin if record else 'Native%20Client',
             'Gov-Client-Browser-JS-User-Agent': record.js_user_agent if record else "",
             'Gov-Client-Browser-Do-Not-Track': "false",
-            'Gov-Client-Multi-Factor': "type=OTHER&timestamp=" + timestamp + "&unique-reference=" + str(
-                hash(unique_reference)),
-            'Gov-Vendor-Version': "hmrc_mtd_client" + "=" + "1.1.6" + "&hmrc_mtd_server" + "=" + "0.1",
-            'Gov-Vendor-License-IDs': "hmrc_mtd_server" + "=" + str(hash(0.1)),
+            'Gov-Client-Multi-Factor': "type=OTHER&timestamp=" + timestamp + "&unique-reference=" + str(hash(unique_reference)),
+            'Gov-Vendor-Version': "hmrc_mtd_client" + "=" + str(module_version) + "&hmrc_mtd_server" + "=" + "0.1",
+            'Gov-Vendor-License-IDs': "hmrc_mtd_server" + "=" + str(hash(licence_ids)),
             'Gov-Vendor-Public-IP': public_vendor_ip,
             'Gov-Vendor-Forwarded': "by=" + public_vendor_ip + "&for=" + public_ip
         }

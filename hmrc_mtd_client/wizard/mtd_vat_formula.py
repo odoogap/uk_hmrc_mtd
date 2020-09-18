@@ -7,10 +7,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.safe_eval import safe_eval
-import os
-import ssl
 import msgfy
-import odoorpc
 
 import logging
 
@@ -59,7 +56,7 @@ class MtdCalculationFormula(models.TransientModel):
         replace_items = [
             'sum([', '])', '+', '-', 'fuel_net', 'fuel_vat', 'bad_vat', 'bad_net',
             'vat_credit_', 'net_credit_', 'vat_debit_', 'net_debit_', 'net_', 'vat_', ','
-        ]#items that should be replaced in the formula in order to get the taxes tag
+        ]  # items that should be replaced in the formula in order to get the taxes tag
         box_three_taxes = []
         box_five_taxes = []
 
@@ -71,9 +68,9 @@ class MtdCalculationFormula(models.TransientModel):
                 for item in replace_items:
                     if item == ',':
                         box_taxes = box_taxes.strip()
-                        box_taxes = box_taxes.replace(item, ' ') #replace ',' with ' ' for split
-                        box_taxes = box_taxes.split() #convert string into list
-                        box_taxes = list(dict.fromkeys(box_taxes)) #remove duplicated entries
+                        box_taxes = box_taxes.replace(item, ' ') # replace ',' with ' ' for split
+                        box_taxes = box_taxes.split() # convert string into list
+                        box_taxes = list(dict.fromkeys(box_taxes)) # remove duplicated entries
                     else:
                         box_taxes = box_taxes.replace(item, '')
 
@@ -87,11 +84,11 @@ class MtdCalculationFormula(models.TransientModel):
                 set_param('mtd.%s_taxes' % attr, 'N/A')
 
         if box_five_taxes:
-            box_five_taxes = list(dict.fromkeys(box_five_taxes)) #remove duplicated entries
+            box_five_taxes = list(dict.fromkeys(box_five_taxes))  # remove duplicated entries
             set_param('mtd.box_five_taxes', str(box_five_taxes))
 
         if box_three_taxes:
-            box_three_taxes = list(dict.fromkeys(box_three_taxes)) #remove duplicated entries
+            box_three_taxes = list(dict.fromkeys(box_three_taxes))  # remove duplicated entries
             set_param('mtd.box_three_taxes', str(box_three_taxes))
 
     def submit_formula(self):

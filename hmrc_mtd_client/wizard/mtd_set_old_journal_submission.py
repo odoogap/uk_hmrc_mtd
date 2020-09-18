@@ -5,12 +5,7 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, RedirectWarning
-from odoo.tools.safe_eval import safe_eval
-import os
-import ssl
-import msgfy
-import odoorpc
+
 
 class MtdSetOldJournalSubmission(models.TransientModel):
     _name = 'mtd.set.old.journal.submission'
