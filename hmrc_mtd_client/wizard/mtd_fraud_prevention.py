@@ -89,7 +89,7 @@ class MtdFraudPrevention(models.TransientModel):
             'Gov-Client-User-IDs': 'My_Webapp_Software=' + str(self.env.user.id),
             'Gov-Client-Timezone': utc_time,
             'Gov-Client-Local-IPs': self.get_local_ip(),
-            'Gov-Client-Screens': record.screens if record else "width=1920&height=1080&scaling-factor=1.7777777777777777&colour-depth=24",
+            'Gov-Client-Screens': record.screens + "&scaling-factor=1.7777777777777777&colour-depth=24" if record else "width=1920&height=1080&scaling-factor=1.7777777777777777&colour-depth=24",
             'Gov-Client-Window-Size': record.window_size if record else "width=1920&height=1080",
             'Gov-Client-Browser-Plugins': record.browser_plugin if record else 'Native%20Client',
             'Gov-Client-Browser-JS-User-Agent': record.js_user_agent if record else "",

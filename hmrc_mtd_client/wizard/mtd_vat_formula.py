@@ -9,6 +9,7 @@ from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.safe_eval import safe_eval
 import msgfy
 
+
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
 
@@ -40,7 +41,7 @@ class MtdCalculationFormula(models.TransientModel):
         replace_items = [
             'sum([', '])', '+', '-', 'fuel_net', 'fuel_vat', 'bad_vat', 'bad_net',
             'vat_credit_', 'net_credit_', 'vat_debit_', 'net_debit_', 'net_', 'vat_', ','
-        ]#items that should be replaced in the formula in order to get the taxes tag
+        ] # items that should be replaced in the formula in order to get the taxes tag
         box_three_taxes = []
         box_five_taxes = []
 

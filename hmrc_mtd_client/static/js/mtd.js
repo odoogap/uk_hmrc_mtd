@@ -9,9 +9,8 @@ odoo.define('mtd.module.js', function (require) {
     var mtd_js = Widget.extend({
         start: function() {
             var self = this;
-            var screens = 'width='+ screen.width + '&height=' + screen.height + '&scaling-factor=' + screen.width/screen.height + '&colour-depth=' + screen.colorDepth;
+            var screens = 'width='+ screen.width + '&height=' + screen.height;
             var window_size = 'width='+ screen.width + '&height=' + screen.height;
-
 
             var x = navigator.plugins.length;
             var txt = x;

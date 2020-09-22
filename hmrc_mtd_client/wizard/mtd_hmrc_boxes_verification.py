@@ -12,6 +12,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdHmrcBoxesVerification(models.TransientModel):
     _name = 'mtd.vat.verification'
     _description = "VAT Verification"

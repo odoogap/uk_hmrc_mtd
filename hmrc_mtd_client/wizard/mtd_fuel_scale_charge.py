@@ -10,6 +10,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdFuelScaleValues(models.TransientModel):
     _name = 'mtd.fuel.scale'
     _description = "Fuel scale values"

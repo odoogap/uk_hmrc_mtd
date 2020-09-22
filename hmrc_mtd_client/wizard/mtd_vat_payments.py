@@ -14,6 +14,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdVatPayments(models.TransientModel):
     _name = 'mtd.vat.payments'
     _description = "VAT Payments"

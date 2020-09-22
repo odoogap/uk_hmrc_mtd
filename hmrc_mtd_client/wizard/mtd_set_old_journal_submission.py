@@ -6,6 +6,7 @@
 
 from odoo import models, fields, api, _
 
+
 class MtdSetOldJournalSubmission(models.TransientModel):
     _name = 'mtd.set.old.journal.submission'
     _description = 'allows the user to update submission state of old journals'
