@@ -27,7 +27,8 @@
         'views/mtd_account_move_line_view.xml',
         'views/mtd_set_old_journal_submission_view.xml',
         'views/mtd_vat_verification_form.xml',
-        'views/templates.xml'
+        'views/templates.xml',
+        'data/mtd_cron_data.xml'
     ],
     'external_dependencies': {'python': ['odoorpc', 'msgfy', 'dateutil']},
     'installable': True,

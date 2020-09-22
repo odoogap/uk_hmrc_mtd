@@ -6,7 +6,6 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import time
 import requests
 import json
 import datetime
@@ -141,14 +140,6 @@ class MtdVatReport(models.Model):
         mtd_state = 'f'
         condition = 'AND'
 
-        params = self.env['ir.config_parameter'].sudo()
-        api_token = params.get_param('mtd.token', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
-
-        if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                self.env['mtd.connection'].refresh_token()
-
         if not taxes:
             raise UserError('This box does not have any journal entries.')
 
@@ -268,10 +259,6 @@ class MtdVatReport(models.Model):
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
-
-        if float(token_expire_date) - time.time() < 0:
-            api_token = self.env['mtd.connection'].refresh_token()
 
         req_url = '%s/organisations/vat/%s/returns' % (hmrc_url, str(self.env.user.company_id.vrn))
         req_headers = {

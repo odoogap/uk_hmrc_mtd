@@ -6,11 +6,8 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
-import os
-import ssl
 import odoorpc
 import logging
-import time
 
 _logger = logging.getLogger(__name__)
 
@@ -48,14 +45,6 @@ class MtdConnection(models.TransientModel):
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
         response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
 
-        params = self.env['ir.config_parameter'].sudo()
-        api_token = params.get_param('mtd.token', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
-
-        if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                self.env['mtd.connection'].refresh_token()
-
         if response.get('status') == 200:
             self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
             client_action = {
@@ -80,19 +69,22 @@ class MtdConnection(models.TransientModel):
         conn = self.open_connection_odoogap()
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
         response = conn.execute('mtd.operations', 'refresh_token', mtd_sandbox)
+        channel_id = self.env.ref('hmrc_mtd_client.channel_mtd_token')
 
         if response.get('status') == 200:
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))
             set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
 
+            channel_id.message_post(body='Token refreshed successfully', message_type="notification",
+                                    subtype="mail.mt_comment")
             return response.get('message').get('token')
 
         else:
-            raise UserError('An error has occurred : \n status: %s\n message: %s' % (
-                    str(response.get('status')),
-                    response.get('message')
-            ))
+            message_body = 'An error has occurred : <b>status:</b> %s - <b>message:</b> %s' % (
+                str(response.get('status')), response.get('message'))
+            channel_id.message_post(body=message_body, message_type="notification",
+                                    subtype="mail.mt_comment")
 
     def get_token(self):
         """stores the HMRC token in the system

@@ -5,15 +5,10 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError
 import json
 import requests
-import time
-import datetime
 import logging
-import os
-import ssl
 
 _logger = logging.getLogger(__name__)
 
@@ -40,11 +35,8 @@ class MtdHmrcBoxesVerification(models.TransientModel):
         params = self.env['ir.config_parameter'].sudo()
         api_token = params.get_param('mtd.token', default=False)
         hmrc_url = params.get_param('mtd.hmrc.url', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
         period_key = self._context.get('period_key')
         if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                api_token = self.env['mtd.connection'].refresh_token()
 
             if self.env.user.company_id.vat:
                 req_url = '%s/organisations/vat/%s/returns/%s' % (hmrc_url, str(self.env.user.company_id.vrn), period_key)

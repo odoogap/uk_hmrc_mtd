@@ -7,10 +7,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.safe_eval import safe_eval
-import os
-import ssl
 import msgfy
-import odoorpc
 
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
