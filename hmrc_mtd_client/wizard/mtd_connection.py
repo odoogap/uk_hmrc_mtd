@@ -46,14 +46,6 @@ class MtdConnection(models.TransientModel):
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
         response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
 
-        params = self.env['ir.config_parameter'].sudo()
-        api_token = params.get_param('mtd.token', default=False)
-        token_expire_date = params.get_param('mtd.token_expire_date')
-
-        if api_token:
-            if float(token_expire_date) - time.time() < 0:
-                self.env['mtd.connection'].refresh_token()
-
         if response.get('status') == 200:
             self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
             client_action = {
