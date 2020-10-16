@@ -6,7 +6,6 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
-import time
 import odoorpc
 import logging
 

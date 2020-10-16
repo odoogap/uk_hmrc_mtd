@@ -10,11 +10,11 @@ from odoo.tools.safe_eval import safe_eval
 import os
 import ssl
 import msgfy
-import odoorpc
 
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
+
 
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'

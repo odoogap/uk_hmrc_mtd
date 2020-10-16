@@ -10,7 +10,6 @@ import os
 import ssl
 import requests
 import json
-import time
 
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
         getattr(ssl, '_create_unverified_context', None)):
@@ -76,12 +75,7 @@ class ResConfigSettings(models.TransientModel):
 
         if is_sandbox:
             api_token = params.get_param('mtd.token', default=False)
-            token_expire_date = params.get_param('mtd.token_expire_date')
             test_hmrc_url = params.get_param('mtd.test_server', default=False)
-
-            if api_token:
-                if float(token_expire_date) - time.time() < 0:
-                    api_token = self.env['mtd.connection'].refresh_token()
 
             url = '%s/test/fraud-prevention-headers/validate' % test_hmrc_url
             req_headers = {

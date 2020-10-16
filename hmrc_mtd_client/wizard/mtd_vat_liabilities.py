@@ -5,7 +5,6 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError
 import json
 import requests

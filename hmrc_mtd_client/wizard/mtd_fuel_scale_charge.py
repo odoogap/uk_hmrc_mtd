@@ -5,12 +5,7 @@
 ###############################################################################
 
 from odoo import models, fields, api, _
-from odoo import exceptions, _
 from odoo.exceptions import UserError
-import json
-import requests
-import time
-import datetime
 import logging
 import os
 import ssl

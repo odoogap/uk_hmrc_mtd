@@ -10,7 +10,6 @@ import uuid
 from datetime import datetime, timezone
 from odoo.http import request
 import socket
-import time
 
 
 class MtdFraudPrevention(models.TransientModel):

@@ -6,10 +6,10 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import time
 import requests
 import json
 import datetime
+
 
 class MtdVatReport(models.Model):
     _name = 'mtd.vat.report'
