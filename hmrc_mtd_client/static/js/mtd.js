@@ -11,6 +11,8 @@ odoo.define('mtd.module.js', function (require) {
     var mtd_js = Widget.extend({
         start: function() {
             var window_size = 'width='+ screen.width + '&height=' + screen.height + '&colour-depth=' + screen.colorDepth + '&scaling-factor=' + 1.25;
+            var screens = 'width='+ screen.width + '&height=' + screen.height + '&scaling-factor=' + screen.width/screen.height + '&colour-depth=' + screen.colorDepth;
+            var window_size = 'width='+ screen.width + '&height=' + screen.height;
             var x = navigator.plugins.length;
             var txt = x;
 
@@ -25,7 +27,7 @@ odoo.define('mtd.module.js', function (require) {
             rpc.query({
                 model: 'mtd.fraud.prevention',
                 method: 'set_java_script_headers',
-                args: [{'js_user_agent': navigator.userAgent, 'window_size':window_size, 'screens': window_size, 'browser_plugin': browser_plugin}]
+                args: [{'js_user_agent': navigator.userAgent, 'window_size':window_size, 'screens': screens, 'browser_plugin': browser_plugin}]
             })
         },
     });
