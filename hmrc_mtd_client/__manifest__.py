@@ -1,6 +1,6 @@
 {
     'name': 'hmrc_mtd_client',
-    'version': '1.1.5',
+    'version': '1.1.6',
     'summary': 'Client module for management of HMRC',
     'description': """
         Enables the user to commit HMRC VAT return to HMRC api.
@@ -31,7 +31,8 @@
         'views/templates.xml',
         'views/vat_liabilities_view.xml',
         'views/vat_return_view.xml',
-        'views/vat_sub_view.xml'
+        'views/vat_sub_view.xml',
+        'data/mtd_cron_data.xml'
     ],
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
     'installable': True,
