@@ -233,7 +233,7 @@ class MtdVatReport(models.Model):
     def check_version(self):
         latest_version = self.env['ir.module.module'].sudo().search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v11',
+            'odoo_version': 'v12',
             'mtd_client_version': latest_version
         }
 
