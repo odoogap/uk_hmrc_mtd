@@ -16,10 +16,6 @@
         'l10n_uk'
     ],
     'data': [
-        'data/mtd_channel.xml',
-        'data/mtd_server_config.xml',
-        'security/ir.model.access.csv',
-        'views/menu_item_view.xml',
         'views/mtd_account_move_line_view.xml',
         'views/mtd_formula_views.xml',
         'views/mtd_fuel_scale_charge_view.xml',
@@ -32,6 +28,10 @@
         'views/vat_liabilities_view.xml',
         'views/vat_return_view.xml',
         'views/vat_sub_view.xml',
+        'views/menu_item_view.xml',
+        'security/ir.model.access.csv',
+        'data/mtd_channel.xml',
+        'data/mtd_server_config.xml',
         'data/mtd_cron_data.xml'
     ],
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
