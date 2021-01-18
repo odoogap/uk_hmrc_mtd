@@ -4,13 +4,14 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
+import uuid
+import socket
+
 from odoo import models, fields, api, _
 from requests import get
-import uuid
 from datetime import datetime
 from dateutil.tz import tzlocal
 from odoo.http import request
-import socket
 
 
 class MtdFraudPrevention(models.TransientModel):
@@ -50,11 +51,8 @@ class MtdFraudPrevention(models.TransientModel):
             })
 
     def get_local_ip(self):
-        return ([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2]
-                              if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)),
-                                                                    s.getsockname()[0], s.close()) for s in
-                                                                   [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][
-                                                                      0][1]]) if l][0][0])
+        hostname = socket.gethostname()
+        return socket.gethostbyname(hostname)
 
     def create_fraud_prevention_headers(self):
         public_ip = get('https://api.ipify.org').text
@@ -65,7 +63,8 @@ class MtdFraudPrevention(models.TransientModel):
         user = self.env['res.users'].sudo().browse(self.env.uid)
         timestamp = user.login_date.replace(" ", "T").replace(":", "%3A") + "Z"
         unique_reference = user.company_id.id
-
+        public_ip_timestamp = datetime.utcnow().isoformat('T')[:-3] + 'Z'
+        print public_ip_timestamp
         module_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).installed_version
         licence_ids = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).license
 
@@ -83,11 +82,13 @@ class MtdFraudPrevention(models.TransientModel):
 
         return {
             'Gov-Client-Connection-Method': 'WEB_APP_VIA_SERVER',
+            'Gov-Client-Public-IP-Timestamp': public_ip_timestamp,
             'Gov-Client-Public-IP': public_ip,
             'Gov-Client-Public-Port': request.httprequest.environ.get('SERVER_PORT'),
             'Gov-Client-Device-ID': gov_device_id,
             'Gov-Client-User-IDs': 'My_Webapp_Software=' + str(self.env.user.id),
             'Gov-Client-Timezone': utc_time,
+            'Gov-Client-Local-IPs-Timestamp': datetime.utcnow().isoformat('T')[:-3] + 'Z',
             'Gov-Client-Local-IPs': self.get_local_ip(),
             'Gov-Client-Screens': record.screens + "&scaling-factor=1.7777777777777777&colour-depth=24" if record else "width=1920&height=1080&scaling-factor=1.7777777777777777&colour-depth=24",
             'Gov-Client-Window-Size': record.window_size if record else "width=1920&height=1080",
@@ -98,5 +99,6 @@ class MtdFraudPrevention(models.TransientModel):
             'Gov-Vendor-Version': "hmrc_mtd_client" + "=" + str(module_version) + "&hmrc_mtd_server" + "=" + "0.1",
             'Gov-Vendor-License-IDs': "hmrc_mtd_server" + "=" + str(hash(licence_ids)),
             'Gov-Vendor-Public-IP': public_vendor_ip,
-            'Gov-Vendor-Forwarded': "by=" + public_vendor_ip + "&for=" + public_ip
+            'Gov-Vendor-Forwarded': "by=" + public_vendor_ip + "&for=" + public_ip,
+            'Gov-Vendor-Product-Name': 'OdooGAP'
         }
