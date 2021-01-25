@@ -1,6 +1,6 @@
 {
     'name': 'hmrc_mtd_client',
-    'version': '1.1.6',
+    'version': '1.1.8',
     'summary': 'Client module for management of HMRC',
     'description': """
         Enables the user to commit HMRC VAT return to HMRC api.
