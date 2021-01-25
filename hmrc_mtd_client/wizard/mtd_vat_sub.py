@@ -51,7 +51,7 @@ class MtdVat(models.TransientModel):
             req_headers.update(prevention_headers)
             req_params = {
                 'to': time.strftime("%Y-%m-%d"),
-                'from': "%s-%s-%s" % (datetime.datetime.now().year, '01', '01')
+                'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().day)
             }
             response = requests.get(url, headers=req_headers, params=req_params)
             if response.status_code == 200:
