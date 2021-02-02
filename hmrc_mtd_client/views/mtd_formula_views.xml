@@ -32,54 +32,56 @@
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 1] VAT due this period on sales and other outputs</th>
+                                    <th width="35%" scope="row">
+                                        [box 1] VAT due this period on sales and other outputs
+                                    </th>
                                     <td width="65%">
                                         <field name="box_one"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 2] VAT due in this period on acquisitions from
-                                        other EC Member States
+                                    <th width="35%" scope="row">
+                                        [box 2] VAT due in the period on acquisitions of goods made in Northern Ireland from EU Member States
                                     </th>
                                     <td width="95%">
                                         <field name="box_two"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 4] VAT reclaimed in this period on purchases
-                                        and other inputs
+                                    <th width="35%" scope="row">
+                                        [box 4] VAT reclaimed in the period on purchases and other inputs (including acquisitions in Northern Ireland from EU member states)
                                     </th>
                                     <td width="95%">
                                         <field name="box_four"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 6] Total value of sales and all other outputs
-                                        excluding VAT(including acquisitions from EC)
+                                    <th width="35%" scope="row">
+                                        [box 6] Total value of sales and all other outputs excluding VAT(including acquisitions from EC)
                                     </th>
                                     <td width="95%">
                                         <field name="box_six"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 7] Total value of purchases and all other inputs
-                                        excluding VAT(including acquisitions from EC)
+                                    <th width="35%" scope="row">
+                                        [box 7] Total value of purchases and all other inputs excluding VAT(including acquisitions from EC)
                                     </th>
                                     <td width="95%">
                                         <field name="box_seven"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th width="35%" scope="row">[box 8] Total value of all supplies of goods, excluding
-                                        any VAT, to other EC Member States
+                                    <th width="35%" scope="row">
+                                        [box 8] Total value of dispatches of goods and related costs (excluding VAT) from Northern Ireland to EU Member States
                                     </th>
                                     <td width="95%">
                                         <field name="box_eight"/>
                                     </td>
                                 </tr>
                                 <tr style="border-bottom: 1px solid #E5E5E5 !important;">
-                                    <th width="35%" scope="row">[box 9] Total value of all acquisitions of goods,
-                                        excluding any VAT, from EC Member States
+                                    <th width="35%" scope="row">
+                                        [box 9] Total value of acquisitions of goods and related costs (excluding VAT) made in Northern Ireland from EU Member States
                                     </th>
                                     <td width="95%">
                                         <field name="box_nine"/>
