@@ -51,7 +51,7 @@ class MtdVat(models.TransientModel):
             req_headers.update(prevention_headers)
             req_params = {
                 'to': time.strftime("%Y-%m-%d"),
-                'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().day)
+                'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().strftime("%d"))
             }
             response = requests.get(url, headers=req_headers, params=req_params)
             if response.status_code == 200:
@@ -218,7 +218,6 @@ class MtdVat(models.TransientModel):
 
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
-                print(submit_data)
                 response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations',
                                                                                         'calculate_boxes', submit_data)
 
