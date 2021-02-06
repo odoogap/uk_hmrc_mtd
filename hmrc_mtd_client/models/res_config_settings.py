@@ -124,7 +124,7 @@ class ResConfigSettings(models.TransientModel):
             'view_id': view.id,
             'target': 'new',
             'context': {
-                'default_box1_formula': "sum([vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat",
+                'default_box1_formula': "sum([vat_ST0,vat_ST1,vat_ST2,vat_ST11]) + fuel_vat + bad_vat",
                 'default_box2_formula': "sum([vat_PT8M])",
                 'default_box4_formula': "sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])",
                 'default_box6_formula': "sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + fuel_net + bad_net",
