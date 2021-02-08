@@ -272,14 +272,20 @@ class MtdVatReport(models.Model):
         )
         results = self.env.cr.fetchall()
         ids = [res[0] for res in results]
-
-        if ids:
+        if len(ids) > 1 :
             self.env.cr.execute("update account_move set is_mtd_submitted = 't', vat_report_id = %s where id in %s" % (
                 self.id,
                 str(tuple(ids))
             ))
 
             self.env.cr.execute("update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
+        elif len(ids) == 1:
+            self.env.cr.execute("update account_move set is_mtd_submitted = 't', vat_report_id = %s where id = %s" % (
+                self.id,
+                str(ids[0])
+            ))
+
+            self.env.cr.execute("update account_move_line set is_mtd_submitted = 't' where move_id = %s" % str(ids[0]))
 
     @api.multi
     def submit_vat(self):
