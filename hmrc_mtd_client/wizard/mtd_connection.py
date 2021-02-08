@@ -4,10 +4,11 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError, RedirectWarning
 import odoorpc
 import logging
+
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, RedirectWarning
 
 _logger = logging.getLogger(__name__)
 
@@ -28,14 +29,14 @@ class MtdConnection(models.TransientModel):
             server = params.get_param('mtd.server', default=False)
             db = params.get_param('mtd.db', default=False)
             port = params.get_param('mtd.port', default=False)
-            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            # odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
+            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc', port=int(port))
             odoo_instance.login(db, login, password)
             return odoo_instance
         except Exception as e:
             logging.error('Invalid connection %s' % str(e))
             raise UserError('Invalid user.')
 
-    @api.multi
     def get_authorization(self):
         """starts HMRC authorization flow
         Returns:

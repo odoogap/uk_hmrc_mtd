@@ -6,13 +6,6 @@
         <field name="arch" type="xml">
             <form string="Vat Return Data" class="o_invoice_form" edit="0" create="0" delete="0">
                 <sheet string="VAT return">
-                    <div class="oe_button_box" name="button_box">
-                        <button type="object" class="oe_stat_button" icon="fa-file" name="verify_submission" attrs="{'invisible': [('is_submitted','=',False)]}">
-                            <div class="o_stat_info">
-                                <span class="o_stat_text">Verify</span>
-                            </div>
-                        </button>
-                    </div>
                     <h2 class="text-center">VAT Report</h2>
                     <div class="table-responsive">
                         <table class="table" style="margin-top:40px;">
@@ -67,8 +60,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_one_taxes', 'box_name':'Box 1'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -81,8 +75,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_two_taxes', 'box_name':'Box 2'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -95,8 +90,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_three_taxes', 'box_name':'Box 3'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -109,8 +105,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_four_taxes', 'box_name':'Box 4'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -123,8 +120,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_five_taxes', 'box_name':'Box 5'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -150,8 +148,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_six_taxes', 'box_name':'Box 6'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -164,8 +163,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_seven_taxes', 'box_name':'Box 7'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -178,8 +178,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_eight_taxes', 'box_name':'Box 8'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -192,8 +193,9 @@
                                     </td>
                                     <td width="20%">
                                         <button name="get_account_moves" type="object"
-                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}">
-                                            <i class="fa fa-search-plus" aria-hidden="true"/>
+                                                context="{'taxes': 'box_nine_taxes', 'box_name':'Box 9'}"
+                                                aria-label="Info" title="Info">
+                                            <i class="fa fa-search-plus" aria-label="Info" aria-hidden="true"/>
                                         </button>
                                     </td>
                                 </tr>
@@ -201,11 +203,13 @@
                         </table>
                     </div>
                     <footer>
-                        <button style="float: right;" attrs="{'invisible': ['|', ('is_submitted', '==', True),('id', '==', False)]}"
+                        <button style="float: right;"
+                                attrs="{'invisible': ['|', ('is_submitted', '==', True),('id', '==', False)]}"
                                 name="submit_vat" string="Submit"
                                 confirm="When you submit this VAT information you are making a legal declaration that the information is true and complete.
                                 A false declaration can result in prosecution."
-                                type="object" class="btn btn-primary oe_read_only" icon="fa-check"/>
+                                type="object" class="btn btn-primary oe_read_only" icon="fa-check" aria-label="Info"
+                                title="Info"/>
                     </footer>
                 </sheet>
             </form>
@@ -215,7 +219,7 @@
     <record id="action_mtd_vat_form_report" model="ir.actions.act_window">
         <field name="name">VAT Report</field>
         <field name="res_model">mtd.vat.report</field>
-        <field name="view_type">form</field>
+        <field name="binding_view_types">form</field>
         <field name="view_id" ref="mtd_vat_report_form"/>
         <field name="target">current</field>
     </record>
@@ -244,7 +248,7 @@
         <field name="name">VAT Reports</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">mtd.vat.report</field>
-        <field name="view_type">form</field>
+        <field name="binding_view_types">form</field>
         <field name="view_id" ref="mtd_vat_report_tree_view"/>
         <field name="search_view_id" ref="view_mtd_vat_report_search"/>
     </record>

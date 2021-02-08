@@ -27,12 +27,8 @@
                                 <div class="row" style="margin-top:10px;">
                                     <div class="col-xs-12 col-md-6">
                                         <div class="btn-group" role="group">
-                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}"
-                                                    string="Authorize" name='get_authorization' type="object"
-                                                    class="btn-primary"/>
-                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}"
-                                                    string="Formula" name='vat_formula' type="object"
-                                                    class="btn-primary"/>
+                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}" string="Authorize" name='get_authorization' type="object" class="btn-primary"/>
+                                            <button attrs="{'invisible': [('login', '=', False), ('password','=',False)]}" string="Formula" name='vat_formula' type="object" class="btn-primary" style="margin-left:10px;"/>
                                         </div>
                                     </div>
                                 </div>
@@ -53,46 +49,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-12 col-md-6" style="margin-top:10px;">
-                                        <button groups="base.group_no_one"
+                                        <button attrs="{'invisible': [('is_sandbox', '=', False)]}"
                                                 string="Test Headers" name='test_headers' type="object"
                                                 class="btn-primary"/>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-md-6 o_setting_box">
-                        <div class="o_setting_left_pane"/>
-                        <div class="o_setting_right_pane">
-                            <label string="Fuel scale accounts" for="is_sandbox"/>
-                            <div class="text-muted">
-                                Set the fuel scale accounts for journalization
-                            </div>
-                            <div class="content-group">
-                                <div class="row mt16">
-                                    <label string="Debit account" for="fuel_debit_account_id"
-                                           class="col-md-3 o_light_label"/>
-                                    <field name="fuel_debit_account_id"/>
-                                </div>
-                                <div class="row mt16">
-                                    <label string="Credit account" for="fuel_credit_account_id"
-                                           class="col-md-3 o_light_label"/>
-                                    <field name="fuel_credit_account_id"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-md-6 o_setting_box">
-                        <div class="o_setting_left_pane"/>
-                        <div class="o_setting_right_pane">
-                            <label string="Submission period" for="is_sandbox"/>
-                            <div class="text-muted">
-                                Select the submission period
-                            </div>
-                            <div class="content-group">
-                                <div class="row mt16">
-                                    <label string="Period" for="submission_period" class="col-md-3 o_light_label"/>
-                                    <field name="submission_period"/>
                                 </div>
                             </div>
                         </div>

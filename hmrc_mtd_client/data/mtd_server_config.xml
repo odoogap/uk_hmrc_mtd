@@ -3,10 +3,15 @@
     <data noupdate="1">
         <record id="config_mtd_server_ip" model="ir.config_parameter">
             <field name="key">mtd.server</field>
-            <field name="value">www.odoomtd.co.uk</field>
+            <field name="value">https://www.odoomtd.co.uk</field>
         </record>
 
-        <record id="config_mtd_test_server_ip" model="ir.config_parameter">
+        <record id="config_mtd_api_ip" model="ir.config_parameter">
+            <field name="key">mtd.hmrc.url</field>
+            <field name="value">https://api.service.hmrc.gov.uk</field>
+        </record>
+
+        <record id="config_mtd_api_test_ip" model="ir.config_parameter">
             <field name="key">mtd.test_server</field>
             <field name="value">https://test-api.service.hmrc.gov.uk</field>
         </record>
@@ -19,34 +24,6 @@
         <record id="config_mtd_server_db" model="ir.config_parameter">
             <field name="key">mtd.db</field>
             <field name="value">v12_odoomtd</field>
-        </record>
-
-        <record id="fuel_scale_charge_tax" model="account.tax">
-            <field name="name">Fuel scale charge[FCS]</field>
-            <field name="type_tax_use">none</field>
-            <field name="tax_adjustment">True</field>
-            <field name="amount">0.0</field>
-        </record>
-
-        <record id="fuel_scale_charge_tax_tag" model="account.account.tag">
-            <field name="name">fuel</field>
-            <field name="applicability">taxes</field>
-            <field name="color">10</field>
-            <field name="active">True</field>
-        </record>
-
-        <record id="bad_debt_relief_tax" model="account.tax">
-            <field name="name">Bad debt relief</field>
-            <field name="type_tax_use">none</field>
-            <field name="tax_adjustment">True</field>
-            <field name="amount">0.0</field>
-        </record>
-
-        <record id="bad_debt_relief_tag" model="account.account.tag">
-            <field name="name">bad</field>
-            <field name="applicability">taxes</field>
-            <field name="color">10</field>
-            <field name="active">True</field>
         </record>
     </data>
 </odoo>

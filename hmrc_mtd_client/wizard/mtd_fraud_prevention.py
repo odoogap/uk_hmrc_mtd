@@ -13,6 +13,7 @@ from odoo.http import request
 
 class MtdFraudPrevention(models.TransientModel):
     _name = 'mtd.fraud.prevention'
+    _description = "Fraud Prevention Headers"
 
     user_id = fields.Integer('User id')
     screens = fields.Char('Screens')
@@ -51,7 +52,7 @@ class MtdFraudPrevention(models.TransientModel):
         params = self.env['ir.config_parameter'].sudo()
         gov_device_id = params.get_param('mtd.gov_device_id', default=False)
         user = self.env['res.users'].sudo().browse(self.env.uid)
-        login_date_format = user.login_date
+        login_date_format = user.login_date.strftime("%Y/%m/%d, %H:%M")
         unique_reference = user.company_id.id
         module_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).installed_version
         licence_ids = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).license

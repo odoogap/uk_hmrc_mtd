@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-###############################################################################
-#    License, author and contributors information in:                         #
-#    __manifest__.py file at the root folder of this module.                  #
-###############################################################################
+
+import requests
+import json
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import requests
-import json
 
 
 class ResConfigSettings(models.TransientModel):
@@ -21,15 +18,8 @@ class ResConfigSettings(models.TransientModel):
     port = fields.Char('Port')
     token = fields.Char('token')
     is_sandbox = fields.Boolean('Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
-    submission_period = fields.Selection([('monthly', 'Monthly'), ('quaterly', 'Quaterly'), ('annual', 'Annual')],
-                                         string="Period")
-    is_set_old_journal = fields.Boolean(string='Is set old journals', default=False)
-    company_id = fields.Many2one('res.company', string='Company', required=True,
-                                 default=lambda self: self.env.user.company_id)
-    fuel_debit_account_id = fields.Many2one('account.account', string='Debit account',
-                                            related='company_id.fuel_debit_account_id')
-    fuel_credit_account_id = fields.Many2one('account.account', string='Credit account',
-                                             related='company_id.fuel_credit_account_id')
+    submission_period = fields.Selection([('monthly', 'Monthly'), ('quaterly', 'Quaterly'), ('annual', 'Annual')], string="Period")
+    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.user.company_id)
 
     @api.model
     def get_values(self):
@@ -40,18 +30,15 @@ class ResConfigSettings(models.TransientModel):
         token = params.get_param('mtd.token', default=False)
         is_sandbox = params.get_param('mtd.sandbox', default=False)
         period = params.get_param('mtd.submission_period', default=False)
-        is_set_old_journal = params.get_param('mtd.is_set_old_journal', default=False)
         res.update(
             login=login,
             password=password,
             token=token,
             is_sandbox=is_sandbox,
             submission_period=period,
-            is_set_old_journal=is_set_old_journal
         )
         return res
 
-    @api.multi
     def set_values(self):
         super(ResConfigSettings, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
@@ -60,7 +47,6 @@ class ResConfigSettings(models.TransientModel):
         set_param('mtd.sandbox', self.is_sandbox)
         set_param('mtd.submission_period', self.submission_period)
 
-    @api.multi
     def get_authorization(self):
         return self.env['mtd.connection'].get_authorization()
 
@@ -69,7 +55,6 @@ class ResConfigSettings(models.TransientModel):
         parsed = json.loads(complete_str)
         return json.dumps(parsed, indent=4, sort_keys=True)
 
-    @api.multi
     def test_headers(self):
         params = self.env['ir.config_parameter'].sudo()
         is_sandbox = params.get_param('mtd.sandbox', default=False)
@@ -105,14 +90,12 @@ class ResConfigSettings(models.TransientModel):
                     'no_delay': False
                 }
             }
-
         else:
             raise UserError("Must be in sandbox environment to test the headers.\n"
                             "This Feature is used for development purposes.")
 
-    @api.multi
     def vat_formula(self):
-        view = self.env.ref('hmrc_mtd_client.vat_calculation_formula_view')
+        view = self.env.ref('hmrc_mtd_client.vat_calculation_formula_views')
 
         return {
             'name': 'VAT Formula',

@@ -4,11 +4,13 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 import requests
 import json
 import datetime
+
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
+
 
 class MtdVatReport(models.Model):
     _name = 'mtd.vat.report'
@@ -22,22 +24,29 @@ class MtdVatReport(models.Model):
     period_key = fields.Char('Period Key')
     submission_date = fields.Datetime('Submission Date')
     box_one = fields.Monetary('Box one', currency_field='currency_id')
+    box_one_adj = fields.Monetary('Box one adjustment', currency_field='currency_id')
     vatDueSales = fields.Monetary('Box one result', currency_field='currency_id')
     box_two = fields.Monetary('Box two', currency_field='currency_id')
+    box_two_adj = fields.Monetary('Box two adjustment', currency_field='currency_id')
     vatDueAcquisitions = fields.Monetary('Box two result', currency_field='currency_id')
     box_three = fields.Monetary('Box three', currency_field='currency_id')
     totalVatDue = fields.Monetary('Box three result', currency_field='currency_id')
     box_four = fields.Monetary('Box four', currency_field='currency_id')
+    box_four_adj = fields.Monetary('Box four adjustment', currency_field='currency_id')
     vatReclaimedCurrPeriod = fields.Monetary('Box four result', currency_field='currency_id')
     box_five = fields.Monetary('Box five', currency_field='currency_id')
     netVatDue = fields.Monetary('Box five result', currency_field='currency_id')
     box_six = fields.Monetary('Box six', currency_field='currency_id')
+    box_six_adj = fields.Monetary('Box six adjustment', currency_field='currency_id')
     totalValueSalesExVAT = fields.Monetary('Box six result', currency_field='currency_id')
     box_seven = fields.Monetary('Box seven', currency_field='currency_id')
+    box_seven_adj = fields.Monetary('Box seven adjustment', currency_field='currency_id')
     totalValuePurchasesExVAT = fields.Monetary('Box seven result', currency_field='currency_id')
     box_eight = fields.Monetary('Box eight', currency_field='currency_id')
+    box_eight_adj = fields.Monetary('Box eight adjustment', currency_field='currency_id')
     totalValueGoodsSuppliedExVAT = fields.Monetary('Box eight result', currency_field='currency_id')
     box_nine = fields.Monetary('Box nine', currency_field='currency_id')
+    box_nine_adj = fields.Monetary('Box nine adjustment', currency_field='currency_id')
     totalAcquisitionsExVAT = fields.Monetary('Box nine result', currency_field='currency_id')
     submission_token = fields.Char('Submission token')
     is_submitted = fields.Boolean(defaut=False)
@@ -56,18 +65,76 @@ class MtdVatReport(models.Model):
         res = super(MtdVatReport, self).create(values)
         res.write(
             {
-                'vatDueSales': round(res.box_one, 2),
-                'vatDueAcquisitions': round(res.box_two, 2),
+                'vatDueSales': round(res.box_one + res.box_one_adj, 2),
+                'vatDueAcquisitions': round(res.box_two + res.box_two_adj, 2),
                 'totalVatDue': round(res.box_three, 2),
-                'vatReclaimedCurrPeriod': round(res.box_four, 2),
+                'vatReclaimedCurrPeriod': round(res.box_four + res.box_four_adj, 2),
                 'netVatDue': abs(round(res.box_five, 2)),
-                'totalValueSalesExVAT': round(res.box_six, 0),
-                'totalValuePurchasesExVAT': round(res.box_seven, 0),
-                'totalValueGoodsSuppliedExVAT': round(res.box_eight, 0),
-                'totalAcquisitionsExVAT': round(res.box_nine, 0)
+                'totalValueSalesExVAT': round(res.box_six + res.box_six_adj, 0),
+                'totalValuePurchasesExVAT': round(res.box_seven + res.box_seven_adj, 0),
+                'totalValueGoodsSuppliedExVAT': round(res.box_eight + res.box_eight_adj, 0),
+                'totalAcquisitionsExVAT': round(res.box_nine + res.box_nine_adj, 0)
             })
 
         return res
+
+    def write(self, values):
+        if not self.is_submitted:
+            if not values.get('submiting', False):
+                vatDueSales = round((self.box_one + values.get('box_one_adj', self.box_one_adj)), 2)
+                vatDueAcquisitions = round((self.box_two + values.get('box_two_adj', self.box_two_adj)), 2)
+                totalVatDue = round((vatDueSales + vatDueAcquisitions), 2)
+                vatReclaimedCurrPeriod = round((self.box_four + values.get('box_four_adj', self.box_four_adj)), 2)
+                netVatDue = round(abs((vatDueSales + vatDueAcquisitions) - vatReclaimedCurrPeriod), 2)
+
+                values.update(
+                    {
+                        'vatDueSales': vatDueSales,
+                        'vatDueAcquisitions': vatDueAcquisitions,
+                        'totalVatDue': totalVatDue,
+                        'vatReclaimedCurrPeriod': vatReclaimedCurrPeriod,
+                        'netVatDue': netVatDue,
+                        'totalValueSalesExVAT': round((self.box_six + values.get('box_six_adj', self.box_six_adj)), 0),
+                        'totalValuePurchasesExVAT': round(
+                            (self.box_seven + values.get('box_seven_adj', self.box_seven_adj)), 0),
+                        'totalValueGoodsSuppliedExVAT': round(
+                            (self.box_eight + values.get('box_eight_adj', self.box_eight_adj)), 0),
+                        'totalAcquisitionsExVAT': round((self.box_nine + values.get('box_nine_adj', self.box_nine_adj)),
+                                                        0)
+                    })
+            else:
+                values.pop('submiting')
+
+            return super(MtdVatReport, self).write(values)
+
+    """
+    @api.onchange('box_one_adj')
+    def _onchange_vatDueSales(self):
+        self.vatDueSales = self.box_one + self.box_one_adj
+        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
+    @api.onchange('box_two_adj')
+    def _onchange_vatDueAcquisitions(self):
+        self.vatDueAcquisitions = self.box_two + self.box_two_adj
+        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
+    @api.onchange('box_four_adj')
+    def _onchange_vatReclaimedCurrPeriod(self):
+        self.vatReclaimedCurrPeriod = self.box_four + self.box_four_adj
+        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
+    @api.onchange('box_six_adj')
+    def _onchange_totalValueSalesExVAT(self):
+        self.totalValueSalesExVAT = self.box_six + self.box_six_adj
+    @api.onchange('box_seven_adj')
+    def _onchange_totalValuePurchasesExVAT(self):
+        self.totalValuePurchasesExVAT = self.box_seven + self.box_seven_adj
+    @api.onchange('box_eight_adj')
+    def _onchange_totalValueGoodsSuppliedExVAT(self):
+        self.totalValueGoodsSuppliedExVAT = self.box_eight + self.box_eight_adj
+    @api.onchange('box_nine_adj')
+    def _onchange_totalAcquisitionsExVAT(self):
+        self.totalAcquisitionsExVAT = self.box_nine + self.box_nine_adj
+    """
 
     def sql_get_account_moves(self):
         return """
@@ -92,27 +159,7 @@ class MtdVatReport(models.Model):
                 account_move.company_id in (%s)
         """
 
-    def sql_get_account_move_lines_by_tag_fb(self):
-        return """
-            SELECT account_move_line.id
-                FROM account_move INNER JOIN account_move_line ON
-                account_move.id = account_move_line.move_id
-                INNER JOIN account_tax ON account_move_line.tax_line_id = account_tax.id
-                WHERE account_move.date <= '%s' AND
-                account_move.state = 'posted' AND
-                account_move.is_mtd_submitted = '%s' %s
-                account_move.company_id in (%s) AND
-                account_tax.id IN (
-                    SELECT account_tax.id
-                    FROM account_tax INNER JOIN account_tax_account_tag ON
-                    account_tax_account_tag.account_tax_id=account_tax.id INNER JOIN
-                    account_account_tag ON account_account_tag.id =
-                    account_tax_account_tag.account_account_tag_id
-                    WHERE account_account_tag.name IN (%s)
-                )
-        """
-
-    def sql_get_account_move_lines_by_tag_lb(self):
+    def sql_get_account_move_lines_by_tag(self):
         return """
             SELECT account_move_line.id
                 FROM account_move INNER JOIN account_move_line ON
@@ -147,23 +194,13 @@ class MtdVatReport(models.Model):
             mtd_state = 't'
             condition = 'AND account_move.vat_report_id in (%s) AND' % self.id
 
-        if self._context.get('box_name') in ['Box 6', 'Box 7', 'Box 8', 'Box 9']:
-            self.env.cr.execute(self.sql_get_account_move_lines_by_tag_lb() % (
-                self.name.split('-')[1],
-                mtd_state,
-                condition,
-                self.env.user.company_id.id,
-                str(taxes).strip('[]'))
-            )
-        else:
-            self.env.cr.execute(self.sql_get_account_move_lines_by_tag_fb() % (
-                self.name.split('-')[1],
-                mtd_state,
-                condition,
-                self.env.user.company_id.id,
-                str(taxes).strip('[]'))
-            )
-
+        self.env.cr.execute(self.sql_get_account_move_lines_by_tag() % (
+            self.name.split('-')[1],
+            mtd_state,
+            condition,
+            self.env.user.company_id.id,
+            str(taxes).strip('[]'))
+                            )
         account_moves = self.env.cr.fetchall()
         view = self.env.ref('account.view_account_journal_tree')
         context = self.env.context.copy()
@@ -182,24 +219,24 @@ class MtdVatReport(models.Model):
             'views': [
                 [list_view, 'list'],
                 [form_view, 'form']
-                ],
+            ],
             'view_id': view.id,
             'target': 'current',
             'view_mode': 'tree,form',
             'domain': [('id', 'in', [move[0] for move in account_moves])],
             'context': context
         }
-
         return action
 
     def check_version(self):
         latest_version = self.env['ir.module.module'].sudo().search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v11',
+            'odoo_version': 'v13',
             'mtd_client_version': latest_version
         }
 
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
+        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version',
+                                                                                values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
@@ -211,24 +248,25 @@ class MtdVatReport(models.Model):
         )
 
         self.write({
-                'is_submitted': True,
-                'submission_date': datetime.datetime.now(),
-                'processing_date': message.get('processingDate'),
-                'payment_indicator': message.get('paymentIndicator'),
-                'form_bundle_number': message.get('formBundleNumber'),
-                'charge_ref_number':message.get('chargeRefNumber'),
-                'x_correlation_id': headers.get('X-Correlationid'),
-                'receipt_id': headers.get('Receipt-ID'),
-                'receipt_timestamp': headers.get('Receipt-Timestamp'),
-                'receipt_signature': headers.get('Receipt-Signature')
-            })
+            'submiting': True,
+            'is_submitted': True,
+            'submission_date': datetime.datetime.now(),
+            'processing_date': message.get('processingDate'),
+            'payment_indicator': message.get('paymentIndicator'),
+            'form_bundle_number': message.get('formBundleNumber'),
+            'charge_ref_number': message.get('chargeRefNumber'),
+            'x_correlation_id': headers.get('X-Correlationid'),
+            'receipt_id': headers.get('Receipt-ID'),
+            'receipt_timestamp': headers.get('Receipt-Timestamp'),
+            'receipt_signature': headers.get('Receipt-Signature')
+        })
 
         self.env.cr.execute(
             self.sql_get_account_moves() % (
-            self.name.split('-')[1].replace('/', '-'),
-            self.env.user.company_id.id,
-            self.name.split('-')[1].replace('/', '-'),
-            self.env.user.company_id.id
+                self.name.split('-')[1].replace('/', '-'),
+                self.env.user.company_id.id,
+                self.name.split('-')[1].replace('/', '-'),
+                self.env.user.company_id.id
             )
         )
         results = self.env.cr.fetchall()
@@ -239,13 +277,14 @@ class MtdVatReport(models.Model):
                 self.id,
                 str(tuple(ids))
             ))
+            self.env.cr.execute("update account_move_line set is_mtd_submitted = 't' where move_id in %s" % str(tuple(ids)))
         elif len(ids) == 1:
             self.env.cr.execute("update account_move set is_mtd_submitted = 't', vat_report_id = %s where id = %s" % (
                 self.id,
                 str(ids[0])
             ))
+            self.env.cr.execute("update account_move_line set is_mtd_submitted = 't' where move_id = %s" % str(ids[0]))
 
-    @api.multi
     def submit_vat(self):
         self.ensure_one()
         self.check_version()
@@ -268,10 +307,10 @@ class MtdVatReport(models.Model):
 
         req_url = '%s/organisations/vat/%s/returns' % (hmrc_url, str(self.env.user.company_id.vrn))
         req_headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.hmrc.1.0+json',
-                'Authorization': 'Bearer %s' % api_token
-            }
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.hmrc.1.0+json',
+            'Authorization': 'Bearer %s' % api_token
+        }
         prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
         req_headers.update(prevention_headers)
         response = requests.post(req_url, headers=req_headers, json=boxes)
@@ -291,19 +330,13 @@ class MtdVatReport(models.Model):
                 'view_id': view.id,
                 'target': 'new',
                 'context': {
-                        'default_name': 'Successfully Submitted',
-                        'no_delay': False,
-                        'delay': True
-                    }
+                    'default_name': 'Successfully Submitted',
+                    'no_delay': False,
+                    'delay': True
                 }
+            }
 
         message = json.loads(response._content.decode("utf-8"))
         raise UserError('An error has occurred : \n status: %s \n message: %s' % (
-                str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
-            ))
-    
-    @api.multi
-    def verify_submission(self):
-        context = self._context.copy()
-        context.update({'period_key': self.period_key})
-        return self.env['mtd.vat.verification'].with_context(context).verify_submission()
+            str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
+        ))

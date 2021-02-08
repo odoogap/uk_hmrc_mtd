@@ -37,7 +37,7 @@
     <record id="action_mtd_vat_form" model="ir.actions.act_window">
         <field name="name">Vat Return</field>
         <field name="res_model">mtd.vat.sub</field>
-        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
         <field name="view_id" ref="view_mtd_vat_form"/>
         <field name="target">new</field>
     </record>
@@ -45,6 +45,6 @@
     <record id="action_mtd_vat_list" model="ir.actions.act_window">
         <field name="name">Vat Return List</field>
         <field name="res_model">mtd.vat.sub</field>
-        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
     </record>
 </odoo>

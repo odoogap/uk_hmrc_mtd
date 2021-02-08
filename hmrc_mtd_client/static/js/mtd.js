@@ -1,4 +1,4 @@
-odoo.define('mtd.module.js', function (require) { 
+odoo.define('mtd.module.js', function (require) {
     'use strict';
 
     var Widget = require('web.Widget');
@@ -7,9 +7,10 @@ odoo.define('mtd.module.js', function (require) {
     var _t = core._t;
     var rpc = require('web.rpc');
     require('web.dom_ready');
-    
-    var mtd_js = Widget.extend({    
+
+    var mtd_js = Widget.extend({
         start: function() {
+            var window_size = 'width='+ screen.width + '&height=' + screen.height + '&colour-depth=' + screen.colorDepth + '&scaling-factor=' + 1.25;
             var screens = 'width='+ screen.width + '&height=' + screen.height + '&scaling-factor=' + screen.width/screen.height + '&colour-depth=' + screen.colorDepth;
             var window_size = 'width='+ screen.width + '&height=' + screen.height;
             var x = navigator.plugins.length;

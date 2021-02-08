@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	<record id="mtd_set_old_submission_view" model="ir.ui.view">
-		<field name="name">mtd.set.old.submission.view</field>
-		<field name="model">mtd.set.old.journal.submission</field>
-		<field name="arch" type="xml">
+    <record id="mtd_set_old_submission_views" model="ir.ui.view">
+        <field name="name">mtd.set.old.submission.view</field>
+        <field name="model">mtd.set.old.journal.submission</field>
+        <field name="arch" type="xml">
             <form>
                 <sheet>
                     <div class="alert alert-info" role="alert">
                         <strong>Why are you seeing this?</strong>
                         <p>
-                            This is part off an initial configuration, you need to choose the date of the journal from which you want to start doing the calculation.
-                            <br/>This step will allow the module, to discard old journals that have been already submitted.
+                            This is part off an initial configuration, you need to choose the date of the journal from
+                            which you want to start doing the calculation.
+                            <br/>This step will allow the module, to discard old journals that have been already
+                            submitted.
                         </p>
                     </div>
                     <group>
@@ -24,6 +26,6 @@
                     </footer>
                 </sheet>
             </form>
-		</field>
-	</record>
+        </field>
+    </record>
 </odoo>

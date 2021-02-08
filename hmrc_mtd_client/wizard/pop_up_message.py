@@ -4,13 +4,14 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
-from odoo import api, fields, models, _
 import time
+
+from odoo import api, fields, models, _
 
 
 class pop_up_message(models.TransientModel):
     _name = "pop.up.message"
-    _description="pop up message"
+    _description = "pop up message"
 
     def get_message(self):
         return self.env.context.get("message")

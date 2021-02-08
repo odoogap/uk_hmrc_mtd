@@ -4,14 +4,16 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
+import os
+import ssl
+import msgfy
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.safe_eval import safe_eval
-import msgfy
 
-import logging
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None)): ssl._create_default_https_context = ssl._create_unverified_context
 
-_logger = logging.getLogger(__name__)
 
 class MtdCalculationFormula(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -29,10 +31,10 @@ class MtdCalculationFormula(models.TransientModel):
         res = super(MtdCalculationFormula, self).get_values()
         params = self.env['ir.config_parameter'].sudo()
 
-        box_one = params.get_param('mtd.box_one_formula', 'sum([vat_ST1,vat_ST2,vat_ST11]) + vat_fuel + vat_bad')
+        box_one = params.get_param('mtd.box_one_formula', 'sum([vat_ST1,vat_ST2,vat_ST11])')
         box_two = params.get_param('mtd.box_two_formula', 'sum([vat_PT8M])')
         box_four = params.get_param('mtd.box_four_formula', 'sum([vat_PT11,vat_PT5,vat_PT2,vat_PT1,vat_PT0]) + sum([vat_credit_PT8R,vat_debit_PT8R])')
-        box_six = params.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4]) + net_fuel + net_bad')
+        box_six = params.get_param('mtd.box_six_formula', 'sum([net_ST0,net_ST1,net_ST2,net_ST11]) + sum([net_ST4])')
         box_seven = params.get_param('mtd.box_seven_formula', 'sum([net_PT11,net_PT0,net_PT1,net_PT2,net_PT5]) + sum([net_PT7,net_PT8])')
         box_eight = params.get_param('mtd.box_eight_formula', 'sum([net_ST4])')
         box_nine = params.get_param('mtd.box_nine_formula', 'sum([net_PT7, net_PT8])')
@@ -45,16 +47,14 @@ class MtdCalculationFormula(models.TransientModel):
             box_eight=box_eight,
             box_nine=box_nine
         )
-
         return res
 
-    @api.multi
     def set_values(self):
         super(MtdCalculationFormula, self).set_values()
         set_param = self.env['ir.config_parameter'].sudo().set_param
-        attrs = ['box_one','box_two','box_four','box_six','box_seven','box_eight','box_nine']
+        attrs = ['box_one', 'box_two', 'box_four', 'box_six', 'box_seven', 'box_eight', 'box_nine']
         replace_items = [
-            'sum([', '])', '+', '-', 'fuel_net', 'fuel_vat', 'bad_vat', 'bad_net',
+            'sum([', '])', '+', '-',
             'vat_credit_', 'net_credit_', 'vat_debit_', 'net_debit_', 'net_', 'vat_', ','
         ]  # items that should be replaced in the formula in order to get the taxes tag
         box_three_taxes = []
@@ -68,9 +68,9 @@ class MtdCalculationFormula(models.TransientModel):
                 for item in replace_items:
                     if item == ',':
                         box_taxes = box_taxes.strip()
-                        box_taxes = box_taxes.replace(item, ' ') # replace ',' with ' ' for split
-                        box_taxes = box_taxes.split() # convert string into list
-                        box_taxes = list(dict.fromkeys(box_taxes)) # remove duplicated entries
+                        box_taxes = box_taxes.replace(item, ' ')  # replace ',' with ' ' for split
+                        box_taxes = box_taxes.split()  # convert string into list
+                        box_taxes = list(dict.fromkeys(box_taxes))  # remove duplicated entries
                     else:
                         box_taxes = box_taxes.replace(item, '')
 
@@ -102,15 +102,15 @@ class MtdCalculationFormula(models.TransientModel):
 
         for attr in attrs:
             if getattr(self, attr):
-                if getattr(self, attr) !='N/A':
-                    formula.update({attr:getattr(self, attr)})
+                if getattr(self, attr) != 'N/A':
+                    formula.update({attr: getattr(self, attr)})
 
         self.test_formula(formula)
         conn = self.env['mtd.connection'].open_connection_odoogap()
         response = conn.execute('mtd.operations', 'submit_formula', formula)
 
         if response.get('status') == 200:
-            self.env.user.company_id.submited_formula = True
+            self.env.user.company_id.submitted_formula = True
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
 
             return {
@@ -130,11 +130,7 @@ class MtdCalculationFormula(models.TransientModel):
                     'no_delay': False
                 }
             }
-
-        raise UserError('An error has occurred : \n status: %s \n message: %s ' % (
-                str(response.get('status')),
-                response.get('message'))
-            )
+        raise UserError('An error has occurred : \n status: %s \n message: %s ' % (str(response.get('status')), response.get('message')))
 
     def get_dummy_dict(self):
         """creates a dummy dict to ensure that the formula is correctly configured
@@ -142,7 +138,7 @@ class MtdCalculationFormula(models.TransientModel):
             [dict] -- [dummy dict with the formula keys]
         """
         account_taxes = self.env['account.tax'].search([('active', '=', True)]).mapped('tag_ids').mapped('name')
-
+        
         dummy_dict = {}
 
         for tax in account_taxes:
@@ -153,13 +149,6 @@ class MtdCalculationFormula(models.TransientModel):
                 'vat_debit_%s' % tax: 1,
                 'net_credit_%s' % tax: 1,
                 'net_debit_%s' % tax: 1
-            })
-
-        dummy_dict.update({
-                'fuel_net': 1,
-                'fuel_vat': 1,
-                'bad_net': 1,
-                'bad_vat': 1
             })
 
         return dummy_dict
@@ -176,8 +165,9 @@ class MtdCalculationFormula(models.TransientModel):
                 if formula.get(parameter):
 
                     if formula.get(parameter) != 'N/A':
-                        if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(parameter):
-                            safe_eval(formula.get(parameter), dummy_dict)
+                        if 'sum' in formula.get(parameter) or '+' in formula.get(parameter) or '-' in formula.get(
+                                parameter):
+                            safe_eval(formula.get(parameter).encode('utf8'), dummy_dict)
 
                         else:
                             raise UserError('Boxes formulas need to have arithmethic operations.')
