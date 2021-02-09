@@ -33,7 +33,7 @@
         'views/mtd_vat_verification_form.xml',
         'views/templates.xml',
         'data/mtd_cron_data.xml'],
-    'external_dependencies': {'python': ['odoorpc', 'msgfy']},
+    'external_dependencies': {'python': ['odoorpc', 'msgfy', 'odoogap_mtd']},
     'installable': True,
     'auto_install': False,
     'support': 'info@odoogap.com',
