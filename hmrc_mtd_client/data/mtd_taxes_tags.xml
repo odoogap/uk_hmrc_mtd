@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- ST tags-->
+        <record id="mtd_tag_st0" model="account.account.tag">
+            <field name="name">ST0</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_st1" model="account.account.tag">
+            <field name="name">ST1</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_st2" model="account.account.tag">
+            <field name="name">ST2</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_st4" model="account.account.tag">
+            <field name="name">ST4</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_st5" model="account.account.tag">
+            <field name="name">ST5</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_st11" model="account.account.tag">
+            <field name="name">ST11</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+
+        <!-- PT tags-->
+        <record id="mtd_tag_pt0" model="account.account.tag">
+            <field name="name">PT0</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt1" model="account.account.tag">
+            <field name="name">PT1</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt2" model="account.account.tag">
+            <field name="name">PT2</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt5" model="account.account.tag">
+            <field name="name">PT5</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt7" model="account.account.tag">
+            <field name="name">PT7</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt8" model="account.account.tag">
+            <field name="name">PT8</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt8m" model="account.account.tag">
+            <field name="name">PT8M</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt8r" model="account.account.tag">
+            <field name="name">PT8R</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+        <record id="mtd_tag_pt11" model="account.account.tag">
+            <field name="name">PT11</field>
+            <field name="applicability">taxes</field>
+            <field name="country_id" ref="base.uk"/>
+        </record>
+
+    </data>
+</odoo>

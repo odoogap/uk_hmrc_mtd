@@ -27,6 +27,8 @@
         'data/mtd_channel.xml',
         'data/mtd_cron_data.xml',
         'data/mtd_server_config.xml',
+        'data/mtd_taxes_tags.xml',
+        'data/mtd_uk_taxes.xml',
         'views/templates.xml',
         'security/ir.model.access.csv'
     ],

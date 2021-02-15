@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!--- ST Taxes -->
+
+        <record id="mtd_st1" model="account.tax">
+            <field name="name">Standard rate sales (17.5%)</field>
+            <field name="amount_type">percent</field>
+            <field name="active">True</field>
+            <field name="type_tax_use">sale</field>
+            <field name="amount">17.5000</field>
+            <field name="description">ST1</field>
+            <field name="tax_group_id" ref="l10n_uk.tax_group_175" />
+            <field name="tag_ids" ref="mtd_tag_st1"/>
+            <field name="invoice_repartition_line_ids" eval="[(4, (ref('mtd_sti_repartition_tax'))), (4, (ref('mtd_sti_repartition_tax_base')))]"/>
+            <field name="refund_repartition_line_ids" eval="[(4, (ref('mtd_sti_repartition_refund'))), (4, (ref('mtd_sti_repartition_refund_base')))]" />
+        </record>
+
+        <!-- PT Taxes -->
+
+        <record id="mtd_pt8m" model="account.tax">
+            <field name="name">Standard rated purchases from EC</field>
+            <field name="amount_type">percent</field>
+            <field name="active">True</field>
+            <field name="type_tax_use">none</field>
+            <field name="amount">17.5000</field>
+            <field name="description">PT8M</field>
+            <field name="tax_group_id" ref="l10n_uk.tax_group_0" />
+            <field name="tag_ids" ref="mtd_tag_pt8m"/>
+        </record>
+
+        <record id="mtd_pt8r" model="account.tax">
+            <field name="name">Reverse EC Purchase VAT</field>
+            <field name="amount_type">percent</field>
+            <field name="active">True</field>
+            <field name="type_tax_use">none</field>
+            <field name="amount">-17.5000</field>
+            <field name="description">PT8R</field>
+            <field name="tax_group_id" ref="l10n_uk.tax_group_0" />
+            <field name="tag_ids" ref="mtd_tag_pt8r"/>
+        </record>
+
+        <record id="mtd_pt1" model="account.tax">
+            <field name="name">Standard rate purchases (17.5%)</field>
+            <field name="amount_type">percent</field>
+            <field name="active">True</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="amount">17.5000</field>
+            <field name="description">PT1</field>
+            <field name="tax_group_id" ref="l10n_uk.tax_group_175" />
+            <field name="tag_ids" ref="mtd_tag_pt1"/>
+        </record>
+
+
+        <!-- <record id="l10n_uk.1_PT11" model="account.tax">
+            <field name="tag_ids" eval="(0, 0,{'name':'PT11','applicability':'taxes','country_id': str(ref('base.uk'))})" />
+        </record> -->
+
+
+
+     </data>
+</odoo>
