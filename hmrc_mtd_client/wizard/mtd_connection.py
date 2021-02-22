@@ -29,8 +29,7 @@ class MtdConnection(models.TransientModel):
             server = params.get_param('mtd.server', default=False)
             db = params.get_param('mtd.db', default=False)
             port = params.get_param('mtd.port', default=False)
-            # odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
-            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc', port=int(port))
+            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
             odoo_instance.login(db, login, password)
             return odoo_instance
         except Exception as e:

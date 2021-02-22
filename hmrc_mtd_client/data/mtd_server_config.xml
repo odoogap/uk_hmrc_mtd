@@ -3,7 +3,7 @@
     <data noupdate="1">
         <record id="config_mtd_server_ip" model="ir.config_parameter">
             <field name="key">mtd.server</field>
-            <field name="value">https://www.odoomtd.co.uk</field>
+            <field name="value">www.odoomtd.co.uk</field>
         </record>
 
         <record id="config_mtd_api_ip" model="ir.config_parameter">
