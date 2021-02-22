@@ -58,8 +58,7 @@ class MtdVat(models.TransientModel):
                         date = '%s - %s' % ('2019/02/01', '2019/02/28')
                         periods.append((period, date))
 
-                # self._context.update({'periods': periods})
-                self._context.update({'periods': [["20C2:2020/012/01-2021/01/30", "2020/12/01 - 2021/01/30"]]})
+                self._context.update({'periods': periods})
                 view = self.env.ref('hmrc_mtd_client.view_mtd_vat_form')
                 return {
                         'name': 'Calculate VAT',
