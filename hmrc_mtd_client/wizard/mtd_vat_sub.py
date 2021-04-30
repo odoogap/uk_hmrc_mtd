@@ -54,7 +54,8 @@ class MtdVat(models.TransientModel):
                 }
             req_params = {
                     'to': time.strftime("%Y-%m-%d"),
-                    'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().strftime("%d"))
+                    'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"),
+                                          datetime.datetime.now().strftime("%d"))
                 }
             response = requests.get(url, headers=req_headers, params=req_params)
             if response.status_code == 200:
@@ -63,8 +64,9 @@ class MtdVat(models.TransientModel):
 
                 for value in message['obligations']:
                     if value['status'] == 'O':
-                        period = '%s:%s-%s' % (value.get('periodKey'), '2019/02/01', '2019/02/28')
-                        date = '%s - %s' % ('2019/02/01', '2019/02/28')
+                        period = '%s:%s-%s' % (value.get('periodKey'), value.get('start').replace('-', '/'),
+                                               value.get('end').replace('-', '/'))
+                        date = '%s - %s' % (value.get('start').replace('-', '/'), value.get('end').replace('-', '/'))
                         periods.append((period, date))
 
                 self._context.update({'periods': periods})

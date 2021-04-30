@@ -27,7 +27,7 @@ class ResConfigSettings(models.TransientModel):
     port = fields.Char('Port')
     token = fields.Char('token')
     is_sandbox = fields.Boolean('Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
-    submission_period = fields.Selection([('monthly', 'Monthly'), ('quaterly', 'Quaterly'), ('annual', 'Annual')], string="Period")
+    submission_period = fields.Selection([('monthly', 'Monthly'), ('quaterly', 'Quarterly'), ('annual', 'Annual')], string="Period")
     is_set_old_journal = fields.Boolean(string='Is set old journals', default=False)
     company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.user.company_id)
     fuel_debit_account_id = fields.Many2one('account.account', string='Debit account', related='company_id.fuel_debit_account_id')
