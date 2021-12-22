@@ -77,7 +77,6 @@ class MtdVatReport(models.Model):
                 WHERE account_move_line.move_id=account_move.id AND
                 account_move_line.tax_line_id IS NOT NULL AND
                 account_move_line.date <= '%s' AND
-                account_move_line.date >= '%s' AND
                 account_move.state = 'posted' AND
                 account_move.is_mtd_submitted = 'f' AND
                 account_move.company_id in (%s)
@@ -88,7 +87,6 @@ class MtdVatReport(models.Model):
                 account_move_line_account_tax_rel.account_move_line_id INNER JOIN
                 account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
                 WHERE account_move.date <= '%s' AND
-                account_move.date >= '%s' AND
                 account_move.state = 'posted' AND
                 account_move.is_mtd_submitted = 'f' AND
                 account_move.company_id in (%s)
@@ -101,7 +99,6 @@ class MtdVatReport(models.Model):
                 account_move.id = account_move_line.move_id
                 INNER JOIN account_tax ON account_move_line.tax_line_id = account_tax.id
                 WHERE account_move.date <= '%s' AND
-                account_move.date >= '%s' AND
                 account_move.state = 'posted' AND
                 account_move.is_mtd_submitted = '%s' %s
                 account_move.company_id in (%s) AND
@@ -124,7 +121,6 @@ class MtdVatReport(models.Model):
                 account_move_line_account_tax_rel.account_move_line_id INNER JOIN
                 account_tax ON account_tax.id = account_move_line_account_tax_rel.account_tax_id
                 WHERE account_move.date <= '%s' AND
-                account_move.date >= '%s' AND
                 account_move.state = 'posted' AND
                 account_move.is_mtd_submitted = '%s' %s
                 account_move.company_id in (%s) AND
@@ -154,7 +150,6 @@ class MtdVatReport(models.Model):
         if self._context.get('box_name') in ['Box 6', 'Box 7', 'Box 8', 'Box 9']:
             self.env.cr.execute(self.sql_get_account_move_lines_by_tag_lb() % (
                 self.name.split('-')[1],
-                self.name.split('-')[0],
                 mtd_state,
                 condition,
                 self.env.user.company_id.id,
@@ -163,7 +158,6 @@ class MtdVatReport(models.Model):
         else:
             self.env.cr.execute(self.sql_get_account_move_lines_by_tag_fb() % (
                 self.name.split('-')[1],
-                self.name.split('-')[0],
                 mtd_state,
                 condition,
                 self.env.user.company_id.id,
@@ -232,10 +226,8 @@ class MtdVatReport(models.Model):
         self.env.cr.execute(
             self.sql_get_account_moves() % (
             self.name.split('-')[1].replace('/', '-'),
-            self.name.split('-')[0].replace('/', '-'),
             self.env.user.company_id.id,
             self.name.split('-')[1].replace('/', '-'),
-            self.name.split('-')[0].replace('/', '-'),
             self.env.user.company_id.id
             )
         )
