@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="action_mtd_set_old_journal" model="ir.actions.act_window">
+        <field name="name">Set Old Journal</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mtd.set.old.journal.submission</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="mtd_set_old_submission_view"/>
+    </record>
+
 	<record id="mtd_set_old_submission_view" model="ir.ui.view">
 		<field name="name">mtd.set.old.submission.view</field>
 		<field name="model">mtd.set.old.journal.submission</field>

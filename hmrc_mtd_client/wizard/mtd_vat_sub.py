@@ -115,7 +115,6 @@ class MtdVat(models.TransientModel):
                     'view_id': view.id,
                     'target': 'new'
                 }
-
             if api_token:
                 return self.request_periods(hmrc_url, api_token)
 
@@ -159,10 +158,10 @@ class MtdVat(models.TransientModel):
 
     def get_tax_moves(self, date_to, vat_scheme):
         """
-        Allows to get the move lines with taxes from the cleint system
+        Allows to get the move lines with taxes from the client system
         Arguments:
             date_to {Char} -- [date until the routine should get the moves]
-            vat_scheme {Char} -- [the type off the VAT scheme wich can be accrual(AC) or cash basis(CB)]
+            vat_scheme {Char} -- [the type off the VAT scheme which can be accrual(AC) or cash basis(CB)]
         Returns:
             [dict] -- [dict with all the moves]
         """

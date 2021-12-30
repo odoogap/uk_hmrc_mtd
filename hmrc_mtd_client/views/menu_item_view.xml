@@ -9,5 +9,6 @@
     <menuitem id="menu_finance_mtd_vat_journals" name="Journal Adjustments" parent="menu_finance_mtd" sequence="2"/>
     <menuitem id="menu_finance_mtd_vat_tax_adjustment" name="Tax Adjustment" parent="menu_finance_mtd_vat_journals" sequence="1" action="account.tax_adjustments_form"/>
     <menuitem id="menu_finance_mtd_vat_fuel_scale_journal" name="Fuel Scale Charge" parent="menu_finance_mtd_vat_journals" sequence="2" action="action_fuel_scale_charge_form"/>
+    <menuitem id="menu_set_old_journal" name="Set Old Journal" parent="menu_finance_mtd_vat_journals" sequence="3" action="action_mtd_set_old_journal"/>
 </odoo>
 
