@@ -172,12 +172,11 @@ class MtdVatReport(models.Model):
                 account_move.is_mtd_submitted = '%s' %s
                 account_move.company_id in (%s) AND
                 account_tax.id IN (
-                    SELECT account_tax.id
-                    FROM account_tax INNER JOIN account_tax_account_tag ON
-                    account_tax_account_tag.account_tax_id=account_tax.id INNER JOIN
-                    account_account_tag ON account_account_tag.id =
-                    account_tax_account_tag.account_account_tag_id
-                    WHERE account_account_tag.name IN (%s)
+                     SELECT account_tax.id
+                        FROM account_tax
+                     INNER JOIN
+                        account_account_tag ON account_account_tag.id = account_tax.tag_ids
+                     WHERE account_account_tag.name IN (%s)
                 )
         """
 

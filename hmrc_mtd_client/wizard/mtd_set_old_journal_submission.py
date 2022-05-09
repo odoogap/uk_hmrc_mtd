@@ -55,7 +55,7 @@ class MtdSetOldJournalSubmission(models.TransientModel):
             'view_id': view.id,
             'target': 'new',
             'context': {
-                'default_name': 'The date has been sucessfully set.',
+                'default_name': 'The date has been successfully set.',
                 'no_delay': False,
                 'delay': True
             }
