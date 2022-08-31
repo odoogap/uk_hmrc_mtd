@@ -20,7 +20,7 @@ odoo.define('mtd.module.js', function (require) {
                 txt += navigator.plugins[i].name + ",";
             }
 
-            var str = txt.toString();
+            var str = txt;
             var result= str.slice(1, -1);
             var browser_plugin = result.replace(/ /g, "%20");
 

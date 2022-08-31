@@ -6,9 +6,9 @@
         Enables the user to commit HMRC VAT return to HMRC api.
     """,
     'category': 'Invoicing Management',
-    'author': 'Odoogap',
+    'author': 'ERPGAP',
     'licence': 'LGPL-3',
-    'website': 'https://www.odoogap.com/',
+    'website': 'https://www.erpgap.com/',
     'images': ['images/main_screenshot.png'],
     'depends': [
         'base',
@@ -37,5 +37,5 @@
     'external_dependencies': {'python': ['odoorpc', 'msgfy']},
     'installable': True,
     'auto_install': False,
-    'support': 'info@odoogap.com',
+    'support': 'info@erpgap.com',
 }

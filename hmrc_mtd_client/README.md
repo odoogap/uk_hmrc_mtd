@@ -3,7 +3,7 @@
 ## Overview
 
 An Easy to use platform, dedicated to UK clients, with the single purpose of creating
-bills from your CRM Sales Order. The Odoogap CRM app is the toll you need to manage your
+bills from your CRM Sales Order. The ERPGAP CRM app is the toll you need to manage your
 team or your own sales work. With one click you can transform any Sale Order into a bill
 and therefore a Sage Invoice.
 
@@ -35,7 +35,7 @@ platform with the main objective of creating a Sage Invoice from a Sale Order.
   - Login
   - Password
   
-Note: Those credentials are provided by us. [Contact us](https://www.odoogap.com/page/contactus/) to ask for our credentials.
+Note: Those credentials are provided by us. [Contact us](https://www.erpgap.com/page/contactus/) to ask for our credentials.
 
 ## How to use
 
@@ -46,7 +46,7 @@ Is that easy!
 
 ## Support
 
-To report a problem please [contact us](https://www.odoogap.com/page/contactus/).
+To report a problem please [contact us](https://www.erpgap.com/page/contactus/).
 
-Commercial support is available, please email [info@odoogap.com](info@odoogap.com)
+Commercial support is available, please email [info@erpgap.com](info@erpgap.com)
 or call tel:+44 7480 538242 for further information.
