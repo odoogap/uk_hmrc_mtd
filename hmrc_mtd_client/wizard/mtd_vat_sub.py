@@ -18,7 +18,7 @@ class MtdVat(models.TransientModel):
     _description = "VAT Calculation"
 
     def check_credits(self):
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_credits')
+        response = self.env['mtd.connection'].open_connection_odoogap().check_credits()
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
@@ -29,7 +29,7 @@ class MtdVat(models.TransientModel):
             'mtd_client_version': latest_version
         }
 
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
+        response = self.env['mtd.connection'].open_connection_odoogap().check_version(values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
@@ -159,7 +159,7 @@ class MtdVat(models.TransientModel):
         Returns:
             [dict] -- [dict with all the moves]
         """
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'get_payload', vat_scheme)
+        response = self.env['mtd.connection'].open_connection_odoogap().get_payload(vat_scheme)
         channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
 
         if response.get('status') == 200:
@@ -208,7 +208,7 @@ class MtdVat(models.TransientModel):
 
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
-                response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'calculate_boxes', submit_data)
+                response = self.env['mtd.connection'].open_connection_odoogap().calculate_boxes(submit_data)
 
                 if response.get('status') == 200:
                     channel_id.message_post(

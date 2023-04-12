@@ -4,7 +4,7 @@
 #    __manifest__.py file at the root folder of this module.                  #
 ###############################################################################
 
-import odoorpc
+import odoolib
 import logging
 
 from odoo import models, fields, api, _
@@ -26,12 +26,16 @@ class MtdConnection(models.TransientModel):
             params = self.env['ir.config_parameter'].sudo()
             login = params.get_param('mtd.login', default=False)
             password = params.get_param('mtd.password', default=False)
-            server = params.get_param('mtd.server', default=False)
+            server = params.get_param('mtd.server.api', default=False)
             db = params.get_param('mtd.db', default=False)
             port = params.get_param('mtd.port', default=False)
-            odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc+ssl', port=int(port))
-            odoo_instance.login(db, login, password)
-            return odoo_instance
+
+            odoo_instance = odoolib.get_connection(hostname=server, protocol='jsonrpcs', port=int(port),
+                                                    database=db, login=login, password=password)
+            # odoo_instance = odoorpc.ODOO(server, protocol='jsonrpc', port=int(port))
+            # odoo_instance.login(db, login, password)
+            operations = odoo_instance.get_model('mtd.operations')
+            return operations
         except Exception as e:
             logging.error('Invalid connection %s' % str(e))
             raise UserError('Invalid user.')
@@ -43,7 +47,7 @@ class MtdConnection(models.TransientModel):
         """
         conn = self.open_connection_odoogap()
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
-        response = conn.execute('mtd.operations', 'authorize', mtd_sandbox)
+        response = conn.authorize(mtd_sandbox)
 
         if response.get('status') == 200:
             self.env['ir.config_parameter'].sudo().set_param('mtd.hmrc.url', response.get('mtd_url'))
@@ -68,7 +72,7 @@ class MtdConnection(models.TransientModel):
         """
         conn = self.open_connection_odoogap()
         mtd_sandbox = self.env['ir.config_parameter'].sudo().get_param('mtd.sandbox', default=False)
-        response = conn.execute('mtd.operations', 'refresh_token', mtd_sandbox)
+        response = conn.refresh_token(mtd_sandbox)
 
         channel_id = self.env.ref('hmrc_mtd_client.channel_mtd_token')
 
@@ -90,8 +94,9 @@ class MtdConnection(models.TransientModel):
         """stores the HMRC token in the system
         """
         conn = self.open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'get_token')
-
+        print('calling get token')
+        response = conn.get_token()
+        print(response)
         if response.get('status') == 200:
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))
