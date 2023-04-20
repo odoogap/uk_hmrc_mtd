@@ -43,6 +43,8 @@ class MtdVat(models.TransientModel):
                     'Accept': 'application/vnd.hmrc.1.0+json',
                     'Authorization': 'Bearer %s' % api_token
                 }
+            prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
+            req_headers.update(prevention_headers)
             req_params = {
                     'to': time.strftime("%Y-%m-%d"),
                     'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().strftime("%d"))

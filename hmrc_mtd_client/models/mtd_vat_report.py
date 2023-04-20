@@ -332,5 +332,5 @@ class MtdVatReport(models.Model):
 
         message = json.loads(response._content.decode("utf-8"))
         raise UserError('An error has occurred : \n status: %s \n message: %s' % (
-            str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
+            str(response.status_code), ''.join(message.get('message'))
         ))
