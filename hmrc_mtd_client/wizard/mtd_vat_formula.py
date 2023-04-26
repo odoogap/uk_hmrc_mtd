@@ -110,7 +110,7 @@ class MtdCalculationFormula(models.TransientModel):
 
         self.test_formula(formula)
         conn = self.env['mtd.connection'].open_connection_odoogap()
-        response = conn.execute('mtd.operations', 'submit_formula', formula)
+        response = conn.submit_formula(formula)
 
         if response.get('status') == 200:
             self.env.user.company_id.submited_formula = True

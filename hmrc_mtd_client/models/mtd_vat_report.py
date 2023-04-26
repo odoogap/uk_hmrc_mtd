@@ -237,16 +237,12 @@ class MtdVatReport(models.Model):
             'mtd_client_version': latest_version
         }
 
-        response = self.env['mtd.connection'].open_connection_odoogap().execute('mtd.operations', 'check_version', values)
+        response = self.env['mtd.connection'].open_connection_odoogap().check_version(values)
         if response.get('status') != 200:
             raise UserError(response.get('message'))
 
     def save_submission_data(self, message, headers):
-        self.env['mtd.connection'].sudo().open_connection_odoogap().execute(
-            'mtd.operations',
-            'validate_submission',
-            self.submission_token
-        )
+        self.env['mtd.connection'].sudo().open_connection_odoogap().validate_submission(self.submission_token)
 
         self.write({
                 'submiting': True,
@@ -341,5 +337,5 @@ class MtdVatReport(models.Model):
 
         message = json.loads(response._content.decode("utf-8"))
         raise UserError('An error has occurred : \n status: %s \n message: %s' % (
-            str(response.status_code), ''.join([error.get('message') for error in message.get('errors')])
+            str(response.status_code), ''.join(message.get('message'))
         ))

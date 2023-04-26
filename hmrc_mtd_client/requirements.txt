@@ -1,3 +1,4 @@
 odoorpc
 msgfy
 odoogap_mtd
+odoo-client-lib

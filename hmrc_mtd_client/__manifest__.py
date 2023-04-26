@@ -1,6 +1,6 @@
 {
     'name': 'hmrc_mtd_client',
-    'version': '1.1.12',
+    'version': '1.1.13',
     'summary': 'Client module for management of HMRC',
     'description': """
         Enables the user to commit HMRC VAT return to HMRC api.
@@ -34,7 +34,7 @@
         'data/mtd_server_config.xml',
         'data/mtd_cron_data.xml'
     ],
-    'external_dependencies': {'python': ['odoorpc', 'msgfy']},
+    # 'external_dependencies': {'python': ['odoorpc', 'msgfy', 'odoogap-mtd', 'odoo-client-lib']},
     'installable': True,
     'auto_install': False,
     'support': 'info@erpgap.com',
