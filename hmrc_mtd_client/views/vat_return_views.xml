@@ -228,6 +228,7 @@
         <field name="model">mtd.vat.report</field>
         <field name="arch" type="xml">
             <search string="MTD Submissions">
+                <field name="name"/>
                 <filter name='not_submitted' string="not submitted" domain="[('is_submitted', '=', False)]"/>
             </search>
         </field>

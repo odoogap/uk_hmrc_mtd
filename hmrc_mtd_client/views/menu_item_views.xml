@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <menuitem id="menu_finance_mtd" name="MTD" parent="account.menu_finance" sequence="7"/>
-    <menuitem id="menu_finance_mtd_vat" name="VAT Return" parent="menu_finance_mtd" sequence="1"/>
-    <menuitem id="menu_finance_mtd_vat_submit" name="Calculate VAT" parent="menu_finance_mtd_vat" sequence="1" action="submit_vat_action"/>
-    <menuitem id="menu_finance_mtd_vat_list" name="VAT Reports" parent="menu_finance_mtd_vat" sequence="2" action="action_mtd_vat_tree"/>
+    <menuitem id="menu_finance_mtd_vat" name="VAT Return" parent="hmrc_mtd_client.menu_finance_mtd" sequence="1"/>
+    <menuitem id="menu_finance_mtd_vat_submit" name="Calculate VAT" parent="hmrc_mtd_client.menu_finance_mtd_vat"
+              sequence="2" action="submit_vat_action"/>
+    <menuitem id="menu_finance_mtd_vat_list" name="VAT Reports" parent="hmrc_mtd_client.menu_finance_mtd_vat"
+              sequence="3" action="action_mtd_vat_tree"/>
+    <menuitem id="menu_finance_mtd_vat_conf" name="Config" parent="hmrc_mtd_client.menu_finance_mtd" sequence="2"/>
+    <menuitem id="menu_finance_mtd_vat_set_old_journals" name="Set Old Journals"
+              parent="hmrc_mtd_client.menu_finance_mtd_vat_conf" sequence="1"
+              action="action_mtd_set_old_submission_views"/>
 </odoo>
 

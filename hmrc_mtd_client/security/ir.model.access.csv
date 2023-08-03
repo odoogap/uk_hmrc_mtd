@@ -1,5 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_mtd_vat_report_account_user,hmrc_mtd_client.vat.report.account.user,hmrc_mtd_client.model_mtd_vat_report,account.group_account_user,1,1,1,1
 access_mtd_vat_report_account_manager,hmrc_mtd_client.vat.report.account.manager,hmrc_mtd_client.model_mtd_vat_report,account.group_account_manager,1,1,1,1
 access_mtd_vat_report_account_invoice,hmrc_mtd_client.vat.report.account.invoice,hmrc_mtd_client.model_mtd_vat_report,account.group_account_invoice,1,1,1,1
 access_mtd_fraud_prevention,hmrc_mtd_client.mtd.fraud.prevention,hmrc_mtd_client.model_mtd_fraud_prevention,,1,1,1,1
+access_pop_up_message,hmrc_mtd_client.pop.up.message,hmrc_mtd_client.model_pop_up_message,account.group_account_invoice,1,1,1,1
+access_mtd_vat_sub,hmrc_mtd_client.mtd.vat.sub,hmrc_mtd_client.model_mtd_vat_sub,account.group_account_invoice,1,1,1,1
+access_mtd_connection,hmrc_mtd_client.mtd.connection,hmrc_mtd_client.model_mtd_connection,account.group_account_invoice,1,1,1,1
+access_mtd_set_old_journal_submission,access_mtd_set_old_journal_submission,model_mtd_set_old_journal_submission,account.group_account_invoice,1,1,1,1

@@ -24,17 +24,17 @@ class MtdSetOldJournalSubmission(models.TransientModel):
         self.env.cr.execute(
             "UPDATE account_move SET is_mtd_submitted = 't' WHERE date < '%s' AND account_move.company_id IN (%s)" % (
                 self.init_submission_date,
-                self.env.user.company_id.id
+                self.env.company.id
             ))
         self.env.cr.execute(
             "UPDATE account_move_line SET is_mtd_submitted = 't' WHERE date < '%s' AND account_move_line.company_id IN (%s)" % (
                 self.init_submission_date,
-                self.env.user.company_id.id
+                self.env.company.id
             ))
         self.env.cr.execute(
             "UPDATE account_move SET is_mtd_submitted = 'f' WHERE date >= '%s' AND account_move.company_id IN (%s)" % (
                 self.init_submission_date,
-                self.env.user.company_id.id
+                self.env.company.id
             ))
         self.env.cr.execute(
             "UPDATE account_move_line SET is_mtd_submitted = 'f' WHERE date >= '%s' AND account_move_line.company_id IN (%s)" % (

@@ -17,7 +17,7 @@ class MtdVatReport(models.Model):
     _description = 'MTD VAT Report'
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='company_id.currency_id')
-    company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id)
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.company.id)
     registration_number = fields.Char('registration_number')
     vat_scheme = fields.Char('VAT Scheme')
     name = fields.Char('Period Covered')
@@ -107,35 +107,6 @@ class MtdVatReport(models.Model):
 
             return super(MtdVatReport, self).write(values)
 
-    """
-    @api.onchange('box_one_adj')
-    def _onchange_vatDueSales(self):
-        self.vatDueSales = self.box_one + self.box_one_adj
-        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
-        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
-    @api.onchange('box_two_adj')
-    def _onchange_vatDueAcquisitions(self):
-        self.vatDueAcquisitions = self.box_two + self.box_two_adj
-        self.totalVatDue = self.vatDueAcquisitions + self.vatDueSales
-        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
-    @api.onchange('box_four_adj')
-    def _onchange_vatReclaimedCurrPeriod(self):
-        self.vatReclaimedCurrPeriod = self.box_four + self.box_four_adj
-        self.netVatDue = self.totalVatDue - self.vatReclaimedCurrPeriod
-    @api.onchange('box_six_adj')
-    def _onchange_totalValueSalesExVAT(self):
-        self.totalValueSalesExVAT = self.box_six + self.box_six_adj
-    @api.onchange('box_seven_adj')
-    def _onchange_totalValuePurchasesExVAT(self):
-        self.totalValuePurchasesExVAT = self.box_seven + self.box_seven_adj
-    @api.onchange('box_eight_adj')
-    def _onchange_totalValueGoodsSuppliedExVAT(self):
-        self.totalValueGoodsSuppliedExVAT = self.box_eight + self.box_eight_adj
-    @api.onchange('box_nine_adj')
-    def _onchange_totalAcquisitionsExVAT(self):
-        self.totalAcquisitionsExVAT = self.box_nine + self.box_nine_adj
-    """
-
     def sql_get_account_moves(self):
         return """
             SELECT account_move.id
@@ -197,7 +168,7 @@ class MtdVatReport(models.Model):
             self.name.split('-')[1],
             mtd_state,
             condition,
-            self.env.user.company_id.id,
+            self.env.company.id,
             str(taxes).strip('[]'))
                             )
         account_moves = self.env.cr.fetchall()
@@ -258,9 +229,9 @@ class MtdVatReport(models.Model):
         self.env.cr.execute(
             self.sql_get_account_moves() % (
                 self.name.split('-')[1].replace('/', '-'),
-                self.env.user.company_id.id,
+                self.env.company.id,
                 self.name.split('-')[1].replace('/', '-'),
-                self.env.user.company_id.id
+                self.env.company.id
             )
         )
         results = self.env.cr.fetchall()

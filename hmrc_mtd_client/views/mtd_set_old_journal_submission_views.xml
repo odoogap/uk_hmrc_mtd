@@ -28,4 +28,13 @@
             </form>
         </field>
     </record>
+
+    <record id="action_mtd_set_old_submission_views" model="ir.actions.act_window">
+        <field name="name">Set old journal submission</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">mtd.set.old.journal.submission</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="mtd_set_old_submission_views"/>
+        <field name="target">new</field>
+    </record>
 </odoo>

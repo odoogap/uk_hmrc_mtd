@@ -19,7 +19,7 @@ class ResConfigSettings(models.TransientModel):
     token = fields.Char('token')
     is_sandbox = fields.Boolean('Enable sandbox', help='Enable sandbox environment on HMRC API', default=False)
     submission_period = fields.Selection([('monthly', 'Monthly'), ('quaterly', 'Quarterly'), ('annual', 'Annual')], string="Period")
-    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.user.company_id)
+    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company.id)
 
     @api.model
     def get_values(self):

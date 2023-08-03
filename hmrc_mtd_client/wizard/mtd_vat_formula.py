@@ -110,7 +110,7 @@ class MtdCalculationFormula(models.TransientModel):
         response = conn.submit_formula(formula)
 
         if response.get('status') == 200:
-            self.env.user.company_id.submitted_formula = True
+            self.env.company.submitted_formula = True
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
 
             return {
@@ -160,7 +160,6 @@ class MtdCalculationFormula(models.TransientModel):
         """
         try:
             dummy_dict = self.get_dummy_dict()
-
             for parameter in formula:
                 if formula.get(parameter):
 

@@ -25,7 +25,7 @@ class MtdVat(models.TransientModel):
     def check_version(self):
         latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v13',
+            'odoo_version': 'v14',
             'mtd_client_version': latest_version
         }
 
@@ -36,15 +36,17 @@ class MtdVat(models.TransientModel):
     def request_periods(self, hmrc_url, api_token):
         self.check_credits()
         self.check_version()
-        if self.env.user.company_id.vat:
-            url = '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.user.company_id.vrn))
+        if self.env.company.vat:
+            url = '%s/organisations/vat/%s/obligations' % (hmrc_url, str(self.env.company.vrn))
             req_headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.hmrc.1.0+json',
                     'Authorization': 'Bearer %s' % api_token
                 }
+
             prevention_headers = self.env['mtd.fraud.prevention'].create_fraud_prevention_headers()
             req_headers.update(prevention_headers)
+
             req_params = {
                     'to': time.strftime("%Y-%m-%d"),
                     'from': "%s-%s-%s" % (datetime.datetime.now().year - 1, datetime.datetime.now().strftime("%m"), datetime.datetime.now().strftime("%d"))
@@ -80,6 +82,7 @@ class MtdVat(models.TransientModel):
 
         raise UserError('Please set VAT value for your current company.')
 
+    @api.model
     def get_periods(self):
         """
         gets the periods from the HMRC API
@@ -99,18 +102,7 @@ class MtdVat(models.TransientModel):
                             'contact form!')
         else:
             if not is_set_old_journal:
-                view = self.env.ref('hmrc_mtd_client.mtd_set_old_submission_views')
-                return {
-                        'name': 'Set old journal submission',
-                        'type': 'ir.actions.act_window',
-                        'view_type': 'form',
-                        'view_mode': 'form',
-                        'res_model': 'mtd.set.old.journal.submission',
-                        'views': [(view.id, 'form')],
-                        'view_id': view.id,
-                        'target': 'new'
-                    }
-
+                raise UserError('Please Set Old Journal')
             if api_token:
                 return self.request_periods(hmrc_url, api_token)
 
@@ -171,7 +163,7 @@ class MtdVat(models.TransientModel):
                 ])
 
             if vat_scheme == 'AC':
-                params = [0, date_to, self.env.user.company_id.id]
+                params = [0, date_to, self.env.company.id]
 
             data = {'tax_line': [], 'tax_lines': []}
             for account_tax in account_taxes:
@@ -215,8 +207,7 @@ class MtdVat(models.TransientModel):
                 if response.get('status') == 200:
                     channel_id.message_post(
                             body='The VAT calculation was successfull!',
-                            message_type="notification",
-                            subtype="mail.mt_comment"
+                            message_type="notification"
                         )
                     self.env['mtd.vat.report'].search([('name', '=', self.period.split(':')[1])]).unlink()
                     vat_report_data = {
@@ -240,16 +231,17 @@ class MtdVat(models.TransientModel):
                     channel_id.message_post(
                         body='Response from server : \n status: %s\n message: %s' % (str(response.get('status')), response.get('message')),
                         message_type="notification",
-                        subtype="mail.mt_comment")
+                        subtype="mail.mt_comment"
+                    )
                 new_cr.commit()
 
             except Exception as ex:
                 self._cr.rollback()
                 _logger.error('Attempt to run vat calculation failed %s ' % str(ex))
                 channel_id.message_post(
-                    body = 'Attempt to run vat calculation failed! %s' % str(ex),
-                    message_type="notification",
-                    subtype="mail.mt_comment")
+                    body='Attempt to run vat calculation failed! %s' % str(ex),
+                    message_type="notification"
+                )
                 new_cr.commit()
                 self._cr.close()
 
@@ -276,7 +268,7 @@ class MtdVat(models.TransientModel):
         Returns:
             [Dict] -- returns a pop up message
         """
-        if self.env.user.company_id.submitted_formula:
+        if self.env.company.submitted_formula:
             self.env.cr.execute(self._sql_get_move_lines_count() % (self.env.user.company_id.id, self.period.split('-')[1].replace('/', '-')))
             results = self.env.cr.dictfetchall()
             view = self.env.ref('hmrc_mtd_client.pop_up_message_view')
@@ -285,8 +277,7 @@ class MtdVat(models.TransientModel):
                 channel_id = self.env.ref('hmrc_mtd_client.channel_mtd')
                 channel_id.message_post(
                     body='The VAT calculation has started please check the channel once is completed.',
-                    message_type="notification",
-                    subtype="mail.mt_comment"
+                    message_type="notification"
                 )
 
                 t = threading.Thread(target=self.vat_thread_calculation)

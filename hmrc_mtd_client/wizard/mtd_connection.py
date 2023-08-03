@@ -80,23 +80,19 @@ class MtdConnection(models.TransientModel):
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))
             set_param('mtd.token_expire_date', response.get('message').get('exp_date'))
-            channel_id.message_post(body='Token refreshed successfully', message_type="notification",
-                                    subtype="mail.mt_comment")
+            channel_id.message_post(body='Token refreshed successfully', message_type="notification")
             return response.get('message').get('token')
 
         else:
             message_body = 'An error has occurred : <b>status:</b> %s - <b>message:</b> %s' % (
                 str(response.get('status')), response.get('message'))
-            channel_id.message_post(body=message_body, message_type="notification",
-                                    subtype="mail.mt_comment")
+            channel_id.message_post(body=message_body, message_type="notification")
 
     def get_token(self):
         """stores the HMRC token in the system
         """
         conn = self.open_connection_odoogap()
-        print('calling get token')
         response = conn.get_token()
-        print(response)
         if response.get('status') == 200:
             set_param = self.env['ir.config_parameter'].sudo().set_param
             set_param('mtd.token', response.get('message').get('token'))

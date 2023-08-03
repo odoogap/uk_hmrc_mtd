@@ -4,9 +4,7 @@
         <field name="name">Hmrc vat sub action</field>
         <field name="model_id" ref="hmrc_mtd_client.model_mtd_vat_sub"/>
         <field name="state">code</field>
-        <field name="code">
-            action = env['mtd.vat.sub'].get_periods()
-        </field>
+        <field name="code">action = env['mtd.vat.sub'].get_periods()</field>
     </record>
 
     <record id="view_mtd_vat_form" model="ir.ui.view">
