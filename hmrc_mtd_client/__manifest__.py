@@ -1,6 +1,6 @@
 {
     'name': 'HMRC - MTD',
-    'version': '1.1.13',
+    'version': '15.0.1.1.13',
     'summary': 'Client module for management of HMRC',
     'description': """
         Enables the user to commit HMRC VAT return to HMRC api.
@@ -29,9 +29,13 @@
         'data/mtd_server_config.xml',
         'data/mtd_taxes_tags.xml',
         'data/mtd_uk_taxes.xml',
-        'views/templates.xml',
         'security/ir.model.access.csv'
     ],
+    'assets': {
+        'web.assets_backend': [
+            'hmrc_mtd_client/static/js/*',
+        ]
+    },
     'external_dependencies': {'python': ['odoorpc', 'msgfy', 'odoogap-mtd', 'odoo-client-lib']},
     'installable': True,
     'auto_install': False,

@@ -14,6 +14,11 @@ def _synchronize_taxes_tags(cr, registry):
         This tags will be used on the taxes on the formula, during the taxes calculation for MTD
     '''
     for company in env['res.company'].search([('country_id', '=', env.ref('base.uk'))]):
+
+        # if the company doesn't have the taxes activated
+        if not env.ref(f'l10n_uk.{company.id}_ST0', raise_if_not_found=False):
+            continue
+
         # update Sale taxes tags
         env.ref(f'l10n_uk.{company.id}_ST0').write({'tag_ids': env.ref('hmrc_mtd_client.mtd_tag_st0').id})
         env.ref(f'l10n_uk.{company.id}_ST2').write({'tag_ids': env.ref('hmrc_mtd_client.mtd_tag_st2').id})

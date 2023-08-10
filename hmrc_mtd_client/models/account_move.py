@@ -19,6 +19,7 @@ class AccountMoveLine(models.Model):
 
     mtd_date = fields.Date('Mtd date', compute='_compute_mtd_date', search="_search_mtd_date")
     is_mtd_submitted = fields.Boolean('mtd state', default=False, store=True, related='move_id.is_mtd_submitted')
+    tax_exigible = fields.Boolean(default=True)
 
     def _compute_mtd_date(self):
         for record in self:

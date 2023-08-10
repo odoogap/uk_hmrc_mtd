@@ -25,7 +25,7 @@ class MtdVat(models.TransientModel):
     def check_version(self):
         latest_version = self.env['ir.module.module'].search([('name', '=', 'hmrc_mtd_client')]).latest_version
         values = {
-            'odoo_version': 'v14',
+            'odoo_version': 'v15',
             'mtd_client_version': latest_version
         }
 
@@ -203,7 +203,6 @@ class MtdVat(models.TransientModel):
             try:
                 submit_data = self.get_tax_moves(self.period.split('-')[1].replace('/', '-'), self.vat_scheme)
                 response = self.env['mtd.connection'].open_connection_odoogap().calculate_boxes(submit_data)
-
                 if response.get('status') == 200:
                     channel_id.message_post(
                             body='The VAT calculation was successfull!',
